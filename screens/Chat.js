@@ -15,6 +15,7 @@ import { AuthContext } from '../navigation/AuthProvider'
 import { windowWidth } from '../utils/Dimensions.js'
 import moment from 'moment'
 import messaging from '@react-native-firebase/messaging'
+import analytics from '@react-native-firebase/analytics'
 
 const Chat = ({ navigation, route }) => {
 
@@ -100,38 +101,6 @@ const Chat = ({ navigation, route }) => {
         }
     }, [imageInfo])
 
-    useEffect(() => {
-        const checkStreak = async () => {
-            await firestore()
-                .collection("user-info")
-                .doc(user.uid)
-                .get()
-                .then((doc) => {
-                    let now = new Date()
-                    let lastImage = doc.data().lastImageSent?.toDate()
-                    let streakUpdated = doc.data().streakUpdated?.toDate()
-                    const oneDay = 60 * 60 * 24 * 1000
-                    if (now - streakUpdated > oneDay) {
-                        if (now - lastImage <= oneDay) {
-                            updateInfo({
-                                streak: firestore.FieldValue.increment(1),
-                                streakUpdated: firestore.Timestamp.fromDate(new Date())
-                            })
-                        } else if (now - lastImage > oneDay) {
-                            updateInfo({
-                                streak: 0,
-                                streakUpdated: firestore.Timestamp.fromDate(new Date())
-                            })
-                        }
-                    }
-                })
-                .catch((e) => {
-                    console.log('error while checking streak: ', e)
-                })
-        }
-        return () => checkStreak()
-    }, [])
-
     const newMessage = async (message) => {
         let imageInfo = await imageUploader()
         console.log("image info: ", imageInfo, new Date())
@@ -151,6 +120,14 @@ const Chat = ({ navigation, route }) => {
                 return null
             } else if (imageInfo.length > 0) {
                 updateInfo({ lastImageSent: firestore.Timestamp.fromDate(new Date()) })
+                await analytics().logEvent('image', {
+                    msg: message,
+                    img: imageInfo,
+                    timeSent: firestore.Timestamp.fromDate(new Date()),
+                    userID: user.uid,
+                }).catch((e) => {
+                    console.log('error while doign whaetav: ', e)
+                })
             }
         }
 
@@ -173,7 +150,7 @@ const Chat = ({ navigation, route }) => {
         await firestore()
             .collection('chat-rooms')
             .doc(globalVars.chatID)
-            .set({ latestMessageTime: firestore.Timestamp.fromDate(new Date()), latestMessage: message === '' ? '[Image]' : message }, { merge: true })
+            .set({ latestMessageTime: firestore.Timestamp.fromDate(new Date()), latestMessage: message === '' ? '[Image]' : message, unreadCount: firestore.FieldValue.increment(1) }, { merge: true })
             .catch((e) => {
                 console.log("latest message log: ", e)
             })
@@ -281,6 +258,7 @@ const Chat = ({ navigation, route }) => {
             .onSnapshot((querySnapshot) => {
                 querySnapshot?.forEach((doc) => {
                     setGlobalVars(val => ({ ...val, chatID: doc.id }))
+                    updateInfo({ chatID: doc.id })
                     let otherUser = ''
                     const { userIDs } = doc.data()
                     for (let otherUserID of userIDs) {
@@ -295,6 +273,7 @@ const Chat = ({ navigation, route }) => {
                         .then((doc) => {
                             if (doc.exists) {
                                 setGlobalVars(val => ({ ...val, coachData: doc.data(), coachID: doc.id }))
+                                updateInfo({ coachID: doc.id })
                             }
                         })
                 })
@@ -654,8 +633,8 @@ const Chat = ({ navigation, route }) => {
                                 />
                                 {sendingMessage ?
                                     <ActivityIndicator style={{ position: 'absolute', right: 20, top: 2 }} size={25} color="#4D43BD" /> :
-                                    <View style={{ position: 'absolute', right: 20, top: 2 }}>
-                                        <TouchableOpacity style={{}} onPress={() => newMessage(messageInput)}>
+                                    <View style={{ position: 'absolute', right: 20, top: 2, opacity: !messageInput && (images?.length === 0 || !images ) ? 0.5 : 1 }}>
+                                        <TouchableOpacity disabled={!messageInput && (images?.length === 0 || !images )} onPress={() => {setSendingMessage(true); newMessage(messageInput)}}>
                                             <Ionicons
                                                 name="send"
                                                 size={25}

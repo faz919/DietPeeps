@@ -3,12 +3,13 @@ import { View, TouchableOpacity, ImageBackground, StyleSheet, Text } from 'react
 import PieChart from 'react-native-pie-chart'
 import { windowWidth } from '../utils/Dimensions'
 import storage from '@react-native-firebase/storage'
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 
 class GalleryImage extends PureComponent {
 
     constructor(props) {
         super(props)
-        this.state = { thumbnailURL: null }
+        this.state = { thumbnailURL: null, loading: true }
     }
 
     async componentDidMount() {
@@ -21,8 +22,8 @@ class GalleryImage extends PureComponent {
     render() {
         return (
             <TouchableOpacity key={this.props.item.url} onPress={this.props.onPress}>
-                <ImageBackground imageStyle={{ opacity: this.props.item.graded ? 0.4 : 1 }} style={styles.photoDisplay} source={{ uri: this.state.thumbnailURL ? this.state.thumbnailURL : this.props.item.url }}>
-                    {this.props.item.graded ?
+                <ImageBackground onLoadStart={() => this.setState({ loading: true })} onLoad={() => this.setState({ loading: false })} imageStyle={{ opacity: this.props.item.graded ? 0.4 : 1 }} style={styles.photoDisplay} source={{ uri: this.state.thumbnailURL ? this.state.thumbnailURL : this.props.item.url }}>
+                    {this.props.item.graded && !this.state.loading ?
                     <View style={styles.pieChartContainer}>
                         <Text style={{fontSize: windowWidth * 0.32 * 0.3 * 0.7, color: '#202060'}}>{this.props.item.grade}</Text>
                         <PieChart
@@ -33,6 +34,10 @@ class GalleryImage extends PureComponent {
                         />
                     </View>
                         : null}
+                    {!this.state.loading ? null :
+                    <SkeletonPlaceholder backgroundColor='#e6e7fa' highlightColor='#fff' speed={1000}>
+                        <View style={{ width: windowWidth * 0.32, height: windowWidth * 0.32 }} />
+                    </SkeletonPlaceholder>}
                 </ImageBackground>
             </TouchableOpacity>
         )

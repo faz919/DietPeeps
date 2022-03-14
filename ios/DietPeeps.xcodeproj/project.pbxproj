@@ -13,7 +13,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A14F364E703D6817272D4F7B /* libPods-DietPeeps-DietPeepsTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */; };
-		D536DFEF27B3E0D200C23299 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D536DFEE27B3E0D200C23299 /* GoogleService-Info.plist */; };
+		D56A6AB227CF67A0002A7CF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D56A6AB127CF67A0002A7CF7 /* GoogleService-Info.plist */; };
 		E270F422FCE46730C639B702 /* libPods-DietPeeps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E08BD998306182F0AED6417 /* libPods-DietPeeps.a */; };
 /* End PBXBuildFile section */
 
@@ -44,8 +44,8 @@
 		93D1C99E84B0B0DB767BC8F8 /* Pods-DietPeeps-DietPeepsTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DietPeeps-DietPeepsTests.release.xcconfig"; path = "Target Support Files/Pods-DietPeeps-DietPeepsTests/Pods-DietPeeps-DietPeepsTests.release.xcconfig"; sourceTree = "<group>"; };
 		AC498AECF5C35FEB02209369 /* Pods-DietPeeps-DietPeepsTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DietPeeps-DietPeepsTests.debug.xcconfig"; path = "Target Support Files/Pods-DietPeeps-DietPeepsTests/Pods-DietPeeps-DietPeepsTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DietPeeps-DietPeepsTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D536DFEE27B3E0D200C23299 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D53B2D3227BA15CA00F7B5BF /* DietPeeps.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = DietPeeps.entitlements; path = DietPeeps/DietPeeps.entitlements; sourceTree = "<group>"; };
+		D56A6AB127CF67A0002A7CF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -131,7 +131,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				D536DFEE27B3E0D200C23299 /* GoogleService-Info.plist */,
+				D56A6AB127CF67A0002A7CF7 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* DietPeeps */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* DietPeepsTests */,
@@ -190,6 +190,7 @@
 				D62639D1D59A8ACE901F65C2 /* [CP] Embed Pods Frameworks */,
 				9AC573AAB88956647F08583C /* [CP] Copy Pods Resources */,
 				916EA7E616EBFFA465399068 /* [CP-User] [RNFB] Core Configuration */,
+				860333F1A7EEB2DB630B7AAB /* [CP-User] [RNFB] Crashlytics Configuration */,
 			);
 			buildRules = (
 			);
@@ -250,7 +251,7 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				D536DFEF27B3E0D200C23299 /* GoogleService-Info.plist in Resources */,
+				D56A6AB227CF67A0002A7CF7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,6 +327,20 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DietPeeps-DietPeepsTests/Pods-DietPeeps-DietPeepsTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		860333F1A7EEB2DB630B7AAB /* [CP-User] [RNFB] Crashlytics Configuration */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "[CP-User] [RNFB] Crashlytics Configuration";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/usr/bin/env bash\n#\n# Copyright (c) 2016-present Invertase Limited & Contributors\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this library except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\nset -e\n\nif [[ ${PODS_ROOT} ]]; then\n  echo \"info: Exec FirebaseCrashlytics Run from Pods\"\n  \"${PODS_ROOT}/FirebaseCrashlytics/run\"\nelse\n  echo \"info: Exec FirebaseCrashlytics Run from framework\"\n  \"${PROJECT_DIR}/FirebaseCrashlytics.framework/run\"\nfi\n";
 		};
 		916EA7E616EBFFA465399068 /* [CP-User] [RNFB] Core Configuration */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -506,7 +521,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DietPeeps/DietPeeps.entitlements;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = UGZBZJXSGR;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = DietPeeps/Info.plist;
@@ -514,7 +529,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.011;
+				MARKETING_VERSION = 1.013;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -535,14 +550,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DietPeeps/DietPeeps.entitlements;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = UGZBZJXSGR;
 				INFOPLIST_FILE = DietPeeps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.011;
+				MARKETING_VERSION = 1.013;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

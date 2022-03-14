@@ -5,8 +5,9 @@ import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-si
 import { appleAuth } from '@invertase/react-native-apple-authentication'
 import firestore from '@react-native-firebase/firestore'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
-import messaging from '@react-native-firebase/messaging';
+import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import crashlytics from '@react-native-firebase/crashlytics'
 
 export const AuthContext = createContext()
 
@@ -44,7 +45,8 @@ export const AuthProvider = ({ children }) => {
                         timeCreated: firestore.Timestamp.fromDate(new Date()),
                         latestMessageTime: firestore.Timestamp.fromDate(new Date()),
                         latestMessage: "",
-                        userIDs: [_user.uid, userCoach]
+                        userIDs: [_user.uid, userCoach],
+                        unreadCount: 0
                     })
                     .then((doc) => {
                         setGlobalVars(val => ({
@@ -70,7 +72,11 @@ export const AuthProvider = ({ children }) => {
                                     courseDayCompleted: false,
                                     latestCourseCompleted: 0
                                 },
-                                lastLoggedIn: _user.metadata.lastSignInTime
+                                lastLoggedIn: _user.metadata.lastSignInTime,
+                                photoURLLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+                                emailLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+                                displayNameLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+                                passwordLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1))
                             }, { merge: true })
                             .then(() => {
                                 setGlobalVars(val => ({ ...val, loggingIn: false }))
@@ -79,14 +85,17 @@ export const AuthProvider = ({ children }) => {
                             })
                             .catch((e) => {
                                 console.log("Error while adding user profile on Firestore: ", e)
+                                crashlytics().recordError(e)
                             })
                     })
                     .catch((e) => {
                         console.log('Error while making new coach/client chat: ', e)
+                        crashlytics().recordError(e)
                     })
             })
             .catch((e) => {
                 console.log("Error while fetching coach data: ", e)
+                crashlytics().recordError(e)
             })
     }
 
@@ -101,7 +110,8 @@ export const AuthProvider = ({ children }) => {
                 lastLoggedIn: _user.metadata.lastSignInTime
             }, {merge: true})
             .catch((e) => {
-                console.log('yo: ', e)
+                console.log('error while setting user token: ', e)
+                crashlytics().recordError(e)
             })
     }
 
@@ -121,12 +131,14 @@ export const AuthProvider = ({ children }) => {
                                 })
                                 .catch((e) => {
                                     console.log('error while retrieving messaging token: ', e)
+                                    crashlytics().recordError(e)
                                 })
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
+                        crashlytics().recordError(e)
                         setGlobalVars(val => ({ ...val, loggingIn: false }))
                     }
                 },
@@ -141,10 +153,10 @@ export const AuthProvider = ({ children }) => {
                                 .getToken()
                                 .then(token => {
                                     setUserToken(token)
-                                    console.log('token is: ', token)
                                 })
                                 .catch((e) => {
                                     console.log('error while retrieving messaging token: ', e)
+                                    crashlytics().recordError(e)
                                 })
                             if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
                                 let now = new Date()
@@ -160,11 +172,13 @@ export const AuthProvider = ({ children }) => {
                         })
                             .catch((e) => {
                                 console.log('Error when updating user info for Google login: ', e)
+                                crashlytics().recordError(e)
                                 setGlobalVars(val => ({ ...val, loggingIn: false }))
                             })
                     } catch (e) {
                         const eMessage = e.message.toString()
                         console.log(e)
+                        crashlytics().recordError(e)
                         if (e.code === statusCodes.SIGN_IN_CANCELLED) {
                             setGlobalVars(val => ({ ...val, loggingIn: false }))
                         }
@@ -191,6 +205,7 @@ export const AuthProvider = ({ children }) => {
                         // Sign the user in with the credential
                         const userCredentials = await auth().signInWithCredential(appleCredential).catch((e) => {
                             console.log('error while signing in with apple: ', e)
+                            crashlytics().recordError(e)
                         })
                         if (userCredentials.user) {
                             if (fullName.familyName != null && fullName.givenName != null) {
@@ -207,10 +222,10 @@ export const AuthProvider = ({ children }) => {
                                 .getToken()
                                 .then(token => {
                                     setUserToken(token)
-                                    console.log('token is: ', token)
                                 })
                                 .catch((e) => {
                                     console.log('error while retrieving messaging token: ', e)
+                                    crashlytics().recordError(e)
                                 })
                                 if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
                                     let now = new Date()
@@ -231,6 +246,7 @@ export const AuthProvider = ({ children }) => {
                         const eMessage = e.message.toString()
                         //setAuthErrorText(eMessage.substring(0, eMessage.indexOf('(')))
                         console.log(e)
+                        crashlytics().recordError(e)
                         setGlobalVars(val => ({ ...val, loggingIn: false }))
                     }
                 },
@@ -252,6 +268,7 @@ export const AuthProvider = ({ children }) => {
                                     })
                                     .catch((e) => {
                                         console.log('error while retrieving messaging token: ', e)
+                                        crashlytics().recordError(e)
                                     })
                                 makeNewUserChat()
                             })
@@ -260,6 +277,7 @@ export const AuthProvider = ({ children }) => {
                         const eMessage = e.message.toString()
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
+                        crashlytics().recordError(e)
                         setGlobalVars(val => ({ ...val, loggingIn: false }))
                     }
                 },
@@ -270,6 +288,7 @@ export const AuthProvider = ({ children }) => {
                         const eMessage = e.message.toString()
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
+                        crashlytics().recordError(e)
                     }
                 },
                 deleteAccount: async () => {
@@ -283,6 +302,7 @@ export const AuthProvider = ({ children }) => {
                             })
                             .catch((e) => {
                                 console.log("Error while deleting user: ", e)
+                                crashlytics().recordError(e)
                             })
                         await firestore()
                             .collection('user-info')
@@ -300,6 +320,7 @@ export const AuthProvider = ({ children }) => {
                         const eMessage = e.message.toString()
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
+                        crashlytics().recordError(e)
                     }
                 },
                 logout: async () => {
@@ -311,6 +332,7 @@ export const AuthProvider = ({ children }) => {
                         const eMessage = e.message.toString()
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
+                        crashlytics().recordError(e)
                     }
                 },
                 emailVerification: async () => {
@@ -322,6 +344,7 @@ export const AuthProvider = ({ children }) => {
                         const eMessage = e.message.toString()
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
+                        crashlytics().recordError(e)
                     }
                 },
                 updateInfo: async ({ ...rest }) => {
@@ -334,6 +357,7 @@ export const AuthProvider = ({ children }) => {
                                 .set({ ...rest }, { merge: true })
                                 .catch((e) => {
                                     console.log("Error while updating user profile on Firestore: ", e)
+                                    crashlytics().recordError(e)
                                 })
                             setInfoUpdated(true)
                         })
@@ -341,6 +365,7 @@ export const AuthProvider = ({ children }) => {
                         const eMessage = e.message.toString()
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
+                        crashlytics().recordError(e)
                     }
                 },
                 changePassword: async (password) => {
@@ -352,6 +377,7 @@ export const AuthProvider = ({ children }) => {
                         const eMessage = e.message.toString()
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
+                        crashlytics().recordError(e)
                     }
                 },
                 changeEmail: async (email) => {
@@ -368,6 +394,7 @@ export const AuthProvider = ({ children }) => {
                         const eMessage = e.message.toString()
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
+                        crashlytics().recordError(e)
                     }
                 },
                 getUserInfo: async (uid) => {

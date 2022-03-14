@@ -7,6 +7,7 @@ import { AuthContext } from '../navigation/AuthProvider'
 import firestore from '@react-native-firebase/firestore'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import ToggleButtonRow from '../components/ToggleButtonRow'
 
 const CourseSelection = ({ navigation }) => {
 
@@ -14,6 +15,7 @@ const CourseSelection = ({ navigation }) => {
   const [userCourseData, setUserCourseData] = useState(3)
   const [loading, setLoading] = useState(true)
   const [starred, setStarred] = useState([])
+  const [sortBy, setSortBy] = useState('To Do')
 
   const stopLoading = () => {
     if (loading) {
@@ -68,7 +70,7 @@ const CourseSelection = ({ navigation }) => {
   useEffect(() => {
     const getStarredCourses = async () => {
       const data = await AsyncStorage.getItem('@starred_courses')
-      if(data != null) {
+      if (data != null) {
         setStarred(JSON.parse(data))
       } else {
         return null
@@ -82,92 +84,121 @@ const CourseSelection = ({ navigation }) => {
   }, [starred])
 
   const relevantCourses = CourseData.filter(course => course.Courseday <= userCourseData.courseDay)
+  let coursesSort
+  let listEmptyText
+  switch (sortBy) {
+    case 'Completed':
+      coursesSort = relevantCourses.filter(course => userCourseData.latestCourseCompleted >= course.UniqueCourseNumber)
+      listEmptyText = 'No courses completed. \n Complete your first course today!'
+      break
+    case 'To Do':
+      coursesSort = relevantCourses.filter(course => userCourseData.latestCourseCompleted < course.UniqueCourseNumber)
+      listEmptyText = 'No more courses for today! \n Check back tomorrow for new courses.'
+      break
+    case 'Starred':
+      coursesSort = relevantCourses.filter(course => starred[course.UniqueCourseNumber] === true)
+      listEmptyText = 'No courses starred!'
+      break
+  }
 
   return (
     <SafeAreaView style={{ backgroundColor: '#E6E7FA', flex: 1 }}>
       <View style={styles.ViewGU}>
-        <Text
-          style={[
-            styles.Textp6,
-            { color: '#202060' },
-          ]}
-        >
-          {'Courses'}
-        </Text>
+        <Text style={[styles.Textp6, { color: '#202060', zIndex: 1 }]}>{'Courses'}</Text>
         {loading ?
           <View style={{ flex: 1, width: windowWidth, height: windowHeight, backgroundColor: '#E6E7FA' }}>
             <ActivityIndicator style={{ alignSelf: 'center', top: 100 }} size={35} color="#202060" />
           </View> :
-          <FlatList
-            showsVerticalScrollIndicator={false}
-            data={relevantCourses.reverse()}
-            initialNumToRender={6}
-            contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 65, backgroundColor: '#E6E7FA' }}
-            inverted
-            renderItem={({ item, index }) => {
-              return (
-                <View
-                  style={[styles.Viewe6, { borderRadius: 6, opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }]}
-                >
-                  <View style={[styles.ViewJX, { borderRadius: 16 }]}>
-                    <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
-                      <ImageBackground
-                        style={[
-                          styles.ImageBackgroundmU,
-                          { borderRadius: 6, justifyContent: 'center', alignItems: 'center' },
-                        ]}
-                        imageStyle={{
-                          opacity: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? 0.3 : 1
-                        }}
-                        resizeMode={'cover'}
-                        source={{ uri: `${item.CoverLink}` }}
-                      >
-                        {userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ?
-                          <Icon
-                            name='checkmark-circle-outline'
-                            size={100}
-                            color='#4bb543'
-                            style={styles.checkmarkStyle}
-                          />
-                          : null
-                        }
-                      </ImageBackground>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View style={styles.View_92}>
-                  <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
-                    <View>
-                      <Text style={styles.TexthV}>
-                        {item.Title}
-                      </Text>
-                      <Text style={{ color: '#202060' }}>
-                        {item.Subtitle}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                  <View style={styles.TouchableMR}>
-                    <View style={styles.ViewoC}>
-                      <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => {let newArr = [...starred]; newArr[index] = !newArr[index]; setStarred(newArr)}}>
-                        <FontAwesome
-                          color={starred[index] ? '#FFCD3C' : '#202060'}
-                          size={24}
-                          name={starred[index] ? 'star' : 'star-o'}
-                        />
+          <>
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              data={coursesSort.reverse()}
+              initialNumToRender={6}
+              contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 55, paddingBottom: 50, backgroundColor: '#E6E7FA' }}
+              ListEmptyComponent={(
+                <View style={{alignItems: 'center', margin: 20}}>
+                  <Text style={{color: '#BDB9DB', textAlign: 'center'}}>{listEmptyText}</Text>
+                </View>
+              )}
+              inverted
+              renderItem={({ item }) => {
+                return (
+                  <View
+                    style={[styles.Viewe6, { borderRadius: 6, opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }]}
+                  >
+                    <View style={[styles.ViewJX, { borderRadius: 16 }]}>
+                      <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
+                        <ImageBackground
+                          style={[
+                            styles.ImageBackgroundmU,
+                            { borderRadius: 6, justifyContent: 'center', alignItems: 'center' },
+                          ]}
+                          imageStyle={{
+                            opacity: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? 0.3 : 1
+                          }}
+                          resizeMode={'cover'}
+                          source={{ uri: `${item.CoverLink}` }}
+                        >
+                          {userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ?
+                            <Icon
+                              name='checkmark-circle-outline'
+                              size={100}
+                              color='#4bb543'
+                              style={styles.checkmarkStyle}
+                            />
+                            : null
+                          }
+                        </ImageBackground>
                       </TouchableOpacity>
-                      {/* <Entypo
+                    </View>
+
+                    <View style={styles.View_92}>
+                      <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
+                        <View>
+                          <Text style={styles.TexthV}>
+                            {item.Title}
+                          </Text>
+                          <Text style={{ color: '#202060' }}>
+                            {item.Subtitle}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                      <View style={styles.TouchableMR}>
+                        <View style={styles.ViewoC}>
+                          <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => { let newArr = [...starred]; newArr[item.UniqueCourseNumber] = !newArr[item.UniqueCourseNumber]; setStarred(newArr) }}>
+                            <FontAwesome
+                              color={starred[item.UniqueCourseNumber] ? '#FFCD3C' : '#202060'}
+                              size={24}
+                              name={starred[item.UniqueCourseNumber] ? 'star' : 'star-o'}
+                            />
+                          </TouchableOpacity>
+                          {/* <Entypo
                             color='#202060'
                             size={24}
                             name='bookmarks'
                           /> */}
+                        </View>
+                      </View>
                     </View>
                   </View>
-                  </View>
-                </View>
-              )
-            }}
-            keyExtractor={(item) => item.CoverLink}
-          />
+                )
+              }}
+              keyExtractor={(item) => item.CoverLink}
+            />
+            <View style={{position: 'absolute', width: windowWidth - 20, alignSelf: 'center', backgroundColor: '#e6e7fa', height: 45}} />
+            <View style={{position: 'absolute', width: windowWidth, top: 45}}>
+              <ToggleButtonRow
+                highlightBackgroundColor={'#4D43BD'}
+                highlightTextColor={'white'}
+                inactiveBackgroundColor={'transparent'}
+                inactiveTextColor={'#BDB9DB'}
+                values={['Completed', 'To Do', 'Starred']}
+                value={sortBy}
+                onSelect={value => setSortBy(value)}
+                style={{ marginHorizontal: 10, height: windowHeight / 24, backgroundColor: '#e6e7fa' }}
+              />
+            </View>
+          </>
         }
       </View>
     </SafeAreaView>
@@ -184,7 +215,7 @@ const styles = StyleSheet.create({
   },
   ViewGU: {
     marginTop: 10,
-    backgroundColor:'#E6E7FA',
+    backgroundColor: '#E6E7FA',
   },
   ImageBackgroundmU: {
     width: '100%',
@@ -229,7 +260,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     paddingLeft: 8,
     paddingRight: 8,
-    marginTop: 16,
+    marginTop: 16
   },
   ScrollViewaOContent: {
     paddingLeft: 16,

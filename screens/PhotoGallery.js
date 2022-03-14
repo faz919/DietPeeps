@@ -28,6 +28,7 @@ const PhotoGallery = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false)
     const [deleteMode, setDeleteMode] = useState(false)
     const [imageDetailView, setImageDetailView] = useState(false)
+    const [imageDetailLoaded, setImageDetailLoaded] = useState(false)
     const [selectedImage, setSelectedImage] = useState([])
     const [showGradeInfo, setShowGradeInfo] = useState(false)
     const [userInfo, setUserInfo] = useState({})
@@ -68,7 +69,7 @@ const PhotoGallery = ({ navigation, route }) => {
         skeleton.push(
             <View key={i} style={{
                 width: windowWidth * (0.32),
-                height: 125,
+                height: windowWidth * (0.32),
                 marginLeft: windowWidth * (0.01),
                 marginBottom: windowWidth * (0.01)
             }} />
@@ -138,7 +139,11 @@ const PhotoGallery = ({ navigation, route }) => {
                             swipeThreshold={50}
                         >
                             <View style={{ width: windowWidth * 0.9, height: windowHeight * 0.5, alignSelf: 'center', justifyContent: 'center', alignItems: 'center' }}>
-                                <ImageBackground style={{ width: windowWidth * 0.9, height: windowHeight * 0.5 }} imageStyle={{ borderTopLeftRadius: 10, borderTopRightRadius: 10, borderBottomLeftRadius: selectedImage.graded ? 0 : 10, borderBottomRightRadius: selectedImage.graded ? 0 : 10, width: windowWidth * 0.9, height: windowHeight * 0.5 }} source={{ uri: selectedImage.url }}>
+                                <ImageBackground onLoadStart={() => setImageDetailLoaded(false)} onLoad={() => setImageDetailLoaded(true)} style={{ width: windowWidth * 0.9, height: windowHeight * 0.5 }} imageStyle={{ borderTopLeftRadius: 10, borderTopRightRadius: 10, borderBottomLeftRadius: selectedImage.graded ? 0 : 10, borderBottomRightRadius: selectedImage.graded ? 0 : 10, width: windowWidth * 0.9, height: windowHeight * 0.5 }} source={{ uri: selectedImage.url }}>
+                                {imageDetailLoaded ? null : 
+                                <SkeletonPlaceholder backgroundColor='#e6e7fa' highlightColor='#fff' speed={800}>
+                                    <View style={{ width: windowWidth * 0.9, height: windowHeight * 0.5, borderTopLeftRadius: 10, borderTopRightRadius: 10, borderBottomLeftRadius: selectedImage.graded ? 0 : 10, borderBottomRightRadius: selectedImage.graded ? 0 : 10 }} />
+                                </SkeletonPlaceholder> }
                                     {selectedImage.graded ?
                                     <>
                                         <View style={{ width: windowWidth * 0.9, height: windowHeight * 0.5, flexDirection: 'row', justifyContent: 'space-between' }}>

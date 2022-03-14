@@ -51,6 +51,38 @@ const Stats = ({ navigation }) => {
     }, [])
 
     useEffect(() => {
+        const checkStreak = async () => {
+            await firestore()
+                .collection("user-info")
+                .doc(user.uid)
+                .get()
+                .then((doc) => {
+                    let now = new Date()
+                    let lastImage = doc.data().lastImageSent?.toDate()
+                    let streakUpdated = doc.data().streakUpdated?.toDate()
+                    const oneDay = 60 * 60 * 24 * 1000
+                    if (now - streakUpdated > oneDay) {
+                        if (now - lastImage <= oneDay) {
+                            updateInfo({
+                                streak: firestore.FieldValue.increment(1),
+                                streakUpdated: firestore.Timestamp.fromDate(new Date())
+                            })
+                        } else if (now - lastImage > oneDay) {
+                            updateInfo({
+                                streak: 0,
+                                streakUpdated: firestore.Timestamp.fromDate(new Date())
+                            })
+                        }
+                    }
+                })
+                .catch((e) => {
+                    console.log('error while checking streak: ', e)
+                })
+        }
+        return () => checkStreak()
+    }, [])
+
+    useEffect(() => {
         firestore()
             .collection('user-info')
             .doc(user.uid)

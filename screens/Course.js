@@ -16,16 +16,16 @@ const Course = ({ navigation, route }) => {
     const [showButton, setShowButton] = useState(false)
 
     useEffect(() => {
-        let pageLoading = true
-        if(pageLoading) {
-            setTimeout(() => {
-                setLoading(false)
-            }, 5000)
-            setTimeout(() => {
-                setShowButton(true)
-            }, 20000)
-        } 
-        return () => { pageLoading = false }
+        const loadingTimer = setTimeout(() => {
+            setLoading(false)
+        }, 5000)
+        const buttonTimer = setTimeout(() => {
+            setShowButton(true)
+        }, 20000) 
+        return () => { 
+            clearTimeout(loadingTimer)
+            clearTimeout(buttonTimer)
+         }
     }, [])
 
     const completeCourse = () => {

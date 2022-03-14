@@ -83,7 +83,7 @@ const EnableNotifsScreen = ({ navigation }) => {
               </View>
             </View>
 
-            <View style={styles.Viewwb}>
+            {/* <View style={styles.Viewwb}>
               <MaterialCommunityIcons
                 style={styles.IcongB}
                 name={'check-circle'}
@@ -101,7 +101,7 @@ const EnableNotifsScreen = ({ navigation }) => {
                   {'Get regular reminders to submit your meal photos.'}
                 </Text>
               </View>
-            </View>
+            </View> */}
 
             <View style={styles.Viewre}>
               <MaterialCommunityIcons
