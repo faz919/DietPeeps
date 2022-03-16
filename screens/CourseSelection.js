@@ -2,12 +2,12 @@ import React, { useState, useContext, useEffect } from 'react'
 import { ActivityIndicator, FlatList, ImageBackground, StyleSheet, Text, View, SafeAreaView, TouchableOpacity } from 'react-native'
 import CourseData from '../courses/CourseData.json'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
-import Icon from 'react-native-vector-icons/Ionicons'
 import { AuthContext } from '../navigation/AuthProvider'
 import firestore from '@react-native-firebase/firestore'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import ToggleButtonRow from '../components/ToggleButtonRow'
+import CourseImage from '../components/CourseImage'
 
 const CourseSelection = ({ navigation }) => {
 
@@ -126,32 +126,7 @@ const CourseSelection = ({ navigation }) => {
                   <View
                     style={[styles.Viewe6, { borderRadius: 6, opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }]}
                   >
-                    <View style={[styles.ViewJX, { borderRadius: 16 }]}>
-                      <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
-                        <ImageBackground
-                          style={[
-                            styles.ImageBackgroundmU,
-                            { borderRadius: 6, justifyContent: 'center', alignItems: 'center' },
-                          ]}
-                          imageStyle={{
-                            opacity: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? 0.3 : 1
-                          }}
-                          resizeMode={'cover'}
-                          source={{ uri: `${item.CoverLink}` }}
-                        >
-                          {userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ?
-                            <Icon
-                              name='checkmark-circle-outline'
-                              size={100}
-                              color='#4bb543'
-                              style={styles.checkmarkStyle}
-                            />
-                            : null
-                          }
-                        </ImageBackground>
-                      </TouchableOpacity>
-                    </View>
-
+                    <CourseImage item={item} userCourseData={userCourseData} navigation={navigation} /> 
                     <View style={styles.View_92}>
                       <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
                         <View>

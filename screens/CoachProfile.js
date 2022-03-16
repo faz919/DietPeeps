@@ -1,23 +1,26 @@
-import React, { useContext } from 'react'
-import { Image, SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import React, { useContext, useState } from 'react'
+import { ImageBackground, SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import { AuthContext } from '../navigation/AuthProvider'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import BackButton from '../components/BackButton'
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 
 const CoachProfile = ({ navigation }) => {
 
   const { globalVars } = useContext(AuthContext)
+  const [loading, setLoading] = useState(true)
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
       <View style={styles.ViewWi}>
-        <Image
-          style={[
-            styles.Image_9l,
-            { backgroundColor: '#e6e7fa' },
-          ]}
+        <ImageBackground onLoad={() => setLoading(false)} style={[styles.Image_9l, { backgroundColor: '#e6e7fa' }]}
           source={{ uri: globalVars.coachData.photoURL }}
-        />
+        >
+          {loading &&
+            <SkeletonPlaceholder backgroundColor='#e6e7fa' highlightColor='#fff' speed={1000}>
+              <View style={styles.Image_9l} />
+            </SkeletonPlaceholder>}
+        </ImageBackground>
       </View>
       <View style={styles.ViewmY}>
         <View style={styles.ViewvG}>
@@ -62,64 +65,66 @@ const CoachProfile = ({ navigation }) => {
         </Text>
 
         <Text style={[styles.TextBM, { color: '#202060' }]}>
-          {globalVars.coachData.coachInfo?.bio}
+          {globalVars.coachData.coachInfo?.bio || `Hey! I'm ${globalVars.coachData.displayName}. Welcome to DietPeeps!` }
         </Text>
-
+        
+        {globalVars.coachData.coachInfo?.interests && 
+        <>
         <Text style={[styles.TextO5, { color: '#202060' }]}>
           {'Interests'}
         </Text>
 
         <View style={styles.ViewuK}>
-            <View
-              style={[
-                styles.ViewIr,
-                {
-                  backgroundColor: '#202060',
-                  borderRadius: 10,
-                },
-              ]}
+          <View
+            style={[
+              styles.ViewIr,
+              {
+                backgroundColor: '#202060',
+                borderRadius: 10,
+              },
+            ]}
+          >
+            <Text
+              style={[styles.TextG2, { color: '#fff' }]}
             >
-              <Text
-                style={[styles.TextG2, { color: '#fff' }]}
-              >
-                {globalVars.coachData.coachInfo?.interests[0]}
-              </Text>
-            </View>
+              {globalVars.coachData.coachInfo?.interests[0]}
+            </Text>
+          </View>
 
-            <View
-              style={[
-                styles.Viewaj,
-                {
-                  backgroundColor: '#202060',
-                  borderRadius: 10,
-                },
-              ]}
+          <View
+            style={[
+              styles.Viewaj,
+              {
+                backgroundColor: '#202060',
+                borderRadius: 10,
+              },
+            ]}
+          >
+            <Text
+              style={[styles.TextbA, { color: '#fff' }]}
             >
-              <Text
-                style={[styles.TextbA, { color: '#fff' }]}
-              >
-                {globalVars.coachData.coachInfo?.interests[1]}
-              </Text>
-            </View>
+              {globalVars.coachData.coachInfo?.interests[1]}
+            </Text>
+          </View>
 
-            <View
-              style={[
-                styles.ViewrX,
-                {
-                  backgroundColor: '#202060',
-                  borderRadius: 10,
-                },
-              ]}
+          <View
+            style={[
+              styles.ViewrX,
+              {
+                backgroundColor: '#202060',
+                borderRadius: 10,
+              },
+            ]}
+          >
+            <Text
+              style={[styles.Text_1J, { color: '#fff' }]}
             >
-              <Text
-                style={[styles.Text_1J, { color: '#fff' }]}
-              >
-                {globalVars.coachData.coachInfo?.interests[2]}
-              </Text>
-            </View>
-        </View>
+              {globalVars.coachData.coachInfo?.interests[2]}
+            </Text>
+          </View>
+        </View> </>}
       </View>
-      <BackButton navigation={navigation} style={{transform: [{ rotateZ: '270deg' }], top: 30}} />
+      <BackButton navigation={navigation} style={{ transform: [{ rotateZ: '270deg' }], top: 30 }} />
     </SafeAreaView>
   )
 }
@@ -130,10 +135,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   ViewWi: {
-    flexGrow: 1,
     minHeight: '50%',
     maxHeight: '50%',
-    flexShrink: 0,
   },
   TextOd: {
     marginRight: 6,

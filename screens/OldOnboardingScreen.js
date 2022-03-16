@@ -1,14 +1,14 @@
-import React, { useContext } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { windowHeight, windowWidth } from '../utils/Dimensions';
-import { AuthContext } from '../navigation/AuthProvider';
+import React, { useContext } from 'react'
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { windowHeight, windowWidth } from '../utils/Dimensions'
+import { AuthContext } from '../navigation/AuthProvider'
 
-import Onboarding from 'react-native-onboarding-swiper';
+import Onboarding from 'react-native-onboarding-swiper'
 
 const Dots = ({ selected }) => {
-  let backgroundColor;
+  let backgroundColor
 
-  backgroundColor = selected ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.3)';
+  backgroundColor = selected ? 'rgba(0, 0, 0, 0.8)' : 'rgba(0, 0, 0, 0.3)'
 
   return (
     <View
@@ -20,7 +20,7 @@ const Dots = ({ selected }) => {
         borderRadius: 3
       }}
     />
-  );
+  )
 }
 
 const Skip = ({ ...props }) => (
@@ -30,7 +30,7 @@ const Skip = ({ ...props }) => (
   >
     <Text style={{ fontSize: 16 }}>Skip</Text>
   </TouchableOpacity>
-);
+)
 
 const Next = ({ ...props }) => (
   <TouchableOpacity
@@ -39,7 +39,7 @@ const Next = ({ ...props }) => (
   >
     <Text style={{ fontSize: 16 }}>Next</Text>
   </TouchableOpacity>
-);
+)
 
 const Done = ({ ...props }) => (
   <TouchableOpacity
@@ -48,7 +48,7 @@ const Done = ({ ...props }) => (
   >
     <Text style={{ fontSize: 16 }}>Done</Text>
   </TouchableOpacity>
-);
+)
 
 const OnboardingScreen = ({ navigation }) => {
 
@@ -89,10 +89,10 @@ const OnboardingScreen = ({ navigation }) => {
         },
       ]}
     />
-  );
-};
+  )
+}
 
-export default OnboardingScreen;
+export default OnboardingScreen
 
 const styles = StyleSheet.create({
   container: {
@@ -100,4 +100,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-});
+})

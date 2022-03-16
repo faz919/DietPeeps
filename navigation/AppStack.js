@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useContext } from "react"
 import { View } from "react-native"
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -11,11 +11,14 @@ import CameraModal from '../screens/CameraModal.js'
 import UserProfile from '../screens/UserProfile.js'
 import Stats from "../screens/Stats.js"
 import Settings from '../screens/Settings.js'
-import OnboardingScreen from '../screens/OnboardingScreen.js'
+import OnboardingScreen from '../screens/OldOnboardingScreen.js'
 import CoachProfile from "../screens/CoachProfile.js"
 import { windowHeight, windowWidth } from "../utils/Dimensions.js"
 import EnableNotifsScreen from "../screens/EnableNotifsScreen.js"
 import WelcomeScreen from "../screens/WelcomeScreenAndroid.js"
+import CaptchaScreen from "../screens/CompleteCaptcha.js"
+import OnboardingWizard from "../screens/OnboardingWizard.js"
+import { AuthContext } from "./AuthProvider.js"
 
 const AppStack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -69,11 +72,15 @@ const MainMenu = () => {
 }
 
 const App = () => {
-
+  const { globalVars, setGlobalVars } = useContext(AuthContext)
   return (
-    <AppStack.Navigator initialRouteName={'Main Menu'} >
+    <AppStack.Navigator initialRouteName={'Onboarding Wizard'} >
       <AppStack.Screen name="Main Menu" component={MainMenu} options={{ headerShown: false }} />
       <AppStack.Screen name="Photo Gallery" component={PhotoGallery} options={{ headerShown: false }} />
+      <AppStack.Screen name="Onboarding Wizard" component={OnboardingWizard} options={{
+        headerShown: false,
+        ...TransitionPresets.SlideFromRightIOS,
+      }} />
       <AppStack.Screen name="Courses" component={CourseSelection} options={{ headerShown: false }} />
       <AppStack.Screen name="CameraModal" component={CameraModal} options={{ presentation: 'transparentModal', headerShown: false }} />
       <AppStack.Screen name="Enable Notifs" component={EnableNotifsScreen} options={{ 
@@ -87,6 +94,10 @@ const App = () => {
         ...TransitionPresets.ModalPresentationIOS,
         gestureEnabled: true,
         gestureDirection: "vertical"
+      }} />
+      <AppStack.Screen name="Captcha" component={CaptchaScreen} options={{ 
+        headerShown: false,
+        ...TransitionPresets.ModalPresentationIOS,
       }} />
       <AppStack.Screen name="Coach" component={Chat} options={{
         headerShown: false,

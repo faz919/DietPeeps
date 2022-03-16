@@ -3,7 +3,6 @@ import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOp
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Modal from 'react-native-modal'
-import PieChart from 'react-native-pie-chart'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
@@ -16,6 +15,8 @@ import { windowWidth } from '../utils/Dimensions.js'
 import moment from 'moment'
 import messaging from '@react-native-firebase/messaging'
 import analytics from '@react-native-firebase/analytics'
+import ChatImage from '../components/ChatImage'
+import ProfilePic from '../components/ProfilePic'
 
 const Chat = ({ navigation, route }) => {
 
@@ -23,7 +24,10 @@ const Chat = ({ navigation, route }) => {
 
     const bottomBarHeight = useBottomTabBarHeight()
 
+    const timezoneOffset = (new Date()).getTimezoneOffset() / 60
+
     useEffect(() => {
+        console.log('timezone offset is: ', timezoneOffset)
         const unsubscribe = navigation.addListener("focus", () => {
             navigation.setParams({ imageInfo: null })
         })
@@ -39,6 +43,7 @@ const Chat = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true)
     const [sendingMessage, setSendingMessage] = useState(false)
     const [attachingImage, setAttachingImage] = useState({})
+    const [coachPfpLoading, setCoachPfpLoading] = useState(true)
 
     const takePhotoFromCamera = () => {
         setAttachingImage(val => ({ ...val, loading: true }))
@@ -126,12 +131,21 @@ const Chat = ({ navigation, route }) => {
                     timeSent: firestore.Timestamp.fromDate(new Date()),
                     userID: user.uid,
                 }).catch((e) => {
-                    console.log('error while doign whaetav: ', e)
+                    console.log('error while uploading image data to analytics: ', e)
                 })
             }
         }
 
         setSendingMessage(true)
+
+        await analytics().logEvent('message', {
+            msg: message,
+            img: imageInfo,
+            timeSent: firestore.Timestamp.fromDate(new Date()),
+            userID: user.uid
+        }).catch((e) => {
+            console.log('error while uploading message data to analytics: ', e)
+        })
 
         await firestore()
             .collection('chat-rooms')
@@ -505,8 +519,6 @@ const Chat = ({ navigation, route }) => {
         setImages(result)
     }
 
-    const pieChartDimensions = windowWidth * 0.65 * 0.25
-
     return (
         <SafeAreaView style={styles.container}>
             <View style={{ flex: 1 }}>
@@ -541,33 +553,11 @@ const Chat = ({ navigation, route }) => {
                         showsVerticalScrollIndicator={false}
                         data={messages}
                         renderItem={({ item }) => (
-                            <View style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start' }}>
+                            <View key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start' }}>
                                 <View style={item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg}>
                                     {item.img == null ? null :
                                         item.img.map((i) => (
-                                            <TouchableOpacity key={i.url} onPress={() => navigation.navigate('Main Menu', { screen: 'Gallery', params: { imageInfo: i } })}>
-                                                <ImageBackground imageStyle={{ borderRadius: 10, opacity: i.graded ? item.userID != user.uid ? 0.4 : 1 : 1 }} style={styles.textImage} source={{ uri: i.url }}>
-                                                    {i.graded ? item.userID != user.uid ?
-                                                        <View style={{
-                                                            flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: windowWidth * 0.65, padding: 10, elevation: 10,
-                                                            shadowColor: '#000000',
-                                                            shadowOffset: { width: 0, height: 0 },
-                                                            shadowRadius: 5,
-                                                            shadowOpacity: 0.4,
-                                                        }}>
-                                                            <Text style={{ marginBottom: -15, color: '#202060', fontSize: 60, fontWeight: 'bold' }}>{i.grade}</Text>
-                                                            <View style={styles.pieChartContainer}>
-                                                                <PieChart
-                                                                    style={{ borderWidth: pieChartDimensions * 0.05, borderRadius: pieChartDimensions * 0.5, borderColor: '#fff' }}
-                                                                    widthAndHeight={pieChartDimensions}
-                                                                    series={[i.red * 10, i.yellow * 10, i.green * 10]}
-                                                                    sliceColor={['#C70039', '#EBD32E', '#43CD3F']}
-                                                                />
-                                                            </View>
-                                                        </View>
-                                                        : null : null}
-                                                </ImageBackground>
-                                            </TouchableOpacity>
+                                            <ChatImage user={user} item={item} i={i} navigation={navigation} />
                                         ))
                                     }
                                     <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>
@@ -603,7 +593,7 @@ const Chat = ({ navigation, route }) => {
                                         <View style={{ margin: 5 }} />
                                     )}
                                     renderItem={({ item }) => (
-                                        <View style={{ paddingHorizontal: 10, paddingVertical: 20 }}>
+                                        <View key={item.uri} style={{ paddingHorizontal: 10, paddingVertical: 20 }}>
                                             <ImageBackground style={{ height: 200, width: 200 }} imageStyle={{ borderRadius: 10 }} source={{ uri: item.uri }}>
                                                 {sendingMessage ? null :
                                                     <TouchableOpacity style={styles.cancelImage} onPress={() => cancelImage(item)}>
@@ -650,10 +640,10 @@ const Chat = ({ navigation, route }) => {
                 <View style={styles.scrollViewMask} />
                 <View style={styles.HUDWrapper}>
                     <View style={styles.headerWrapper}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Coach Profile')}>
-                            <Image source={{ uri: globalVars.coachData?.photoURL }} style={styles.profilePic} />
+                        <TouchableOpacity style={{ position: 'absolute', top: 15, left: 15 }} onPress={globalVars.coachData ? () => navigation.navigate('Coach Profile') : null}>
+                            <ProfilePic size={50} source={{ uri: globalVars.coachData?.photoURL }} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => navigation.navigate('Coach Profile')}>
+                        <TouchableOpacity onPress={globalVars.coachData ? () => navigation.navigate('Coach Profile') : null}>
                             <Text style={styles.displayName}>{globalVars.coachData?.displayName}</Text>
                         </TouchableOpacity>
                         {loading ? null :
@@ -837,9 +827,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
     },
     profilePic: {
-        position: 'absolute',
-        top: 15,
-        left: 15,
         width: 50,
         height: 50,
         borderRadius: 25,

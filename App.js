@@ -1,3 +1,4 @@
+import "react-native-reanimated"
 import React from 'react'
 import Providers from './navigation'
 import SplashScreen from  "react-native-splash-screen"

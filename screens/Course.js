@@ -5,6 +5,7 @@ import { AuthContext } from '../navigation/AuthProvider'
 import { windowWidth, windowHeight } from '../utils/Dimensions'
 import BackButton from '../components/BackButton.js'
 import Spinner from 'react-native-spinkit'
+import analytics from '@react-native-firebase/analytics'
 
 const Course = ({ navigation, route }) => {
 
@@ -16,6 +17,11 @@ const Course = ({ navigation, route }) => {
     const [showButton, setShowButton] = useState(false)
 
     useEffect(() => {
+        analytics().logEvent('course-started', {
+            userID: user.uid,
+            courseNumber: courseData.UniqueCourseNumber,
+            courseStartedAt: new Date()
+        })
         const loadingTimer = setTimeout(() => {
             setLoading(false)
         }, 5000)
@@ -28,8 +34,17 @@ const Course = ({ navigation, route }) => {
          }
     }, [])
 
-    const completeCourse = () => {
+    const completeCourse = async () => {
         updateInfo({
+            courseData: {
+                latestCourseCompleted: courseData.UniqueCourseNumber,
+                courseCompletedAt: new Date(),
+                courseDay: courseData.Courseday,
+                courseDayCompleted: courseData.UniqueCourseNumber >= courseData.MaxCourseinDay ? true : false
+            }
+        })
+        await analytics().logEvent('course_completed', {
+            userID: user.uid,
             courseData: {
                 latestCourseCompleted: courseData.UniqueCourseNumber,
                 courseCompletedAt: new Date(),

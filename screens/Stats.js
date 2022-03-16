@@ -6,6 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import { Chart, Line, Area, HorizontalAxis, VerticalAxis, Tooltip } from 'react-native-responsive-linechart'
 import firestore from '@react-native-firebase/firestore'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import ProfilePic from '../components/ProfilePic'
 
 const Stats = ({ navigation }) => {
 
@@ -200,8 +201,8 @@ const Stats = ({ navigation }) => {
             </ScrollView>
             <View style={[styles.HUDWrapper, { top: Platform.OS === 'ios' ? insets.top : 0}]}>
                 <View style={styles.headerWrapper}>
-                    <TouchableOpacity onPress={() => navigation.navigate('User Profile')}>
-                        <Image source={{ uri: user.photoURL == null ? tempPfp() : user.photoURL }} style={styles.profilePic} />
+                    <TouchableOpacity style={{ left: 15 }} onPress={() => navigation.navigate('User Profile')}>
+                        <ProfilePic size={50} source={{ uri: user.photoURL == null ? tempPfp() : user.photoURL }} />
                     </TouchableOpacity>
                     <Text style={styles.displayName}>{user.displayName}</Text>
                     <TouchableOpacity onPress={() => { navigation.navigate('Settings') }} style={[styles.headerIconWrapperAlt, { top: 20, right: 15 }]}>
@@ -251,12 +252,6 @@ const styles = StyleSheet.create({
         // shadowOffset: { width: 0, height: 10 },
         // shadowRadius: 5,
         // shadowOpacity: 0.3,
-    },
-    profilePic: {
-        left: 15,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
     },
     displayName: {
         left: 25,

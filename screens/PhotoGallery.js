@@ -10,8 +10,10 @@ import PieChart from 'react-native-pie-chart'
 import GalleryImage from '../components/GalleryImage'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
-
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import InAppReview from 'react-native-in-app-review'
+import analytics from '@react-native-firebase/analytics'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const PhotoGallery = ({ navigation, route }) => {
     const { user, globalVars, setGlobalVars } = useContext(AuthContext)
@@ -61,6 +63,25 @@ const PhotoGallery = ({ navigation, route }) => {
                 console.log('error while fetching chat images: ', e)
             })
     }, [])
+
+    useEffect(() => {
+        if(globalVars.images >= 10) {
+            AsyncStorage.getItem('@reviewed_app').then((value) => {
+                if(InAppReview.isAvailable() && value == null) {
+                    InAppReview.RequestInAppReview().then((result) => {
+                        Platform.OS === 'ios' && result ? 
+                        console.log('User app review flow has launched successfully: ', result) :
+                        console.log('User has reviewed app: ', result)
+                        analytics().logEvent('user_reviewed_app', {
+                            userID: user.uid,
+                            result: result
+                        })
+                        AsyncStorage.setItem('@reviewed_app', 'true')
+                    })
+                }
+            })
+        }
+    }, [globalVars.images])
 
     //skeleton placeholder array thingy, just so that I don't have to
     //write out this view component so many times
@@ -168,7 +189,7 @@ const PhotoGallery = ({ navigation, route }) => {
                                                 </View>
                                             </View>
                                         </View>
-                                        <View style={{ position: 'absolute', top: 15, right: 15 }}>
+                                        <View style={{ position: 'absolute', top: 10, right: 10 }}>
                                                 <TouchableOpacity onPress={() => setShowGradeInfo(true)}>
                                                     <MaterialCommunityIcons
                                                         name="information-outline"
@@ -185,14 +206,14 @@ const PhotoGallery = ({ navigation, route }) => {
                                                     onBackButtonPress={() => setShowGradeInfo(false)}
                                                     useNativeDriverForBackdrop
                                                     onBackdropPress={() => setShowGradeInfo(false)}
-                                                    style={{ alignItems: 'flex-end', right: 15, justifyContent: 'center' }}
+                                                    style={{ alignItems: 'flex-end', right: 10, justifyContent: 'center' }}
                                                 >
                                                     <View
                                                         onLayout={(event) => {
                                                             const { height } = event.nativeEvent.layout
                                                             setScoreExplanationModalHeight(height)
                                                         }}
-                                                        style={[styles.explanationModal, {top: scoreExplanationModalHeight ? (scoreExplanationModalHeight/2)-(windowHeight * 0.25) - (commentWidgetHeight/2) + 15 : 0 }]}
+                                                        style={[styles.explanationModal, {top: scoreExplanationModalHeight ? (scoreExplanationModalHeight/2)-(windowHeight * 0.25) - (commentWidgetHeight/2) + 10 : 0 }]}
                                                     >
                                                         <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'Your Meal Score is calculated by first giving you points for all the green foods on your plate. Then the red foods on your plate are subtracted from this score.'}</Text>
                                                         <Text />
@@ -202,7 +223,7 @@ const PhotoGallery = ({ navigation, route }) => {
                                             </View>
                                             </>
                                         : null}
-                                    <Text style={{ position: 'absolute', left: 5, top: 5, color: '#fff' }}>{selectedImage.uploadedAt == undefined ? null : moment(selectedImage.uploadedAt.toDate()).format('DD MMM YYYY')}</Text>
+                                    <Text style={{ position: 'absolute', left: 10, top: 10, color: '#fff' }}>{selectedImage.uploadedAt == undefined ? null : moment(selectedImage.uploadedAt.toDate()).format('DD MMM YYYY')}</Text>
                                 </ImageBackground>
                                 {selectedImage.graded ?
                                 <View style={{ justifyContent: 'center', alignItems: 'flex-start', backgroundColor: '#fff', width: windowWidth * 0.9, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, minHeight: 75 }}>

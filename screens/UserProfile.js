@@ -13,6 +13,8 @@ import storage from '@react-native-firebase/storage'
 import firestore from '@react-native-firebase/firestore'
 import { windowWidth } from '../utils/Dimensions.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import ProfilePic from '../components/ProfilePic.js'
+import analytics from '@react-native-firebase/analytics'
 
 const UserProfile = ({ navigation }) => {
   const { user, updateInfo, emailVerification, changeEmail, forgotPassword, logout, deleteAccount, setGlobalVars } = useContext(AuthContext)
@@ -249,19 +251,14 @@ const UserProfile = ({ navigation }) => {
             {"Changes may take a minute to go into effect."}
           </Text>
           <TouchableOpacity onPress={() => checkPfpChange()}>
-            <ImageBackground
-              style={styles.CircleImage_0E}
-              imageStyle={{ borderRadius: 45 }}
-              source={{ uri: newInfo.photoURL == null ? user.photoURL == null ? tempPfp() : user.photoURL : newInfo.photoURL }}
-            >
-              <View style={{ backgroundColor: '#4C44D4', width: 30, height: 30, borderRadius: 15, alignSelf: 'flex-end', alignItems: 'center', justifyContent: 'center' }}>
+            <ProfilePic style={{marginTop: 20}} size={90} source={{ uri: newInfo.photoURL == null ? user.photoURL == null ? tempPfp() : user.photoURL : newInfo.photoURL }} />
+              <View style={{ backgroundColor: '#4C44D4', position: 'absolute', bottom: 0, width: 30, height: 30, borderRadius: 15, alignSelf: 'flex-end', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon
                   name='pencil'
                   size={15}
                   color={'#fff'}
                 />
               </View>
-            </ImageBackground>
           </TouchableOpacity>
           <Text style={[styles.TextJa, { color: '#202060', marginTop: 20 }]}>
             {user.displayName}

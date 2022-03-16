@@ -4,6 +4,7 @@ import PieChart from 'react-native-pie-chart'
 import { windowWidth } from '../utils/Dimensions'
 import storage from '@react-native-firebase/storage'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
+import { MotiView } from 'moti'
 
 class GalleryImage extends PureComponent {
 
@@ -22,23 +23,43 @@ class GalleryImage extends PureComponent {
     render() {
         return (
             <TouchableOpacity key={this.props.item.url} onPress={this.props.onPress}>
+            <MotiView>
                 <ImageBackground onLoadStart={() => this.setState({ loading: true })} onLoad={() => this.setState({ loading: false })} imageStyle={{ opacity: this.props.item.graded ? 0.4 : 1 }} style={styles.photoDisplay} source={{ uri: this.state.thumbnailURL ? this.state.thumbnailURL : this.props.item.url }}>
-                    {this.props.item.graded && !this.state.loading ?
+                    {this.props.item.graded && !this.state.loading &&
                     <View style={styles.pieChartContainer}>
-                        <Text style={{fontSize: windowWidth * 0.32 * 0.3 * 0.7, color: '#202060'}}>{this.props.item.grade}</Text>
+                        <MotiView
+                            from={{
+                                opacity: 0
+                            }}
+                            animate={{
+                                opacity: 1
+                            }}
+                        >
+                            <Text style={{fontSize: windowWidth * 0.32 * 0.3 * 0.7, color: '#202060'}}>{this.props.item.grade}</Text>
+                        </MotiView>
+                        <MotiView
+                            from={{
+                                scale: 0,
+                            }}
+                            animate={{
+                                scale: 1,
+                            }}
+                        >
                         <PieChart
                             style={{ borderWidth: windowWidth * 0.32 * 0.015, borderRadius: windowWidth * 0.32 * 0.15, borderColor: '#fff' }}
                             widthAndHeight={windowWidth * 0.32 * 0.3}
                             series={[this.props.item.red * 10, this.props.item.yellow * 10, this.props.item.green * 10]}
                             sliceColor={['#C70039', '#EBD32E', '#43CD3F']}
                         />
+                        </MotiView>
                     </View>
-                        : null}
-                    {!this.state.loading ? null :
-                    <SkeletonPlaceholder backgroundColor='#e6e7fa' highlightColor='#fff' speed={1000}>
+                    }
+                    {this.state.loading &&
+                    <SkeletonPlaceholder backgroundColor='#BDB9DB' highlightColor='#e6e7fa' speed={1000}>
                         <View style={{ width: windowWidth * 0.32, height: windowWidth * 0.32 }} />
                     </SkeletonPlaceholder>}
                 </ImageBackground>
+            </MotiView>
             </TouchableOpacity>
         )
     }

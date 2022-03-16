@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useCallback, useRef, useState } from 'react'
 import { ActivityIndicator, Alert, View } from 'react-native'
 import auth from '@react-native-firebase/auth'
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin'
@@ -8,6 +8,8 @@ import { windowHeight, windowWidth } from '../utils/Dimensions'
 import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import crashlytics from '@react-native-firebase/crashlytics'
+import analytics from '@react-native-firebase/analytics'
+// import Recaptcha from 'react-native-recaptcha-that-works'
 
 export const AuthContext = createContext()
 
@@ -21,10 +23,29 @@ export const AuthProvider = ({ children }) => {
     const [infoUpdated, setInfoUpdated] = useState(false)
     const [emailUpdated, setEmailUpdated] = useState(false)
     const [globalVars, setGlobalVars] = useState({})
+    
+    // const recaptcha = useRef()
+    // const openCaptcha = useCallback(() => {
+    //     recaptcha.current.open()
+    // }, [])
+    // const closeCaptcha = useCallback(() => {
+    //     recaptcha.current.close()
+    // }, [])
+
+    const logLoginEvent = async () => {
+        const _user = auth().currentUser
+        await analytics().logEvent('user_signin', {
+            userID: _user.uid,
+            loginTime: _user.metadata.lastSignInTime
+        })
+    }
 
     const makeNewUserChat = async () => {
-        await AsyncStorage.removeItem('@notifs_enabled')
-        await AsyncStorage.removeItem('alreadyLoggedIn')
+        const _user = auth().currentUser
+        await analytics().logEvent('new_signup', {
+            userID: _user.uid,
+            dateJoined: _user.metadata.creationTime
+        })
         let coachList = []
         firestore()
             .collection('user-info')
@@ -123,6 +144,7 @@ export const AuthProvider = ({ children }) => {
                 login: async (email, password) => {
                     try {
                         await auth().signInWithEmailAndPassword(email, password).then(() => {
+                            logLoginEvent()
                             setGlobalVars(val => ({ ...val, loggingIn: false }))
                             messaging()
                                 .getToken()
@@ -161,12 +183,14 @@ export const AuthProvider = ({ children }) => {
                             if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
                                 let now = new Date()
                                 if (now - Date.parse(_user.metadata.creationTime) > 5000) {
+                                    logLoginEvent()
                                     setGlobalVars(val => ({ ...val, loggingIn: false }))
                                 } else {
                                     makeNewUserChat()
                                 }
                             } else {
                                 console.log('User was not just created.')
+                                logLoginEvent()
                                 setGlobalVars(val => ({ ...val, loggingIn: false }))
                             }
                         })
@@ -230,12 +254,14 @@ export const AuthProvider = ({ children }) => {
                                 if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
                                     let now = new Date()
                                     if (now - Date.parse(_user.metadata.creationTime) > 5000) {
+                                        logLoginEvent()
                                         setGlobalVars(val => ({ ...val, loggingIn: false }))
                                     } else {
                                         makeNewUserChat()
                                     }
                                 } else {
                                     console.log('User was not just created.')
+                                    logLoginEvent()
                                     setGlobalVars(val => ({ ...val, loggingIn: false }))
                                 }
                             })
@@ -327,6 +353,8 @@ export const AuthProvider = ({ children }) => {
                     try {
                         await auth().signOut().then(() => {
                             messaging().deleteToken()
+                            AsyncStorage.removeItem('@notifs_enabled')
+                            AsyncStorage.removeItem('alreadyLoggedIn')
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()
@@ -359,6 +387,13 @@ export const AuthProvider = ({ children }) => {
                                     console.log("Error while updating user profile on Firestore: ", e)
                                     crashlytics().recordError(e)
                                 })
+                            analytics().logEvent('profile_updated', {
+                                userID: _user.uid,
+                                ...rest
+                            }).catch((e) => {
+                                console.log('error while logging profile update event: ', e)
+                                crashlytics().recordError(e)
+                            })
                             setInfoUpdated(true)
                         })
                     } catch (e) {
@@ -416,13 +451,31 @@ export const AuthProvider = ({ children }) => {
             }}
         >
             {children}
-            {
-                globalVars.loggingIn ?
+            {globalVars.loggingIn &&
+            <View style={{ position: 'absolute', width: windowWidth, height: windowHeight, backgroundColor: 'rgba(32,32,96,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size={60} color="#BDB9DB" />
+            </View>}
+            {/* <Recaptcha 
+                ref={recaptcha}
+                lang='en'
+                loadingComponent = { !globalVars.loggingIn &&
                     <View style={{ position: 'absolute', width: windowWidth, height: windowHeight, backgroundColor: 'rgba(32,32,96,0.5)', justifyContent: 'center', alignItems: 'center' }}>
                         <ActivityIndicator size={60} color="#BDB9DB" />
                     </View>
-                    : null
-            }
+                }
+                siteKey=''
+                baseUrl=''
+                size='normal'
+                onLoad={() => console.log('Captcha loaded')}
+                onClose={() => console.log('Captcha closed')}
+                onError={(err) => {
+                    console.warn(err)
+                }}
+                onExpire={() => console.log('Captcha expired')}
+                onVerify={(token) => {
+                    setGlobalVars(val => ({...val, captchaToken: token}))
+                }}
+            /> */}
         </AuthContext.Provider>
     )
 }
