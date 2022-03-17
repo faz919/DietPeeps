@@ -7,6 +7,7 @@ import { Chart, Line, Area, HorizontalAxis, VerticalAxis, Tooltip } from 'react-
 import firestore from '@react-native-firebase/firestore'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import ProfilePic from '../components/ProfilePic'
+import { MotiView } from 'moti'
 
 const Stats = ({ navigation }) => {
 

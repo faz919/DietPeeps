@@ -8,6 +8,7 @@ import { windowHeight, windowWidth } from '../utils/Dimensions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import ToggleButtonRow from '../components/ToggleButtonRow'
 import CourseImage from '../components/CourseImage'
+import { MotiView } from 'moti'
 
 const CourseSelection = ({ navigation }) => {
 
@@ -123,9 +124,17 @@ const CourseSelection = ({ navigation }) => {
               inverted
               renderItem={({ item }) => {
                 return (
-                  <View
-                    style={[styles.Viewe6, { borderRadius: 6, opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }]}
-                  >
+                  <MotiView
+                    from={{
+                      opacity: 0
+                    }}
+                    animate={{
+                      opacity: 1
+                    }}
+                    transition={{
+                      duration: 450
+                    }}
+                   style={[styles.Viewe6, { borderRadius: 6, opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }]}>
                     <CourseImage item={item} userCourseData={userCourseData} navigation={navigation} /> 
                     <View style={styles.View_92}>
                       <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
@@ -155,7 +164,7 @@ const CourseSelection = ({ navigation }) => {
                         </View>
                       </View>
                     </View>
-                  </View>
+                  </MotiView>
                 )
               }}
               keyExtractor={(item) => item.CoverLink}

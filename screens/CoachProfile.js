@@ -17,7 +17,7 @@ const CoachProfile = ({ navigation }) => {
           source={{ uri: globalVars.coachData.photoURL }}
         >
           {loading &&
-            <SkeletonPlaceholder backgroundColor='#e6e7fa' highlightColor='#fff' speed={1000}>
+            <SkeletonPlaceholder backgroundColor='#BDB9DB' highlightColor='#e6e7fa' speed={1000}>
               <View style={styles.Image_9l} />
             </SkeletonPlaceholder>}
         </ImageBackground>

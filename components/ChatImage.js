@@ -3,6 +3,7 @@ import { TouchableOpacity, ImageBackground, View, Text, StyleSheet } from 'react
 import PieChart from 'react-native-pie-chart'
 import { windowWidth } from '../utils/Dimensions'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
+import { MotiText, MotiView } from 'moti'
 
 const ChatImage = ({ user, item, i, navigation }) => {
 
@@ -20,14 +21,23 @@ const ChatImage = ({ user, item, i, navigation }) => {
                         shadowRadius: 5,
                         shadowOpacity: 0.4,
                     }}>
-                        <Text style={{ marginBottom: -15, color: '#202060', fontSize: 60, fontWeight: 'bold' }}>{i.grade}</Text>
+                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginBottom: -15, color: '#202060', fontSize: 60, fontWeight: 'bold' }}>{i.grade}</MotiText>
                         <View style={styles.pieChartContainer}>
+                            <MotiView
+                                from={{
+                                    rotate: "0deg",
+                                }}
+                                animate={{
+                                    rotate: "360deg",
+                                }}
+                            >
                             <PieChart
                                 style={{ borderWidth: pieChartDimensions * 0.05, borderRadius: pieChartDimensions * 0.5, borderColor: '#fff' }}
                                 widthAndHeight={pieChartDimensions}
                                 series={[i.red * 10, i.yellow * 10, i.green * 10]}
                                 sliceColor={['#C70039', '#EBD32E', '#43CD3F']}
                             />
+                            </MotiView>
                         </View>
                     </View>
                 }

@@ -4,7 +4,7 @@ import PieChart from 'react-native-pie-chart'
 import { windowWidth } from '../utils/Dimensions'
 import storage from '@react-native-firebase/storage'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
-import { MotiView } from 'moti'
+import { MotiText, MotiView } from 'moti'
 
 class GalleryImage extends PureComponent {
 
@@ -23,20 +23,10 @@ class GalleryImage extends PureComponent {
     render() {
         return (
             <TouchableOpacity key={this.props.item.url} onPress={this.props.onPress}>
-            <MotiView>
                 <ImageBackground onLoadStart={() => this.setState({ loading: true })} onLoad={() => this.setState({ loading: false })} imageStyle={{ opacity: this.props.item.graded ? 0.4 : 1 }} style={styles.photoDisplay} source={{ uri: this.state.thumbnailURL ? this.state.thumbnailURL : this.props.item.url }}>
                     {this.props.item.graded && !this.state.loading &&
                     <View style={styles.pieChartContainer}>
-                        <MotiView
-                            from={{
-                                opacity: 0
-                            }}
-                            animate={{
-                                opacity: 1
-                            }}
-                        >
-                            <Text style={{fontSize: windowWidth * 0.32 * 0.3 * 0.7, color: '#202060'}}>{this.props.item.grade}</Text>
-                        </MotiView>
+                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{fontSize: windowWidth * 0.32 * 0.3 * 0.7, color: '#202060'}}>{this.props.item.grade}</MotiText>
                         <MotiView
                             from={{
                                 scale: 0,
@@ -59,7 +49,6 @@ class GalleryImage extends PureComponent {
                         <View style={{ width: windowWidth * 0.32, height: windowWidth * 0.32 }} />
                     </SkeletonPlaceholder>}
                 </ImageBackground>
-            </MotiView>
             </TouchableOpacity>
         )
     }

@@ -74,7 +74,7 @@ const MainMenu = () => {
 const App = () => {
   const { globalVars, setGlobalVars } = useContext(AuthContext)
   return (
-    <AppStack.Navigator initialRouteName={'Onboarding Wizard'} >
+    <AppStack.Navigator initialRouteName={'Main Menu'} >
       <AppStack.Screen name="Main Menu" component={MainMenu} options={{ headerShown: false }} />
       <AppStack.Screen name="Photo Gallery" component={PhotoGallery} options={{ headerShown: false }} />
       <AppStack.Screen name="Onboarding Wizard" component={OnboardingWizard} options={{

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform } from 'react-native'
+import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Modal from 'react-native-modal'
@@ -17,6 +17,7 @@ import messaging from '@react-native-firebase/messaging'
 import analytics from '@react-native-firebase/analytics'
 import ChatImage from '../components/ChatImage'
 import ProfilePic from '../components/ProfilePic'
+import { AnimatePresence, MotiView } from 'moti'
 
 const Chat = ({ navigation, route }) => {
 
@@ -27,7 +28,6 @@ const Chat = ({ navigation, route }) => {
     const timezoneOffset = (new Date()).getTimezoneOffset() / 60
 
     useEffect(() => {
-        console.log('timezone offset is: ', timezoneOffset)
         const unsubscribe = navigation.addListener("focus", () => {
             navigation.setParams({ imageInfo: null })
         })
@@ -379,7 +379,7 @@ const Chat = ({ navigation, route }) => {
                         .collection('chat-messages')
                         .add({
                             img: null,
-                            msg: `1) What do you prefer that I call you?`,
+                            msg: `1) Do you have a nickname that you prefer?`,
                             userID: globalVars.coachID,
                             timeSent: firestore.Timestamp.fromDate(new Date())
                         })
@@ -479,7 +479,7 @@ const Chat = ({ navigation, route }) => {
                     .collection('chat-messages')
                     .add({
                         img: null,
-                        msg: `1) What do you prefer that I call you?`,
+                        msg: `1) Do you have a nickname that you prefer?`,
                         userID: globalVars.coachID,
                         timeSent: firestore.Timestamp.fromDate(new Date())
                     })
@@ -553,11 +553,11 @@ const Chat = ({ navigation, route }) => {
                         showsVerticalScrollIndicator={false}
                         data={messages}
                         renderItem={({ item }) => (
-                            <View key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start' }}>
+                            <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start' }}>
                                 <View style={item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg}>
                                     {item.img == null ? null :
                                         item.img.map((i) => (
-                                            <ChatImage user={user} item={item} i={i} navigation={navigation} />
+                                            <ChatImage key={i.url} user={user} item={item} i={i} navigation={navigation} />
                                         ))
                                     }
                                     <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>
@@ -565,11 +565,11 @@ const Chat = ({ navigation, route }) => {
                                 <Text style={[styles.msgTimeText, { alignSelf: item.userID === user.uid ? 'flex-end' : 'flex-start' }]}>
                                     {item.timeSent == undefined ? moment(item.timeSent).calendar() : moment(item.timeSent.toDate()).calendar()}
                                 </Text>
-                            </View>
+                            </MotiView>
                         )}
                         keyExtractor={(item) => item.id}
                     />
-                    <View style={styles.sendMsgContainer}>
+                    <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 300 }} style={styles.sendMsgContainer}>
                         <View style={styles.addImgContainer}>
                             <TouchableOpacity onPress={() => setAttachingImage(val => ({ ...val, visible: true }))}>
                                 <Ionicons
@@ -623,7 +623,18 @@ const Chat = ({ navigation, route }) => {
                                 />
                                 {sendingMessage ?
                                     <ActivityIndicator style={{ position: 'absolute', right: 20, top: 2 }} size={25} color="#4D43BD" /> :
-                                    <View style={{ position: 'absolute', right: 20, top: 2, opacity: !messageInput && (images?.length === 0 || !images ) ? 0.5 : 1 }}>
+                                    <AnimatePresence>
+                                    {!messageInput && (images?.length === 0 || !images ) ? 
+                                    <MotiView key='emoji' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
+                                        <TouchableOpacity onPress={() => {}}>
+                                            <Ionicons
+                                                name="happy"
+                                                size={25}
+                                                color='#BDB9DB'
+                                            />
+                                        </TouchableOpacity>
+                                    </MotiView> :
+                                    <MotiView key='text' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
                                         <TouchableOpacity disabled={!messageInput && (images?.length === 0 || !images )} onPress={() => {setSendingMessage(true); newMessage(messageInput)}}>
                                             <Ionicons
                                                 name="send"
@@ -631,14 +642,15 @@ const Chat = ({ navigation, route }) => {
                                                 color='#4D43BD'
                                             />
                                         </TouchableOpacity>
-                                    </View>
+                                    </MotiView>}
+                                    </AnimatePresence>
                                 }
                             </View>
                         </View>
-                    </View>
+                    </MotiView>
                 </KeyboardAvoidingView>
-                <View style={styles.scrollViewMask} />
-                <View style={styles.HUDWrapper}>
+                <MotiView from={{ height: 0 }} animate={{ height: 180 }} delay={850} transition={{ type: 'timing' }} style={styles.scrollViewMask} />
+                <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} delay={500} style={styles.HUDWrapper}>
                     <View style={styles.headerWrapper}>
                         <TouchableOpacity style={{ position: 'absolute', top: 15, left: 15 }} onPress={globalVars.coachData ? () => navigation.navigate('Coach Profile') : null}>
                             <ProfilePic size={50} source={{ uri: globalVars.coachData?.photoURL }} />
@@ -653,7 +665,7 @@ const Chat = ({ navigation, route }) => {
                             </View>
                         }
                     </View>
-                </View>
+                </MotiView>
                 <Modal
                     isVisible={attachingImage.visible}
                     avoidKeyboard={true}
@@ -800,7 +812,6 @@ const styles = StyleSheet.create({
     scrollViewMask: {
         position: 'absolute',
         top: -90,
-        height: 180,
         width: '100%',
         backgroundColor: '#E6E7FA'
     },
