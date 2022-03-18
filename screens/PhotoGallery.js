@@ -16,7 +16,7 @@ import analytics from '@react-native-firebase/analytics'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AnimatePresence, MotiText, MotiView, useAnimationState } from 'moti'
 import { Easing } from 'react-native-reanimated'
-import Icon from 'react-native-vector-icons/Ionicons'
+import ProfilePic from '../components/ProfilePic'
 
 const PhotoGallery = ({ navigation, route }) => {
     const { user, globalVars, setGlobalVars } = useContext(AuthContext)
@@ -288,7 +288,7 @@ const PhotoGallery = ({ navigation, route }) => {
                                     <View style={{ justifyContent: 'center', alignItems: 'flex-start', backgroundColor: '#fff', width: windowWidth * 0.9, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, minHeight: 75 }}>
                                         <View
                                             style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
-                                            <Image source={{ uri: globalVars.coachData.photoURL }} style={{ height: 50, width: 50, borderRadius: 25 }} />
+                                            <ProfilePic source={{ uri: globalVars.coachData.photoURL }} size={50} />
                                             <View style={{ marginLeft: 20 }}>
                                                 <Text numberOfLines={1} style={{ paddingBottom: 5, fontSize: 22, marginTop: 5, color: '#202060' }}>{globalVars.coachData.displayName}:</Text>
                                                 <Text style={{ marginBottom: 5, fontSize: 18, color: '#202060', width: windowWidth * 0.65 }}>{selectedImage.comment}</Text>

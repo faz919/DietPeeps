@@ -22,12 +22,12 @@ const IntroVideo = ({ navigation }) => {
             fullscreenOrientation={'portrait'}
             fullscreenAutorotate={false}
             onLoad={() => setVideoPlaying(true)}
-            onEnd={() => navigation.replace('Signup')}
+            onEnd={() => navigation.replace('Onboarding')}
             resizeMode='contain'
             ignoreSilentSwitch='ignore'
         />
         {showSkip ? 
-            <TouchableOpacity style={styles.panelButton} onPress={() => navigation.replace('Signup')}>
+            <TouchableOpacity style={styles.panelButton} onPress={() => navigation.replace('Onboarding')}>
                 <Text style={styles.panelButtonTitle}>{'Skip'}</Text>
             </TouchableOpacity>
         : null}

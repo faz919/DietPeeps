@@ -120,8 +120,25 @@ export const AuthProvider = ({ children }) => {
             })
     }
 
-    async function setUserToken(token) {
+    async function setUserMessagingInfo(token) {
         const _user = auth().currentUser
+
+        if(globalVars.userBioData == null) {
+            const userBioData = await AsyncStorage.getItem('@onboarding_responses')
+            for(let mealTime of JSON.parse(userBioData.mealTimes)) {
+                const globalHour = new Date(mealTime).getUTCHours()
+                messaging().subscribeToTopic('MealReminderAt' + globalHour).then(() => {
+                    console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
+                })
+            }
+        } else {
+            for(let mealTime of globalVars.userBioData.mealTimes) {
+                const globalHour = new Date(mealTime).getUTCHours()
+                messaging().subscribeToTopic('MealReminderAt' + globalHour).then(() => {
+                    console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
+                })
+            }
+        }
 
         await firestore()
             .collection('user-info')
@@ -149,7 +166,7 @@ export const AuthProvider = ({ children }) => {
                             messaging()
                                 .getToken()
                                 .then(token => {
-                                    return setUserToken(token);
+                                    return setUserMessagingInfo(token);
                                 })
                                 .catch((e) => {
                                     console.log('error while retrieving messaging token: ', e)
@@ -174,7 +191,7 @@ export const AuthProvider = ({ children }) => {
                             messaging()
                                 .getToken()
                                 .then(token => {
-                                    setUserToken(token)
+                                    setUserMessagingInfo(token)
                                 })
                                 .catch((e) => {
                                     console.log('error while retrieving messaging token: ', e)
@@ -232,7 +249,7 @@ export const AuthProvider = ({ children }) => {
                             crashlytics().recordError(e)
                         })
                         if (userCredentials.user) {
-                            if (fullName.familyName != null && fullName.givenName != null) {
+                            if (fullName.familyName != null || fullName.givenName != null) {
                                 const displayName = fullName.givenName + ' ' + fullName.familyName
                                 await userCredentials.user.updateProfile({
                                     displayName,
@@ -245,7 +262,7 @@ export const AuthProvider = ({ children }) => {
                                 messaging()
                                 .getToken()
                                 .then(token => {
-                                    setUserToken(token)
+                                    setUserMessagingInfo(token)
                                 })
                                 .catch((e) => {
                                     console.log('error while retrieving messaging token: ', e)
@@ -290,7 +307,7 @@ export const AuthProvider = ({ children }) => {
                                 messaging()
                                     .getToken()
                                     .then(token => {
-                                        setUserToken(token)
+                                        setUserMessagingInfo(token)
                                     })
                                     .catch((e) => {
                                         console.log('error while retrieving messaging token: ', e)

@@ -3,7 +3,7 @@ import {Platform, View} from 'react-native'
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack'
 import SignupScreen from '../screens/SignupScreen'
 import LoginScreen from '../screens/LoginScreen'
-import OnboardingScreen from '../screens/OldOnboardingScreen'
+import OnboardingWizard from '../screens/OnboardingWizard'
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen'
 import IntroVideo from '../screens/IntroVideo'
 
@@ -55,7 +55,7 @@ const AuthStack = () => {
       />
       <Stack.Screen
         name="Onboarding"
-        component={OnboardingScreen}
+        component={OnboardingWizard}
         options={{header: () => null}}
       />
       <Stack.Screen

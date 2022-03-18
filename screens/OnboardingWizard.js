@@ -6,15 +6,16 @@ import { AuthContext } from '../navigation/AuthProvider.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import DatePicker from 'react-native-date-picker'
-import moment from 'moment'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Picker } from '@react-native-picker/picker'
-import { MotiView, AnimatePresence } from 'moti'
+import { MotiView, MotiText, AnimatePresence, MotiImage } from 'moti'
 import { Easing } from 'react-native-reanimated'
+import messaging from '@react-native-firebase/messaging'
+import Icon from 'react-native-vector-icons/Ionicons'
 
 const OnboardingWizard = ({ navigation }) => {
 
-    const { setGlobalVars, updateInfo } = useContext(AuthContext)
+    const { setGlobalVars } = useContext(AuthContext)
     const [formResponses, setFormResponses] = useState({
         mealTimes: [],
         height: {
@@ -25,10 +26,16 @@ const OnboardingWizard = ({ navigation }) => {
             lbs: 137,
             kgs: 62
         },
+        targetWeight: {
+            lbs: 137,
+            kgs: 62
+        },
         dob: new Date(2000, 0, 1),
-        mealCount: 3
+        mealCount: 3,
+        timezoneOffset: (new Date()).getTimezoneOffset() / 60
     })
-    const formLength = 7
+    const formLength = 8
+    const mealPickerScreen = 7
     const [formPage, setFormPage] = useState(1)
     const [synced, setSynced] = useState(false)
     const [openTimePicker, setOpenTimePicker] = useState([])
@@ -38,37 +45,61 @@ const OnboardingWizard = ({ navigation }) => {
         weight: true
     })
     const [editingMealTime, setEditingMealTime] = useState(1)
+    const [loadingScreen, setLoadingScreen] = useState(1)
 
     useEffect(() => {
-        console.log('thigy ', formResponses)
-    }, [formResponses])
+        if (!synced) {
+            AsyncStorage.getItem('@onboarding_responses').then((value) => {
+                if (value == null) {
+                    setSynced(true)
+                } else {
+                    setFormResponses(val => ({...val, ...JSON.parse(value)}))
+                    AsyncStorage.getItem('@onboarding_page').then((value) => {
+                        if (value == null) {
+                            setSynced(true)
+                        } else {
+                            setFormPage(JSON.parse(value))
+                            setSynced(true)
+                        }
+                        console.log('form page: ', value)
+                    })
+                }
+                console.log('form responses: ', value)
+            })
+        }
+        synced && AsyncStorage.setItem('@onboarding_responses', JSON.stringify(formResponses)) 
+        synced && AsyncStorage.setItem('@onboarding_page', JSON.stringify(formPage))
+    }, [formPage])
 
-    // useEffect(() => {
-    //     if (!synced) {
-    //         AsyncStorage.getItem('@onboarding_responses').then((value) => {
-    //             if (value == null) {
-    //                 setSynced(true)
-    //             } else {
-    //                 setFormResponses(JSON.parse(value))
-    //                 setSynced(true)
-    //             }
-    //         })
-    //     }
-    //     synced && AsyncStorage.setItem('@onboarding_responses', JSON.stringify(formResponses))
-    // }, [formResponses])
+    const finishForm = async () => {
+        setGlobalVars(val => ({...val, userBioData: formResponses}))
+        navigation.navigate('Signup') || navigation.navigate('Main Menu')
+    }
 
     const meals = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'last']
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
-            {formPage < 8 &&
+            {formPage < formLength + 1 &&
                 <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, flexDirection: 'row' }}>
                     {Array.apply(null, { length: formLength }).map((i, index) =>
-                        <AnimatePresence>
+                        <AnimatePresence exitBeforeEnter key={index}>
                             {formPage > index ?
-                                <MotiView key='completed' from={{ width: 0, marginHorizontal: 0 }} animate={{ width: ((windowWidth - 20) / formLength) - 5, marginHorizontal: 2 }} exit={{ width: 0, marginHorizontal: 0 }} transition={{ type: 'timing', easing: Easing.bezier(0.77, 0.0, 0.175, 1.0), duration: 500 }} style={{ borderRadius: 10, height: 10, width: -5 + ((windowWidth - 20) / formLength) - 5, backgroundColor: '#4C44D4' }} />
+                                <MotiView 
+                                    key='completed' 
+                                    from={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    style={{ borderRadius: 10, height: 10, width: ((windowWidth - 20) / formLength) - 5, backgroundColor: '#4C44D4', marginHorizontal: 2.5 }}
+                                />
                                 :
-                                <MotiView key='not-completed' from={{ width: 0, marginHorizontal: 0 }} animate={{ width: ((windowWidth - 20) / formLength) - 5, marginHorizontal: 2 }} exit={{ width: 0, marginHorizontal: 0 }} transition={{ type: 'timing', easing: Easing.bezier(0.77, 0.0, 0.175, 1.0), duration: 500 }} style={{ borderRadius: 10, height: 10, width: -5 + ((windowWidth - 20) / formLength) - 5, backgroundColor: '#BDB9DB' }} />}
+                                <MotiView 
+                                    key='not-completed' 
+                                    from={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    style={{ borderRadius: 10, height: 10, width: ((windowWidth - 20) / formLength) - 5, backgroundColor: '#BDB9DB', marginHorizontal: 2.5 }} 
+                                />}
                         </AnimatePresence>)}
                 </MotiView>}
             <KeyboardAwareScrollView contentContainerStyle={{ flex: 2 }} bounces={false} overScrollMode='never'>
@@ -77,17 +108,19 @@ const OnboardingWizard = ({ navigation }) => {
                         {formPage === 1 &&
                             <MotiView key='page1' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ justifyContent: 'space-around' }}>
                                 <MotiView
-                                    from={{ scale: 0, translateY: 200 }}
-                                    animate={{ scale: 1, translateY: 0 }}
+                                    from={{ opacity: 0, scale: 0, translateY: 200 }}
+                                    animate={{ opacity: 1, scale: 1, translateY: 0 }}
                                     transition={{
                                         translateY: {
                                             delay: 1000,
-                                            duration: 1000,
+                                            duration: 1500,
                                             type: 'timing',
-                                            easing: Easing.bezier(0.68, -0.55, 0.265, 1.55)
+                                            easing: Easing.bezier(.69,0,.01,.98)
                                         },
                                         scale: {
-                                            duration: 500
+                                            duration: 1000,
+                                            type: 'timing',
+                                            easing: Easing.bezier(.69,0,0,1.58)
                                         }
                                     }}
                                 >
@@ -184,7 +217,7 @@ const OnboardingWizard = ({ navigation }) => {
                                         maximumDate={new Date()}
                                         androidVariant={'iosClone'}
                                         mode={'date'}
-                                        date={formResponses.dob || new Date(2000, 0, 1)}
+                                        date={new Date(formResponses.dob) || new Date(2000, 0, 1)}
                                         onDateChange={(date) => setFormResponses(val => ({ ...val, dob: date }))}
                                     />
                                 </View>
@@ -227,7 +260,7 @@ const OnboardingWizard = ({ navigation }) => {
                                                 }
                                             }))}>
                                             {Array.apply(null, { length: imperial.height ? 8 : 272 }).map((i, index) =>
-                                                <Picker.Item label={(index + 1).toString()} value={index + 1} />
+                                                <Picker.Item key={index} label={(index + 1).toString()} value={index + 1} />
                                             )}
                                         </Picker>
                                     </View>
@@ -246,7 +279,7 @@ const OnboardingWizard = ({ navigation }) => {
                                                 }
                                             }))}>
                                             {Array.apply(null, { length: imperial.height ? 12 : 10 }).map((i, index) =>
-                                                <Picker.Item label={index.toString()} value={index} />
+                                                <Picker.Item key={index} label={index.toString()} value={index} />
                                             )}
                                         </Picker>
                                     </View>
@@ -270,7 +303,7 @@ const OnboardingWizard = ({ navigation }) => {
                                         <View style={{ justifyContent: 'center', width: windowHeight / 8, height: windowHeight / 11, borderRadius: 10 }}>
                                             <Picker style={{ margin: -(windowHeight / 50) }}
                                                 itemStyle={styles.title1}
-                                                selectedValue={imperial.weight ? formResponses.weight.lbs : formResponses.weight.kgs}
+                                                selectedValue={imperial.weight ? formResponses.weight?.lbs : formResponses.weight?.kgs}
                                                 onValueChange={(value) => setFormResponses(val => ({
                                                     ...val, weight: {
                                                         ...formResponses.weight,
@@ -279,7 +312,7 @@ const OnboardingWizard = ({ navigation }) => {
                                                     }
                                                 }))}>
                                                 {Array.apply(null, { length: imperial.weight ? 1400 : 635 }).map((i, index) =>
-                                                    <Picker.Item label={(index + 1).toString()} value={index + 1} />
+                                                    <Picker.Item key={index} label={(index + 1).toString()} value={index + 1} />
                                                 )}
                                             </Picker>
                                         </View>
@@ -300,8 +333,55 @@ const OnboardingWizard = ({ navigation }) => {
                                     </TouchableOpacity>
                                 </View>
                             </MotiView>}
-                        {formPage === 5 &&
+                            {formPage === 5 &&
                             <MotiView key='page5' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                <View style={styles.ViewD2}>
+                                    <Text
+                                        style={[
+                                            styles.headline1,
+                                            { color: '#202060' },
+                                        ]}
+                                    >
+                                        {'What is your target weight?'}
+                                    </Text>
+                                </View>
+                                <View overflow={'hidden'} style={[styles.largeView, { flexDirection: 'row', padding: 20, justifyContent: 'space-between', alignItems: 'center' }]}>
+                                    <View style={{ flex: 1, alignItems: 'center', marginRight: 20 }}>
+                                        <View style={{ justifyContent: 'center', width: windowHeight / 8, height: windowHeight / 11, borderRadius: 10 }}>
+                                            <Picker style={{ margin: -(windowHeight / 50) }}
+                                                itemStyle={styles.title1}
+                                                selectedValue={imperial.weight ? formResponses.targetWeight?.lbs : formResponses.targetWeight?.kgs}
+                                                onValueChange={(value) => setFormResponses(val => ({
+                                                    ...val, targetWeight: {
+                                                        ...formResponses.targetWeight,
+                                                        lbs: imperial.weight ? value : Math.round(value * 2.20462),
+                                                        kgs: imperial.weight ? Math.round(value * 0.453592) : value
+                                                    }
+                                                }))}>
+                                                {Array.apply(null, { length: imperial.weight ? 1400 : 635 }).map((i, index) =>
+                                                    <Picker.Item key={index} label={(index + 1).toString()} value={index + 1} />
+                                                )}
+                                            </Picker>
+                                        </View>
+                                    </View>
+                                    <TouchableOpacity onPress={() => useImperial(val => ({ ...val, weight: imperial.weight ? false : true }))} style={{ alignItems: 'center', justifyContent: 'center', width: windowHeight / 11, height: windowHeight / 11, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#000000', shadowOffset: { width: 0, height: 5 }, shadowRadius: 5, shadowOpacity: 0.4 }}>
+                                        <Text style={styles.title1}>{imperial.weight ? 'lbs' : 'kgs'}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.View_4v}>
+                                    <TouchableOpacity
+                                        onPress={() => { formResponses.targetWeight && formPage === 5 && setFormPage(6) }}
+                                        style={[
+                                            styles.ButtonSolidQB,
+                                            { backgroundColor: '#4C44D4', marginTop: 20 },
+                                        ]}
+                                    >
+                                        <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </MotiView>}    
+                        {formPage === 6 &&
+                            <MotiView key='page6' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                 <View style={styles.ViewD2}>
                                     <Text
                                         style={[
@@ -320,7 +400,7 @@ const OnboardingWizard = ({ navigation }) => {
                                                 selectedValue={formResponses.mealCount}
                                                 onValueChange={(value) => setFormResponses(val => ({ ...val, mealCount: value }))}>
                                                 {Array.apply(null, { length: 9 }).map((i, index) =>
-                                                    <Picker.Item label={(index + 1).toString()} value={index + 1} />
+                                                    <Picker.Item key={index} label={(index + 1).toString()} value={index + 1} />
                                                 )}
                                             </Picker>
                                         </View>
@@ -328,7 +408,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 </View>
                                 <View style={styles.View_4v}>
                                     <TouchableOpacity
-                                        onPress={() => { formResponses.mealCount && formPage === 5 && setFormPage(6) }}
+                                        onPress={() => { formResponses.mealCount && formPage === 6 && setFormPage(7) }}
                                         style={[
                                             styles.ButtonSolidQB,
                                             { backgroundColor: '#4C44D4', marginTop: 20 },
@@ -338,8 +418,8 @@ const OnboardingWizard = ({ navigation }) => {
                                     </TouchableOpacity>
                                 </View>
                             </MotiView>}
-                        {formPage === 6 &&
-                            <MotiView key='page6' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        {formPage === mealPickerScreen &&
+                            <MotiView key={'page' + mealPickerScreen} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                             <AnimatePresence exitBeforeEnter>
                                 {Array.apply(null, { length: formResponses.mealCount }).map((i, index) =>
                                     editingMealTime - 1 === index &&
@@ -354,7 +434,7 @@ const OnboardingWizard = ({ navigation }) => {
                                                 androidVariant={'iosClone'}
                                                 mode={'time'}
                                                 minuteInterval={15}
-                                                date={formResponses.mealTimes[index] || new Date()}
+                                                date={new Date(formResponses.mealTimes[index]) || new Date()}
                                                 onDateChange={(v) => { let newArr = formResponses.mealTimes || []; newArr[index] = v; setFormResponses(val => ({ ...val, mealTimes: newArr })) }}
                                             />
                                         </View>
@@ -363,28 +443,239 @@ const OnboardingWizard = ({ navigation }) => {
                                 </AnimatePresence>
                                 <View style={styles.View_4v}>
                                     <TouchableOpacity
-                                        onPress={() => { if (formResponses.mealTimes[editingMealTime - 1] == null) { let newArr = formResponses.mealTimes || []; newArr[editingMealTime - 1] = new Date(); setFormResponses(val => ({ ...val, mealTimes: newArr })) }; editingMealTime == formResponses.mealCount ? setFormPage(7) : editingMealTime < formResponses.mealCount && setEditingMealTime(editingMealTime + 1) }}
+                                        onPress={() => { if (formResponses.mealTimes[editingMealTime - 1] == null) { let newArr = formResponses.mealTimes || []; newArr[editingMealTime - 1] = new Date(); setFormResponses(val => ({ ...val, mealTimes: newArr })) }; editingMealTime == formResponses.mealCount ? setFormPage(mealPickerScreen + 1) : editingMealTime < formResponses.mealCount && setEditingMealTime(editingMealTime + 1) }}
                                         style={[styles.ButtonSolidQB, { backgroundColor: '#4C44D4', marginTop: 20 }]}>
                                         <Text style={styles.panelButtonText}>{'Continue'}</Text>
                                     </TouchableOpacity>
                                 </View>
                             </MotiView>}
-                        {formPage === 7 &&
-                            <View style={styles.View_4v}>
-                                <TouchableOpacity
-                                    onPress={() => navigation.replace('Main Menu')}
-                                    style={[styles.ButtonSolidQB, { backgroundColor: '#4C44D4', marginTop: 20 }]}>
-                                    <Text style={styles.panelButtonText}>{'Finish!'}</Text>
-                                </TouchableOpacity>
-                            </View>
+                        {formPage === formLength &&
+                            <AnimatePresence exitBeforeEnter>
+                                {loadingScreen === 1 &&
+                                    <MotiView 
+                                        key={'loadingScreen1'}
+                                        style={styles.loadingScreen}
+                                        from={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0 }}
+                                        transition={{
+                                            duration: 500
+                                        }}
+                                        exitTransition={{
+                                            duration: 300
+                                        }}
+                                        onDidAnimate={() => {
+                                            setTimeout(() => {
+                                                setLoadingScreen(2)
+                                            }, 3000)
+                                        }}
+                                    >
+                                        <MotiText
+                                            style={styles.loadingScreenText}
+                                            from={{ translateY: -5 }}
+                                            animate={{ translateY: 5 }}
+                                            transition={{ duration: 500, loop: true, type: 'timing' }}
+                                        >
+                                            Configuring your optimal settings...
+                                        </MotiText>
+                                        <MotiView
+                                            style={{
+                                                position: 'absolute',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                            from={{ rotate: '0deg' }}
+                                            animate={{ rotate: '360deg' }}
+                                            transition={{ loop: true, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
+                                        >
+                                            <Icon 
+                                                name='settings-sharp'
+                                                size={windowWidth / 3}
+                                                color={'#5A5A5A'}
+                                            />
+                                        </MotiView>
+                                        <MotiView
+                                            style={{
+                                                position: 'absolute',
+                                                bottom: windowHeight / 3.3,
+                                                right: windowWidth / 5
+                                            }}
+                                            from={{ rotate: '0deg' }}
+                                            animate={{ rotate: '-360deg' }}
+                                            transition={{ loop: true, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
+                                        >
+                                            <Icon 
+                                                name='settings-sharp'
+                                                size={windowWidth / 5}
+                                                color={'#5A5A5A'}
+                                            />
+                                        </MotiView>
+                                    </MotiView>
+                                }
+                                {loadingScreen === 2 &&
+                                    <MotiView 
+                                        key={'loadingScreen2'}
+                                        style={styles.loadingScreen}
+                                        from={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0 }}
+                                        transition={{
+                                            duration: 500
+                                        }}
+                                        exitTransition={{
+                                            duration: 300
+                                        }}
+                                        onDidAnimate={() => {
+                                            setTimeout(() => {
+                                                setLoadingScreen(3)
+                                            }, 3000)
+                                        }}
+                                    >
+                                        <MotiText
+                                            style={styles.loadingScreenText}
+                                            from={{ translateY: -5 }}
+                                            animate={{ translateY: 5 }}
+                                            transition={{ duration: 500, loop: true, type: 'timing' }}
+                                        >
+                                            Analyzing your data...
+                                        </MotiText>
+                                        <MotiImage 
+                                            from={{ scale: 0.95 }} 
+                                            animate={{ scale: 1.05 }} 
+                                            transition={{ duration: 1400, delay: 500, loop: true, type: 'timing' }} 
+                                            style={{ position: 'absolute', bottom: windowHeight / 5, alignSelf: 'center', width: windowWidth, height: windowHeight / 4, resizeMode: 'contain' }} 
+                                            source={require('../assets/scientist.png')}
+                                        />
+                                    </MotiView>
+                                }
+                                {loadingScreen === 3 &&
+                                    <MotiView 
+                                        key={'loadingScreen3'}
+                                        style={styles.loadingScreen}
+                                        from={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0 }}
+                                        transition={{
+                                            duration: 500
+                                        }}
+                                        exitTransition={{
+                                            duration: 300
+                                        }}
+                                        onDidAnimate={() => {
+                                            setTimeout(() => {
+                                                setLoadingScreen(4)
+                                            }, 3000)
+                                        }}
+                                    >
+                                        <MotiText
+                                            style={styles.loadingScreenText}
+                                            from={{ translateY: -5 }}
+                                            animate={{ translateY: 5 }}
+                                            transition={{ duration: 500, loop: true, type: 'timing' }}
+                                        >
+                                            Finding the best possible coach for you...
+                                        </MotiText>
+                                        <View
+                                            style={{
+                                                position: 'absolute',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                        >
+                                            <Icon 
+                                                name='chatbox-outline'
+                                                size={windowWidth / 5}
+                                                color={'#202060'}
+                                            />
+                                        </View>
+                                        <MotiView
+                                            style={{
+                                                position: 'absolute',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                            from={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ loop: true, duration: 800 }}
+                                        >
+                                            <Icon 
+                                                name='chatbox-ellipses-outline'
+                                                size={windowWidth / 5}
+                                                color={'#202060'}
+                                            />
+                                        </MotiView>
+                                    </MotiView>
+                                }
+                                {loadingScreen === 4 &&
+                                    <MotiView 
+                                        key={'loadingScreen4'}
+                                        style={styles.loadingScreen}
+                                        from={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0 }}
+                                        transition={{
+                                            duration: 500
+                                        }}
+                                        exitTransition={{
+                                            duration: 300
+                                        }}
+                                    >
+                                        <MotiText
+                                            style={styles.loadingScreenText}
+                                            from={{ scale: 0.95 }} 
+                                            animate={{ scale: 1.05 }} 
+                                            transition={{ duration: 1500, delay: 500, loop: true, type: 'timing' }} 
+                                        >
+                                            Congratulations!
+                                        </MotiText>
+                                        <MotiText
+                                            style={[styles.loadingScreenText, { fontSize: windowHeight * (25/844), top: windowHeight / 4 }]}
+                                            // from={{ scale: 0.95 }} 
+                                            // animate={{ scale: 1.05 }} 
+                                            // transition={{ duration: 1500, delay: 500, loop: true, type: 'timing' }} 
+                                        >
+                                            You're all set up!
+                                        </MotiText>
+                                        <MotiView
+                                            style={{
+                                                position: 'absolute',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                            from={{ rotate: '180deg', scale: 1.05 }}
+                                            animate={{ rotate: '360deg', scale: 0.95 }}
+                                            transition={{ scale: { duration: 1500, delay: 500, loop: true, type: 'timing' } }} 
+                                        >
+                                            <Icon
+                                                name='checkmark-circle-outline'
+                                                size={windowWidth / 3}
+                                                color='#4bb543'
+                                                style={{ left: 3 }}
+                                            />
+                                        </MotiView>
+                                        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1000, duration: 500 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute', bottom: windowWidth / 5, width: windowWidth - 64 }}>
+                                            <TouchableOpacity
+                                                onPress={finishForm}
+                                                style={[
+                                                    styles.ButtonSolidQB,
+                                                    { backgroundColor: '#4C44D4', marginTop: 20 },
+                                                ]}
+                                            >
+                                                <Text style={styles.panelButtonText}>{'Finish'}</Text>
+                                            </TouchableOpacity>
+                                        </MotiView>
+                                    </MotiView>
+                                }
+                            </AnimatePresence>
                         }
                     </AnimatePresence>
                 </View>
             </KeyboardAwareScrollView>
             <AnimatePresence>
             {formPage > 1 &&
+                !(loadingScreen < 4 && formPage === formLength) &&
                 <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 20 : 20, left: 20 }}>
-                    <TouchableOpacity onPress={() => { formPage === 6 && editingMealTime > 1 ? setEditingMealTime(editingMealTime - 1) : setFormPage(formPage - 1) }}>
+                    <TouchableOpacity onPress={() => { formPage === mealPickerScreen && editingMealTime > 1 ? setEditingMealTime(editingMealTime - 1) : setFormPage(formPage - 1); setLoadingScreen(1) }}>
                         <Ionicons
                             name='ios-arrow-back-circle-outline'
                             size={30}
@@ -484,29 +775,33 @@ const styles = StyleSheet.create({
     },
     headline2: {
         fontWeight: 'bold',
-        fontSize: 40,
+        fontSize: windowHeight * (40/844),
         letterSpacing: 0,
-        textAlign: 'center'
+        textAlign: 'center',
+        marginVertical: 20
     },
     headline1: {
         fontWeight: 'bold',
-        fontSize: 30,
+        fontSize: windowHeight * (30/844),
         letterSpacing: 0,
-        textAlign: 'center'
+        textAlign: 'center',
+        marginVertical: 20
     },
     title1: {
         fontWeight: 'bold',
-        fontSize: 25,
+        fontSize: windowHeight * (25/844),
         letterSpacing: 0,
         textAlign: 'center',
-        color: '#202060'
+        color: '#202060',
+        marginVertical: 20
     },
     subtitle1: {
-        fontSize: 16,
+        fontSize: windowHeight * (16/844),
         letterSpacing: 0,
+        marginVertical: 20
     },
     panelButtonText: {
-        fontSize: 17,
+        fontSize: windowHeight * (17/844),
         fontWeight: 'bold',
         color: 'white',
     },
@@ -519,6 +814,26 @@ const styles = StyleSheet.create({
         backgroundColor: '#BDB9DB',
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    loadingScreen: {
+        ...StyleSheet.absoluteFill,
+        flex: 1,
+        justifyContent: 'center', 
+        alignItems: 'center'
+    },  
+    loadingScreenText: {
+        fontSize: windowHeight * (35/844),
+        fontWeight: 'bold',
+        letterSpacing: 0,
+        textAlign: 'center',
+        color: '#202060',
+        // borderColor: '#202060',
+        // shadowColor: '#202060',
+        // shadowOffset: { width: 0, height: 0 },
+        // shadowOpacity: 0.9,
+        // shadowRadius: 1,
+        top: windowHeight / 5,
+        position: 'absolute'
     }
 })
 

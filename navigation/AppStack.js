@@ -86,14 +86,10 @@ const App = () => {
       <AppStack.Screen name="Enable Notifs" component={EnableNotifsScreen} options={{ 
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
-        gestureEnabled: true,
-        gestureDirection: "vertical"
       }} />
       <AppStack.Screen name="Welcome" component={WelcomeScreen} options={{ 
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
-        gestureEnabled: true,
-        gestureDirection: "vertical"
       }} />
       <AppStack.Screen name="Captcha" component={CaptchaScreen} options={{ 
         headerShown: false,
