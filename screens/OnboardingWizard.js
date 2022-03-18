@@ -434,7 +434,7 @@ const OnboardingWizard = ({ navigation }) => {
                                                 androidVariant={'iosClone'}
                                                 mode={'time'}
                                                 minuteInterval={15}
-                                                date={new Date(formResponses.mealTimes[index]) || new Date()}
+                                                date={formResponses.mealTimes[index] ? new Date(formResponses.mealTimes[index]) : new Date()}
                                                 onDateChange={(v) => { let newArr = formResponses.mealTimes || []; newArr[index] = v; setFormResponses(val => ({ ...val, mealTimes: newArr })) }}
                                             />
                                         </View>
