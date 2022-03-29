@@ -34,8 +34,8 @@ const CourseSelection = ({ navigation }) => {
         const c = doc.data().courseData
         let now = new Date()
         let oneDay = 60 * 60 * 24 * 1000
-        if (c.courseDayCompleted === true) {
-          if (now - c.courseCompletedAt.toDate() >= oneDay) {
+        if (c.courseDayCompleted) {
+          if (now - c.courseCompletedAt?.toDate() >= oneDay) {
             setUserCourseData({
               courseData: {
                 latestCourseCompleted: c.latestCourseCompleted,
@@ -60,7 +60,14 @@ const CourseSelection = ({ navigation }) => {
             return null
           }
         }
-        setUserCourseData(c)
+        setUserCourseData({
+          courseData: {
+            latestCourseCompleted: c.latestCourseCompleted ? c.latestCourseCompleted : 0,
+            courseCompletedAt: c.courseCompletedAt ? c.courseCompletedAt : new Date(),
+            courseDay: c.courseDay ? c.courseDay : 1,
+            courseDayCompleted: false
+          }
+        })
         stopLoading()
         return null
       }, (e) => {
@@ -156,11 +163,6 @@ const CourseSelection = ({ navigation }) => {
                               name={starred[item.UniqueCourseNumber] ? 'star' : 'star-o'}
                             />
                           </TouchableOpacity>
-                          {/* <Entypo
-                            color='#202060'
-                            size={24}
-                            name='bookmarks'
-                          /> */}
                         </View>
                       </View>
                     </View>

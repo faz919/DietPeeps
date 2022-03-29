@@ -24,9 +24,7 @@ const Chat = ({ navigation, route }) => {
     const { imageInfo } = route.params
 
     const bottomBarHeight = useBottomTabBarHeight()
-
-    const timezoneOffset = (new Date()).getTimezoneOffset() / 60
-
+    
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
             navigation.setParams({ imageInfo: null })
@@ -125,14 +123,15 @@ const Chat = ({ navigation, route }) => {
                 return null
             } else if (imageInfo.length > 0) {
                 updateInfo({ lastImageSent: firestore.Timestamp.fromDate(new Date()) })
-                await analytics().logEvent('image', {
-                    msg: message,
-                    img: imageInfo,
-                    timeSent: firestore.Timestamp.fromDate(new Date()),
-                    userID: user.uid,
-                }).catch((e) => {
-                    console.log('error while uploading image data to analytics: ', e)
-                })
+                for (let image of imageInfo) {
+                    await analytics().logEvent('image', {
+                        img: image,
+                        timeSent: firestore.Timestamp.fromDate(new Date()),
+                        userID: user.uid,
+                    }).catch((e) => {
+                        console.log('error while uploading image data to analytics: ', e)
+                    })
+                }
             }
         }
 
@@ -677,7 +676,6 @@ const Chat = ({ navigation, route }) => {
                     swipeThreshold={50}
                     animationInTiming={400}
                     animationOutTiming={400}
-                    avoidKeyboard={true}
                 >
                     <View style={styles.panel}>
                         <View style={{ alignItems: 'center' }}>
