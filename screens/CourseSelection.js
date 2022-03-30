@@ -37,12 +37,10 @@ const CourseSelection = ({ navigation }) => {
         if (c.courseDayCompleted) {
           if (now - c.courseCompletedAt?.toDate() >= oneDay) {
             setUserCourseData({
-              courseData: {
-                latestCourseCompleted: c.latestCourseCompleted,
-                courseCompletedAt: c.courseCompletedAt,
-                courseDay: c.courseDay + 1,
-                courseDayCompleted: false
-              }
+              latestCourseCompleted: c.latestCourseCompleted,
+              courseCompletedAt: c.courseCompletedAt,
+              courseDay: c.courseDay + 1,
+              courseDayCompleted: false
             })
             updateInfo({
               courseData: {
@@ -61,12 +59,10 @@ const CourseSelection = ({ navigation }) => {
           }
         }
         setUserCourseData({
-          courseData: {
-            latestCourseCompleted: c.latestCourseCompleted ? c.latestCourseCompleted : 0,
-            courseCompletedAt: c.courseCompletedAt ? c.courseCompletedAt : new Date(),
-            courseDay: c.courseDay ? c.courseDay : 1,
-            courseDayCompleted: false
-          }
+          latestCourseCompleted: c.latestCourseCompleted ? c.latestCourseCompleted : 0,
+          courseCompletedAt: c.courseCompletedAt ? c.courseCompletedAt : new Date(),
+          courseDay: c.courseDay ? c.courseDay : 1,
+          courseDayCompleted: false
         })
         stopLoading()
         return null

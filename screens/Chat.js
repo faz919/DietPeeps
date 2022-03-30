@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useRef } from 'react'
 import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -22,8 +22,6 @@ import { AnimatePresence, MotiView } from 'moti'
 const Chat = ({ navigation, route }) => {
 
     const { imageInfo } = route.params
-
-    const bottomBarHeight = useBottomTabBarHeight()
     
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
@@ -42,6 +40,24 @@ const Chat = ({ navigation, route }) => {
     const [sendingMessage, setSendingMessage] = useState(false)
     const [attachingImage, setAttachingImage] = useState({})
     const [coachPfpLoading, setCoachPfpLoading] = useState(true)
+    const [messageBatches, setMessageBatches] = useState(1)
+    const [messagesEndReached, setMessagesEndReached] = useState(false)
+    const [scrollToLatestButton, showScrollToLatestButton] = useState(false)
+    const [scrollButtonLeft, setScrollButtonLeft] = useState(0)
+
+    const messagesList = useRef()
+
+    const scrollToLatest = () => { 
+        messagesList.current.scrollToIndex({ index: 0, viewOffset: 80 })
+    }
+
+    const loadMoreMessages = () => {
+        !messagesEndReached && setMessageBatches(messageBatches + 1)
+    }
+
+    const detectScrollPos = (event) => {
+        showScrollToLatestButton(event.nativeEvent.contentOffset.y > 1300)
+    }
 
     const takePhotoFromCamera = () => {
         setAttachingImage(val => ({ ...val, loading: true }))
@@ -247,7 +263,7 @@ const Chat = ({ navigation, route }) => {
             .doc(globalVars.chatID)
             .collection('chat-messages')
             .orderBy('timeSent', 'desc')
-            .limit(25)
+            .limit(25 * messageBatches)
             .onSnapshot((snapshot) => {
                 setMessages(snapshot.docs.map(doc => {
                     const data = doc.data()
@@ -259,10 +275,13 @@ const Chat = ({ navigation, route }) => {
                         setLoading(false)
                     }, 2000)
                 }
+                if (snapshot.docs.length < 25 * messageBatches) {
+                    setMessagesEndReached(true)
+                }
             }, (e) => {
                 console.log('error while fetching messages: ', e)
             })
-    }, [globalVars.chatID])
+    }, [globalVars.chatID, messageBatches])
 
     useEffect(() => {
         return firestore()
@@ -522,16 +541,20 @@ const Chat = ({ navigation, route }) => {
         <SafeAreaView style={styles.container}>
             <View style={{ flex: 1 }}>
                 <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'position' : 'padding'}
-                    keyboardVerticalOffset={bottomBarHeight + 20}
-                    contentContainerStyle={{ flex: 1 }}
+                    behavior={Platform.OS === 'ios' && 'position'}
+                    keyboardVerticalOffset={45}
+                    // contentContainerStyle={{ flex: 1 }}
                     enabled={Platform.OS === 'ios'}
                     style={{ flex: 1 }}
                 >
                     <FlatList
+                        ref={messagesList}
+                        onScroll={detectScrollPos}
+                        onEndReached={!messagesEndReached && loadMoreMessages}
+                        onEndReachedThreshold={0.1}
                         overScrollMode={'never'}
                         inverted
-                        initialNumToRender={8}
+                        initialNumToRender={9}
                         keyboardDismissMode='on-drag'
                         ListEmptyComponent={(
                             loading ?
@@ -547,7 +570,7 @@ const Chat = ({ navigation, route }) => {
                             <View style={{ margin: 40 }} />
                         )}
                         ListFooterComponent={(
-                            <View style={{ margin: 70 }} />
+                            <View style={{ margin: 50 }} />
                         )}
                         showsVerticalScrollIndicator={false}
                         data={messages}
@@ -569,7 +592,10 @@ const Chat = ({ navigation, route }) => {
                         keyExtractor={(item) => item.id}
                     />
                     <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 300 }} style={styles.sendMsgContainer}>
-                        <View style={styles.addImgContainer}>
+                        <View style={styles.addImgContainer} onLayout={(event) => {
+                            const { x } = event.nativeEvent.layout
+                            setScrollButtonLeft(x)
+                        }}>
                             <TouchableOpacity onPress={() => setAttachingImage(val => ({ ...val, visible: true }))}>
                                 <Ionicons
                                     name="camera"
@@ -620,33 +646,46 @@ const Chat = ({ navigation, route }) => {
                                     autoCapitalize="none"
                                     blurOnSubmit={false}
                                 />
+                                <AnimatePresence>
                                 {sendingMessage ?
-                                    <ActivityIndicator style={{ position: 'absolute', right: 20, top: 2 }} size={25} color="#4D43BD" /> :
-                                    <AnimatePresence>
-                                    {!messageInput && (images?.length === 0 || !images ) ? 
+                                <MotiView key='loading' style={{ position: 'absolute', right: 15, top: 2 }} from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }}>
+                                    <ActivityIndicator size={25} color="#4D43BD" />
+                                </MotiView> :
+                                    !messageInput && (images?.length === 0 || !images ) ? 
                                     <MotiView key='emoji' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
-                                        <TouchableOpacity onPress={() => {}}>
+                                        {/* <TouchableOpacity onPress={() => {}}>
                                             <Ionicons
                                                 name="happy"
                                                 size={25}
                                                 color='#BDB9DB'
                                             />
-                                        </TouchableOpacity>
+                                        </TouchableOpacity> */}
                                     </MotiView> :
                                     <MotiView key='text' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
-                                        <TouchableOpacity disabled={!messageInput && (images?.length === 0 || !images )} onPress={() => {setSendingMessage(true); newMessage(messageInput)}}>
+                                        <TouchableOpacity disabled={!messageInput && (images?.length === 0 || !images )} onPress={() => {setSendingMessage(true); scrollToLatest(); newMessage(messageInput)}}>
                                             <Ionicons
                                                 name="send"
                                                 size={25}
                                                 color='#4D43BD'
                                             />
                                         </TouchableOpacity>
-                                    </MotiView>}
-                                    </AnimatePresence>
+                                    </MotiView>
                                 }
+                                </AnimatePresence>
                             </View>
                         </View>
                     </MotiView>
+                <AnimatePresence>
+                    {scrollToLatestButton && <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={[styles.scrollToLatestButton, { left: scrollButtonLeft + 5 }]}>
+                        <TouchableOpacity onPress={() => scrollToLatest()}>
+                            <Ionicons
+                                name="ios-chevron-down"
+                                size={30}
+                                color='#BDB9DB'
+                            />
+                        </TouchableOpacity>
+                    </MotiView>}
+                </AnimatePresence>
                 </KeyboardAvoidingView>
                 <MotiView from={{ height: 0 }} animate={{ height: 180 }} delay={850} transition={{ type: 'timing' }} style={styles.scrollViewMask} />
                 <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} delay={500} style={styles.HUDWrapper}>
@@ -984,5 +1023,21 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(32,32,96,0.5)',
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    scrollToLatestButton: {
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'absolute',
+        bottom: 85,
+        left: 27,
+        height: 40,
+        width: 40,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        elevation: 10,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowRadius: 5,
+        shadowOpacity: 0.3,
     }
 })

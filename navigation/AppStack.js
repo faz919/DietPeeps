@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { View } from "react-native"
+import { Platform, View } from "react-native"
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -48,7 +48,7 @@ const MainMenu = () => {
         return <Ionicons name={iconName} size={size} color={color} />;
       },
       headerShown: false,
-      tabBarHideOnKeyboard: true,
+      tabBarHideOnKeyboard: Platform.OS === 'ios' ? false : true,
       tabBarBackground: () => (
         <View style={{ width: windowWidth, height: windowHeight * 0.2, backgroundColor: '#fff' }}></View>
       ),
