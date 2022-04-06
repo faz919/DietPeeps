@@ -343,7 +343,6 @@ const UserProfile = ({ navigation }) => {
         swipeThreshold={50}
         animationInTiming={400}
         animationOutTiming={400}
-        avoidKeyboard={true}
       >
         <View style={styles.panel}>
           <View style={{ alignItems: 'center' }}>

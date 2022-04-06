@@ -57,13 +57,14 @@ const CourseSelection = ({ navigation }) => {
             stopLoading()
             return null
           }
+        } else {
+          setUserCourseData({
+            latestCourseCompleted: c.latestCourseCompleted ? c.latestCourseCompleted : 0,
+            courseCompletedAt: c.courseCompletedAt ? c.courseCompletedAt : new Date(),
+            courseDay: c.courseDay ? c.courseDay : 1,
+            courseDayCompleted: false
+          })
         }
-        setUserCourseData({
-          latestCourseCompleted: c.latestCourseCompleted ? c.latestCourseCompleted : 0,
-          courseCompletedAt: c.courseCompletedAt ? c.courseCompletedAt : new Date(),
-          courseDay: c.courseDay ? c.courseDay : 1,
-          courseDayCompleted: false
-        })
         stopLoading()
         return null
       }, (e) => {

@@ -19,6 +19,9 @@ import ChatImage from '../components/ChatImage'
 import ProfilePic from '../components/ProfilePic'
 import { AnimatePresence, MotiView } from 'moti'
 
+import CourseData from '../courses/CourseData.json'
+import CourseLinkImage from '../components/CourseLinkImage'
+
 const Chat = ({ navigation, route }) => {
 
     const { imageInfo } = route.params
@@ -39,7 +42,6 @@ const Chat = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true)
     const [sendingMessage, setSendingMessage] = useState(false)
     const [attachingImage, setAttachingImage] = useState({})
-    const [coachPfpLoading, setCoachPfpLoading] = useState(true)
     const [messageBatches, setMessageBatches] = useState(1)
     const [messagesEndReached, setMessagesEndReached] = useState(false)
     const [scrollToLatestButton, showScrollToLatestButton] = useState(false)
@@ -138,7 +140,10 @@ const Chat = ({ navigation, route }) => {
                 imageInfo = null
                 return null
             } else if (imageInfo.length > 0) {
-                updateInfo({ lastImageSent: firestore.Timestamp.fromDate(new Date()) })
+                updateInfo({ 
+                    lastImageSent: firestore.Timestamp.fromDate(new Date()),
+                    totalImageCount: firestore.FieldValue.increment(imageInfo.length)
+                })
                 for (let image of imageInfo) {
                     await analytics().logEvent('image', {
                         img: image,
@@ -179,7 +184,13 @@ const Chat = ({ navigation, route }) => {
         await firestore()
             .collection('chat-rooms')
             .doc(globalVars.chatID)
-            .set({ latestMessageTime: firestore.Timestamp.fromDate(new Date()), latestMessage: message === '' ? '[Image]' : message, unreadCount: firestore.FieldValue.increment(1) }, { merge: true })
+            .set({ 
+                latestMessageTime: firestore.Timestamp.fromDate(new Date()), 
+                latestMessage: message === '' ? '[Image]' : message, 
+                unreadCount: firestore.FieldValue.increment(1),
+                latestMessageSender: user.uid,
+                ungradedImageCount: imageInfo != null && imageInfo.length > 0 ? firestore.FieldValue.increment(1) : firestore.FieldValue.increment(0)
+            }, { merge: true })
             .catch((e) => {
                 console.log("latest message log: ", e)
             })
@@ -577,10 +588,13 @@ const Chat = ({ navigation, route }) => {
                         renderItem={({ item }) => (
                             <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start' }}>
                                 <View style={item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg}>
-                                    {item.img == null ? null :
+                                    {item.img != null &&
                                         item.img.map((i) => (
                                             <ChatImage key={i.url} user={user} item={item} i={i} navigation={navigation} />
                                         ))
+                                    }
+                                    {item.msgType === 'courseLink' && 
+                                        <CourseLinkImage key={i.url} user={user} item={item} courseInfo={CourseData.find(course => course.UniqueCourseNumber === item.courseInfo.UniqueCourseNumber)} navigation={navigation} />
                                     }
                                     <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>
                                 </View>

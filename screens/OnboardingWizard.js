@@ -423,7 +423,7 @@ const OnboardingWizard = ({ navigation }) => {
                             <AnimatePresence exitBeforeEnter>
                                 {Array.apply(null, { length: formResponses.mealCount }).map((i, index) =>
                                     editingMealTime - 1 === index &&
-                                    <MotiView key={'editingMealTime', (index + 1)} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                    <MotiView key={'editingMealTime' + (index + 1)} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                         <View style={styles.ViewD2}>
                                             <Text style={[styles.title1, { color: '#202060' }]}>
                                                 {formResponses.mealCount == 1 ? 'What time do you usually eat your daily meal?' : `What time do you usually eat your ${index === formResponses.mealCount - 1 ? 'last' : meals[index]} meal of the day?`}

@@ -67,7 +67,8 @@ export const AuthProvider = ({ children }) => {
                         latestMessageTime: firestore.Timestamp.fromDate(new Date()),
                         latestMessage: "",
                         userIDs: [_user.uid, userCoach],
-                        unreadCount: 0
+                        unreadCount: 0,
+                        ungradedImageCount: 0
                     })
                     .then((doc) => {
                         setGlobalVars(val => ({
@@ -86,6 +87,7 @@ export const AuthProvider = ({ children }) => {
                                 type: 'client',
                                 lastImageSent: firestore.Timestamp.fromDate(new Date()),
                                 streakUpdated: firestore.Timestamp.fromDate(new Date()),
+                                totalImageCount: 0,
                                 streak: 0,
                                 dateJoined: _user.metadata.creationTime,
                                 courseData: {
@@ -122,22 +124,46 @@ export const AuthProvider = ({ children }) => {
 
     async function setUserMessagingInfo(token) {
         const _user = auth().currentUser
+        const userBioData = await AsyncStorage.getItem('@onboarding_responses')
 
         if(globalVars.userBioData == null) {
-            const userBioData = await AsyncStorage.getItem('@onboarding_responses')
-            for(let mealTime of JSON.parse(userBioData.mealTimes)) {
-                const globalHour = new Date(mealTime).getUTCHours()
-                messaging().subscribeToTopic('MealReminderAt' + globalHour).then(() => {
-                    console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
-                })
+            if (userBioData != null) {
+                for(let mealTime of JSON.parse(userBioData.mealTimes)) {
+                    const globalHour = new Date(mealTime).getUTCHours()
+                    messaging().subscribeToTopic(`MealReminderAt${globalHour}`).then(() => {
+                        console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
+                    })
+                }
+                messaging().subscribeToTopic('subscribed')
+                firestore()
+                    .collection('user-info')
+                    .doc(_user.uid)
+                    .set({
+                        userBioData: JSON.parse(userBioData)
+                    }, { merge: true })
+                    .catch((e) => {
+                        console.log('error while setting userbiodata: ', e)
+                        crashlytics().recordError(e)
+                    })
             }
         } else {
             for(let mealTime of globalVars.userBioData.mealTimes) {
                 const globalHour = new Date(mealTime).getUTCHours()
-                messaging().subscribeToTopic('MealReminderAt' + globalHour).then(() => {
+                messaging().subscribeToTopic(`MealReminderAt${globalHour}`).then(() => {
                     console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
                 })
             }
+            messaging().subscribeToTopic('subscribed')
+            firestore()
+                .collection('user-info')
+                .doc(_user.uid)
+                .set({
+                    userBioData: globalVars.userBioData
+                }, { merge: true })
+                .catch((e) => {
+                    console.log('error while setting userbiodata: ', e)
+                    crashlytics().recordError(e)
+                })
         }
 
         await firestore()
@@ -146,7 +172,7 @@ export const AuthProvider = ({ children }) => {
             .set({
                 fcmToken: token,
                 lastLoggedIn: _user.metadata.lastSignInTime
-            }, {merge: true})
+            }, { merge: true })
             .catch((e) => {
                 console.log('error while setting user token: ', e)
                 crashlytics().recordError(e)
@@ -351,7 +377,8 @@ export const AuthProvider = ({ children }) => {
                             .collection('user-info')
                             .doc(auth().currentUser.uid)
                             .set({
-                                deleted: true
+                                deleted: true,
+                                dateDeleted: firestore.Timestamp.fromDate(new Date())
                             }, { merge: true })
                         await auth().currentUser.delete().then(() => {
                             Alert.alert(
