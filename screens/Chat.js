@@ -1,9 +1,8 @@
 import React, { useState, useContext, useEffect, useRef } from 'react'
-import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard } from 'react-native'
+import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard, Linking } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Modal from 'react-native-modal'
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
 import storage from '@react-native-firebase/storage'
@@ -33,7 +32,7 @@ const Chat = ({ navigation, route }) => {
         return unsubscribe
     }, [navigation])
 
-    const { user, updateInfo, globalVars, setGlobalVars } = useContext(AuthContext)
+    const { user, updateInfo, globalVars, setGlobalVars, requestPermission } = useContext(AuthContext)
 
     const [online, setOnline] = useState(true)
     const [messageInput, setMessageInput] = useState('')
@@ -50,7 +49,7 @@ const Chat = ({ navigation, route }) => {
     const messagesList = useRef()
 
     const scrollToLatest = () => { 
-        messagesList.current.scrollToIndex({ index: 0, viewOffset: 80 })
+        messagesList && messagesList.current.scrollToIndex({ index: 0, viewOffset: 80 })
     }
 
     const loadMoreMessages = () => {
@@ -62,6 +61,10 @@ const Chat = ({ navigation, route }) => {
     }
 
     const takePhotoFromCamera = () => {
+        analytics().logEvent('opened_camera', {
+            userID: user.uid,
+            timestamp: new Date()
+        })
         setAttachingImage(val => ({ ...val, loading: true }))
         ImagePicker.openCamera({
             cropping: false,
@@ -79,20 +82,46 @@ const Chat = ({ navigation, route }) => {
             setAttachingImage(val => ({ ...val, loading: false }))
             setGlobalVars(val => ({ ...val, autoSend: true }))
         }).catch((e) => {
-            console.log('error while taking photo: ', e)
+            console.log('error while taking photo: ', e.code)
+            if (e.code === 'E_NO_CAMERA_PERMISSION') {
+                Alert.alert(
+                    'Access denied',
+                    'Please allow camera access in your app settings.',
+                    [
+                        {
+                            text: 'Cancel',
+                            onPress: () => Alert.alert(
+                                'Are you sure?',
+                                'This app requires you to send photos of your meals.',
+                                [
+                                    {
+                                        text: 'Cancel',
+                                        style: 'cancel'
+                                    },
+                                    {
+                                        text: 'Go to Settings',
+                                        onPress: () => Linking.openSettings()
+                                    }
+                                ]
+                            ),
+                            style: 'cancel'
+                        },
+                        {
+                            text: 'Go to Settings',
+                            onPress: () => Linking.openSettings()
+                        }
+                    ]
+                )
+            }
             setAttachingImage(val => ({ ...val, loading: false }))
         })
     }
 
-    useEffect(() => {
-        if (globalVars.autoSend && images?.length > 0) {
-            setSendingMessage(true)
-            newMessage(messageInput)
-            setGlobalVars(val => ({ ...val, autoSend: false }))
-        }
-    }, [images, globalVars.autoSend])
-
     const choosePhotosFromLibrary = () => {
+        analytics().logEvent('opened_camera', {
+            userID: user.uid,
+            timestamp: new Date()
+        })
         setAttachingImage(val => ({ ...val, loading: true }))
         ImagePicker.openPicker({
             multiple: true,
@@ -111,10 +140,76 @@ const Chat = ({ navigation, route }) => {
             setAttachingImage(val => ({ ...val, visible: false }))
             setAttachingImage(val => ({ ...val, loading: false }))
         }).catch((e) => {
-            console.log('error while choosing photos from library: ', e)
+            console.log('error while choosing photos from library: ', e.code)
+            if (e.code === 'E_NO_LIBRARY_PERMISSION') {
+                Alert.alert(
+                    'Access denied',
+                    'Please allow photo library access in your app settings.',
+                    [
+                        {
+                            text: 'Cancel',
+                            onPress: () => Alert.alert(
+                                'Are you sure?',
+                                'This app requires you to send photos of your meals.',
+                                [
+                                    {
+                                        text: 'Cancel',
+                                        style: 'cancel'
+                                    },
+                                    {
+                                        text: 'Go to Settings',
+                                        onPress: () => Linking.openSettings()
+                                    }
+                                ]
+                            ),
+                            style: 'cancel'
+                        },
+                        {
+                            text: 'Go to Settings',
+                            onPress: () => Linking.openSettings()
+                        }
+                    ]
+                )
+            }
             setAttachingImage(val => ({ ...val, loading: false }))
         })
     }
+
+    useEffect(() => {
+        if (user) {
+            requestPermission()
+            firestore()
+                .collection('user-info')
+                .doc(user.uid)
+                .get()
+                .then((userData) => {
+                    setGlobalVars(val => ({ ...val, userData: userData.data() }))
+                    const usr = userData.data()
+                    if (usr.userBioData == null && globalVars.userBioData == null) {
+                        navigation.replace('Onboarding Wizard')
+                    }
+                    if (usr.displayName == null || usr.photoURL == null) {
+                        updateInfo({
+                            displayName: user.displayName,
+                            photoURL: user.photoURL,
+                        })
+                    }
+                    if (usr.chatID == null && globalVars.chatID != null) {
+                        updateInfo({
+                            chatID: globalVars.chatID
+                        })
+                    }
+                })
+        }
+    }, [user])
+
+    useEffect(() => {
+        if (globalVars.autoSend && images?.length > 0) {
+            setSendingMessage(true)
+            newMessage(messageInput)
+            setGlobalVars(val => ({ ...val, autoSend: false }))
+        }
+    }, [images, globalVars.autoSend])
 
     useEffect(() => {
         if (imageInfo != null) {
@@ -269,7 +364,7 @@ const Chat = ({ navigation, route }) => {
     }, [])
 
     useEffect(() => {
-        return firestore()
+        const unsub = firestore()
             .collection('chat-rooms')
             .doc(globalVars.chatID)
             .collection('chat-messages')
@@ -292,10 +387,11 @@ const Chat = ({ navigation, route }) => {
             }, (e) => {
                 console.log('error while fetching messages: ', e)
             })
+        return () => unsub()
     }, [globalVars.chatID, messageBatches])
 
     useEffect(() => {
-        return firestore()
+        const unsub = firestore()
             .collection('chat-rooms')
             .where("userIDs", "array-contains", user.uid)
             .onSnapshot((querySnapshot) => {
@@ -321,15 +417,20 @@ const Chat = ({ navigation, route }) => {
                         })
                 })
             })
+        return () => unsub()
     }, [])
 
-    const [isFirstLogin, setIsFirstLogin] = useState(null)
+    const [isFirstLogin, setIsFirstLogin] = useState(false)
 
     useEffect(() => {
         AsyncStorage.getItem('alreadyLoggedIn').then((value) => {
             if (value == null) {
-                AsyncStorage.setItem('alreadyLoggedIn', 'true')
-                setIsFirstLogin(true)
+                AsyncStorage.mergeItem('alreadyLoggedIn', 'true')
+                if (globalVars.newAccount === true || globalVars.newAccount == null) {
+                    setIsFirstLogin(true)
+                } else {
+                    setIsFirstLogin(false)
+                }
             } else {
                 setIsFirstLogin(false)
             }
@@ -432,14 +533,9 @@ const Chat = ({ navigation, route }) => {
 
     useEffect(() => {
         const checkTutorial = async () => {
-            let started, finished
-            await AsyncStorage.getItem('@tutorial_started').then((value) => {
-                started = JSON.parse(value)
-            })
-            await AsyncStorage.getItem('@tutorial_finished').then((value) => {
-                finished = JSON.parse(value)
-            })
-            if (started && !finished && globalVars.chatID != null && globalVars.coachID != null) {
+            let started = await AsyncStorage.getItem('@tutorial_started')
+            let finished = await AsyncStorage.getItem('@tutorial_finished')
+            if (JSON.parse(started) && !JSON.parse(finished) && globalVars.chatID != null && globalVars.coachID != null) {
                 await firestore()
                     .collection('chat-rooms')
                     .doc(globalVars.chatID)
@@ -594,9 +690,9 @@ const Chat = ({ navigation, route }) => {
                                         ))
                                     }
                                     {item.msgType === 'courseLink' && 
-                                        <CourseLinkImage key={i.url} user={user} item={item} courseInfo={CourseData.find(course => course.UniqueCourseNumber === item.courseInfo.UniqueCourseNumber)} navigation={navigation} />
+                                        <CourseLinkImage key={item.id} user={user} messageData={item} userCourseData={globalVars.userData?.courseData} courseInfo={CourseData.find(course => course.UniqueCourseNumber === item.courseInfo.UniqueCourseNumber)} navigation={navigation} />
                                     }
-                                    <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>
+                                    <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>
                                 </View>
                                 <Text style={[styles.msgTimeText, { alignSelf: item.userID === user.uid ? 'flex-end' : 'flex-start' }]}>
                                     {item.timeSent == undefined ? moment(item.timeSent).calendar() : moment(item.timeSent.toDate()).calendar()}
@@ -659,6 +755,14 @@ const Chat = ({ navigation, route }) => {
                                     onChangeText={(text) => setMessageInput(text)}
                                     autoCapitalize="none"
                                     blurOnSubmit={false}
+                                    numberOfLines={1}
+                                    onSubmitEditing={() => {
+                                        if (messageInput || images?.length > 0) {
+                                            setSendingMessage(true)
+                                            scrollToLatest()
+                                            newMessage(messageInput)
+                                        }
+                                    }}
                                 />
                                 <AnimatePresence>
                                 {sendingMessage ?

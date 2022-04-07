@@ -17,7 +17,7 @@ import ProfilePic from '../components/ProfilePic.js'
 import analytics from '@react-native-firebase/analytics'
 
 const UserProfile = ({ navigation }) => {
-  const { user, updateInfo, emailVerification, changeEmail, forgotPassword, logout, deleteAccount, setGlobalVars } = useContext(AuthContext)
+  const { user, updateInfo, emailVerification, changeEmail, forgotPassword, logout, deleteAccount, globalVars, setGlobalVars } = useContext(AuthContext)
 
   const [newInfo, setNewInfo] = useState({})
   const [attachingImage, setAttachingImage] = useState({})
@@ -33,13 +33,7 @@ const UserProfile = ({ navigation }) => {
   }
 
   useEffect(() => {
-    firestore()
-      .collection('user-info')
-      .doc(user.uid)
-      .get()
-      .then((doc) => {
-        setUserInfo(doc.data())
-      })
+    setUserInfo(globalVars.userData)
   }, [])
 
   const thirtyDays = 60 * 60 * 24 * 1000 * 30

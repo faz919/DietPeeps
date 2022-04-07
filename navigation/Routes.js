@@ -1,7 +1,8 @@
-import React, {useContext, useState, useEffect} from 'react'
-import {NavigationContainer, validatePathConfig} from '@react-navigation/native'
+import React, {useContext, useState, useEffect, useRef} from 'react'
+import {NavigationContainer, useNavigationContainerRef, validatePathConfig} from '@react-navigation/native'
 import auth from '@react-native-firebase/auth'
 import {AuthContext} from './AuthProvider'
+import analytics from '@react-native-firebase/analytics'
 
 import AuthStack from './AuthStack'
 import AppStack from './AppStack'
@@ -10,9 +11,13 @@ const Routes = () => {
   const {user, setUser, setGlobalVars} = useContext(AuthContext)
   const [initializing, setInitializing] = useState(true)
 
+  const navigationRef = useNavigationContainerRef()
+  const routeNameRef = useRef()
+
   const onAuthStateChanged = (user) => {
     setUser(user)
-    setGlobalVars(val => ({...val, chatID: null}))
+    // why???
+    // setGlobalVars(val => ({...val, chatID: null}))
     if (initializing) setInitializing(false)
   };
 
@@ -24,7 +29,29 @@ const Routes = () => {
   if (initializing) return null;
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        navigationRef.getCurrentRoute() ? routeNameRef.current = navigationRef.getCurrentRoute().name : null
+      }}
+      onStateChange={async () => {
+        const previousRouteName = routeNameRef.current
+        const currentRouteName = navigationRef.getCurrentRoute().name
+
+        if (previousRouteName !== currentRouteName) {
+          console.log('user navigated to', currentRouteName)
+          try {
+            await analytics().logScreenView({
+              screen_name: currentRouteName,
+              screen_class: currentRouteName
+            })
+          } catch (e) {
+            console.log('does this thing work: ', e)
+          }
+        }
+        routeNameRef.current = currentRouteName
+      }}
+    >
       {user ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );

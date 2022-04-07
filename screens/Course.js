@@ -68,7 +68,7 @@ const Course = ({ navigation, route }) => {
                 courseDayCompleted: courseData.UniqueCourseNumber >= courseData.MaxCourseinDay ? true : false
             }
         })
-        navigation.navigate('Main Menu')
+        navigation.navigate('Main Menu', { screen: 'Courses', params: { courseInfo: null, courseCompleted: true } })
     }
     
     return (
@@ -230,7 +230,7 @@ const Course = ({ navigation, route }) => {
                     </View>
                     :
                     showButton ?
-                        <TouchableOpacity disabled={courseCompleted} style={[styles.panelButton, { opacity: courseCompleted ? 0.5 : 1 }]} onPress={() => completeCourse()}>
+                        <TouchableOpacity disabled={!courseCompleted} style={[styles.panelButton, { opacity: courseCompleted ? 0.5 : 1 }]} onPress={completeCourse}>
                             <Text style={styles.panelButtonTitle}>{courseCompleted ? 'Course Completed!' : 'Complete Course'}</Text>
                         </TouchableOpacity>
                         : null

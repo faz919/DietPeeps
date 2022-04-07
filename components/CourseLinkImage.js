@@ -1,27 +1,37 @@
 import React, { useState } from 'react'
 import { TouchableOpacity, ImageBackground, View, Text, StyleSheet } from 'react-native'
-import PieChart from 'react-native-pie-chart'
 import { windowWidth } from '../utils/Dimensions'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 import { MotiText, MotiView } from 'moti'
+import Icon from 'react-native-vector-icons/Ionicons'
 
-const CourseLinkImage = ({ user, item, courseInfo, navigation }) => {
+const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, navigation }) => {
 
     const [loading, setLoading] = useState(true)
 
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('Main Menu', { screen: 'Courses'})}>
-            <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: i.graded ? item.userID != user.uid ? 0.4 : 1 : 1 }} style={styles.textImage} source={{ uri: courseInfo.CoverLink }}>
+        <TouchableOpacity onPress={() => navigation.navigate('Main Menu', { screen: 'Courses', params: { courseInfo: courseInfo, courseCompleted: userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber } })}>
+            <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber ? 0.4 : 1 }} style={styles.textImage} source={{ uri: courseInfo.CoverLink }}>
                 {!loading ?
                     <View style={{
-                        justifyContent: 'flex-start', alignItems: 'flex-end', height: windowWidth * 0.65, padding: 10, elevation: 10,
+                        justifyContent: 'flex-end', alignItems: 'flex-start', height: windowWidth * 0.65, padding: 10, 
+                        elevation: 10,
                         shadowColor: '#000000',
                         shadowOffset: { width: 0, height: 0 },
-                        shadowRadius: 5,
+                        shadowRadius: 10,
                         shadowOpacity: 0.4,
                     }}>
-                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginBottom: 0, color: '#202060', fontSize: 60, fontWeight: 'bold' }}>{courseInfo.Title}</MotiText>
-                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginBottom: -15, color: '#202060', fontSize: 60, fontWeight: 'bold' }}>{courseInfo.Subtitle}</MotiText>
+                        {userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber &&
+                        <MotiView from={{ opacity: 0, rotate: '180deg' }} animate={{ opacity: 1, rotate: '0deg' }} style={{ position: 'absolute', top: (windowWidth * 0.65) / 4, left: (windowWidth * 0.65) / 4 }}>
+                            <Icon
+                                name='checkmark-circle-outline'
+                                size={(windowWidth * 0.65) / 2}
+                                color='#43CD3F'
+                                style={styles.checkmarkStyle}
+                            />
+                        </MotiView>}
+                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ color: '#fff', fontSize: 25, fontWeight: 'bold' }}>{courseInfo.Title}</MotiText>
+                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ marginBottom: -5, color: '#fff', fontSize: 20, fontWeight: 'bold' }}>{courseInfo.Subtitle}</MotiText>
                     </View>
                 :
                 <SkeletonPlaceholder backgroundColor='#e6e7fa' highlightColor='#fff' speed={1000}>
@@ -38,12 +48,13 @@ const styles = StyleSheet.create({
         width: windowWidth * 0.65,
         marginVertical: 10,
     },
-    pieChartContainer: {
+    checkmarkStyle: {
         elevation: 10,
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 10 },
+        shadowOffset: { width: 0, height: 5 },
         shadowRadius: 5,
         shadowOpacity: 0.4,
+        left: 3
     }
 })
 

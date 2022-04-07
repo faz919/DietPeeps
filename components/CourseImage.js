@@ -21,7 +21,7 @@ const CourseImage = ({ item, userCourseData, navigation }) => {
                             <Icon
                                 name='checkmark-circle-outline'
                                 size={100}
-                                color='#4bb543'
+                                color='#43CD3F'
                                 style={styles.checkmarkStyle}
                             />
                         </View>}

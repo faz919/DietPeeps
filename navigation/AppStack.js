@@ -18,7 +18,7 @@ import EnableNotifsScreen from "../screens/EnableNotifsScreen.js"
 import WelcomeScreen from "../screens/WelcomeScreenAndroid.js"
 import CaptchaScreen from "../screens/CompleteCaptcha.js"
 import OnboardingWizard from "../screens/OnboardingWizard.js"
-import { AuthContext } from "./AuthProvider.js"
+import CongratsPopup from "../screens/CongratsPopup.js"
 
 const AppStack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -55,34 +55,34 @@ const MainMenu = () => {
       tabBarInactiveTintColor: "#BDB9DB",
       tabBarActiveTintColor: "#4D43BD",
     })}>
-      <Tab.Screen name="Coach" component={Chat} initialParams={{imageInfo: null}} />
-      <Tab.Screen name="Gallery" component={PhotoGallery} initialParams={{imageInfo: null}} />
+      <Tab.Screen name="Coach" component={Chat} initialParams={{ imageInfo: null }} />
+      <Tab.Screen name="Gallery" component={PhotoGallery} initialParams={{ imageInfo: null }} />
       <Tab.Screen name="Camera" component={CameraModal}
         listeners={(params) => ({
-          tabPress:(e)=>{
+          tabPress: (e) => {
             e.preventDefault()
             params.navigation.navigate('CameraModal')
           }
         })}
       />
       <Tab.Screen name="Your Stats" component={Stats} />
-      <Tab.Screen name="Courses" component={CourseSelection} />
+      <Tab.Screen name="Courses" component={CourseSelection} initialParams={{ courseInfo: null }} />
     </Tab.Navigator>
   )
 }
 
 const App = () => {
-  const { globalVars, setGlobalVars } = useContext(AuthContext)
   return (
     <AppStack.Navigator initialRouteName={'Main Menu'} >
       <AppStack.Screen name="Main Menu" component={MainMenu} options={{ headerShown: false }} />
-      <AppStack.Screen name="Photo Gallery" component={PhotoGallery} options={{ headerShown: false }} />
+      {/* <AppStack.Screen name="Photo Gallery" component={PhotoGallery} options={{ headerShown: false }} /> */}
       <AppStack.Screen name="Onboarding Wizard" component={OnboardingWizard} options={{
         headerShown: false,
         ...TransitionPresets.SlideFromRightIOS,
       }} />
-      <AppStack.Screen name="Courses" component={CourseSelection} options={{ headerShown: false }} />
+      {/* <AppStack.Screen name="Courses" component={CourseSelection} options={{ headerShown: false }} /> */}
       <AppStack.Screen name="CameraModal" component={CameraModal} options={{ presentation: 'transparentModal', headerShown: false }} />
+      <AppStack.Screen name="Congrats" component={CongratsPopup} options={{ presentation: 'transparentModal', headerShown: false }} />
       <AppStack.Screen name="Enable Notifs" component={EnableNotifsScreen} options={{ 
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
@@ -95,12 +95,12 @@ const App = () => {
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
       }} />
-      <AppStack.Screen name="Coach" component={Chat} options={{
+      {/* <AppStack.Screen name="Coach" component={Chat} options={{
         headerShown: false,
         ...TransitionPresets.SlideFromRightIOS,
         gestureEnabled: true,
         gestureDirection: "horizontal"
-      }} />
+      }} /> */}
       <AppStack.Screen name="Course" component={Course} options={{
         headerShown: false,
         ...TransitionPresets.SlideFromRightIOS,

@@ -19,7 +19,7 @@ import { Easing } from 'react-native-reanimated'
 import ProfilePic from '../components/ProfilePic'
 
 const PhotoGallery = ({ navigation, route }) => {
-    const { user, globalVars, setGlobalVars } = useContext(AuthContext)
+    const { user, updateInfo, globalVars, setGlobalVars } = useContext(AuthContext)
 
     const { imageInfo } = route.params
 
@@ -37,6 +37,7 @@ const PhotoGallery = ({ navigation, route }) => {
     const [selectedImage, setSelectedImage] = useState([])
     const [showGradeInfo, setShowGradeInfo] = useState(false)
     const [userInfo, setUserInfo] = useState({})
+    const [imgCountUpdated, setUpdated] = useState(false)
 
     const insets = useSafeAreaInsets()
     const bottomBarHeight = useBottomTabBarHeight()
@@ -56,6 +57,13 @@ const PhotoGallery = ({ navigation, route }) => {
                     }
                 })
                 setGlobalVars(val => ({ ...val, images: imageList }))
+                if (!imgCountUpdated && globalVars.userData?.totalImageCount !== imageList.length) {
+                    updateInfo({
+                        totalImageCount: imageList.length
+                    })
+                    console.log('user total image count updated')
+                    setUpdated(true)
+                }
                 imageList = []
                 if (loading) {
                     setLoading(false)
@@ -77,7 +85,7 @@ const PhotoGallery = ({ navigation, route }) => {
                             userID: user.uid,
                             result: result
                         })
-                        AsyncStorage.setItem('@reviewed_app', 'true')
+                        AsyncStorage.mergeItem('@reviewed_app', 'true')
                     })
                 }
             })
@@ -105,7 +113,7 @@ const PhotoGallery = ({ navigation, route }) => {
     }
 
     const getImageDetail = (imgInfo) => {
-        setSelectedImage(imgInfo)
+        setSelectedImage(globalVars.images?.find(img => img.url === imgInfo.url))
         setImageDetailView(true)
     }
 

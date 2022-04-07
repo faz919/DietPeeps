@@ -15,7 +15,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 
 const OnboardingWizard = ({ navigation }) => {
 
-    const { setGlobalVars } = useContext(AuthContext)
+    const { user, updateInfo, setGlobalVars } = useContext(AuthContext)
     const [formResponses, setFormResponses] = useState({
         mealTimes: [],
         height: {
@@ -61,10 +61,8 @@ const OnboardingWizard = ({ navigation }) => {
                             setFormPage(JSON.parse(value))
                             setSynced(true)
                         }
-                        console.log('form page: ', value)
                     })
                 }
-                console.log('form responses: ', value)
             })
         }
         synced && AsyncStorage.setItem('@onboarding_responses', JSON.stringify(formResponses)) 
@@ -73,6 +71,9 @@ const OnboardingWizard = ({ navigation }) => {
 
     const finishForm = async () => {
         setGlobalVars(val => ({...val, userBioData: formResponses}))
+        if (user) {
+            updateInfo({ userBioData: formResponses })
+        }
         navigation.navigate('Signup') || navigation.navigate('Main Menu')
     }
 

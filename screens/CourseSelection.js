@@ -10,7 +10,9 @@ import ToggleButtonRow from '../components/ToggleButtonRow'
 import CourseImage from '../components/CourseImage'
 import { MotiView } from 'moti'
 
-const CourseSelection = ({ navigation }) => {
+const CourseSelection = ({ navigation, route }) => {
+
+  const { courseInfo, courseCompleted } = route.params 
 
   const { updateInfo, user } = useContext(AuthContext)
   const [userCourseData, setUserCourseData] = useState(3)
@@ -27,7 +29,23 @@ const CourseSelection = ({ navigation }) => {
   }
 
   useEffect(() => {
-    return firestore()
+    const unsubscribe = navigation.addListener("focus", () => {
+      navigation.setParams({ courseInfo: null, courseCompleted: null })
+    })
+    return unsubscribe
+  }, [navigation])
+
+  useEffect(() => {
+    if (courseInfo != null) {
+      navigation.navigate('Course', { courseData: courseInfo, courseCompleted: courseCompleted })
+    } 
+    // else if (courseInfo == null && courseCompleted) {
+    //   navigation.navigate('Congrats')
+    // }
+  }, [courseInfo, courseCompleted])
+
+  useEffect(() => {
+    const unsub = firestore()
       .collection('user-info')
       .doc(user.uid)
       .onSnapshot((doc) => {
@@ -70,6 +88,7 @@ const CourseSelection = ({ navigation }) => {
       }, (e) => {
         console.log('error while updating course data: ', e)
       })
+    return () => unsub()
   }, [])
 
   useEffect(() => {

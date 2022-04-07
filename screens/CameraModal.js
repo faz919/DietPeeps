@@ -1,15 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, Alert, Linking } from 'react-native'
 import { windowWidth } from '../utils/Dimensions'
 import Modal from 'react-native-modal'
 import ImagePicker from 'react-native-image-crop-picker'
 import { AuthContext } from '../navigation/AuthProvider'
+import analytics from '@react-native-firebase/analytics'
+
 
 const CameraModal = ({ navigation }) => {
 
     const [attachingImage, setAttachingImage] = useState({})
 
-    const { setGlobalVars } = useContext(AuthContext)
+    const { user, setGlobalVars } = useContext(AuthContext)
 
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
@@ -19,6 +21,10 @@ const CameraModal = ({ navigation }) => {
     }, [navigation])
 
     const takePhotoFromCamera = () => {
+        analytics().logEvent('opened_camera', {
+            userID: user.uid,
+            timestamp: new Date()
+        })
         setAttachingImage(val => ({ ...val, loading: true }))
         setGlobalVars(val => ({...val, autoSend: true}))
         ImagePicker.openCamera({
@@ -35,11 +41,46 @@ const CameraModal = ({ navigation }) => {
             }] } })
         }).catch((e) => {
             console.log('error while taking photo: ', e)
+            if (e.code === 'E_NO_CAMERA_PERMISSION') {
+                console.log('yo')
+                Alert.alert(
+                    'Access denied',
+                    'Please allow camera access in your app settings.',
+                    [
+                        {
+                            text: 'Cancel',
+                            onPress: () => Alert.alert(
+                                'Are you sure?',
+                                'This app requires you to send photos of your meals.',
+                                [
+                                    {
+                                        text: 'Cancel',
+                                        style: 'cancel'
+                                    },
+                                    {
+                                        text: 'Go to Settings',
+                                        onPress: () => Linking.openSettings()
+                                    }
+                                ]
+                            ),
+                            style: 'cancel'
+                        },
+                        {
+                            text: 'Go to Settings',
+                            onPress: () => Linking.openSettings()
+                        }
+                    ]
+                )
+            }
             setAttachingImage(val => ({ ...val, loading: false }))
         })
     }
 
     const choosePhotosFromLibrary = () => {
+        analytics().logEvent('opened_photo_library', {
+            userID: user.uid,
+            timestamp: new Date()
+        })
         setAttachingImage(val => ({ ...val, loading: true }))
         ImagePicker.openPicker({
             multiple: true,
@@ -56,7 +97,37 @@ const CameraModal = ({ navigation }) => {
                 }
             }) } })
         }).catch((e) => {
-            console.log('error while choosing photos from library: ', e)
+            console.log('error while choosing photos from library: ', e.code)
+            if (e.code === 'E_NO_LIBRARY_PERMISSION') {
+                Alert.alert(
+                    'Access denied',
+                    'Please allow photo library access in your app settings.',
+                    [
+                        {
+                            text: 'Cancel',
+                            onPress: () => Alert.alert(
+                                'Are you sure?',
+                                'This app requires you to send photos of your meals.',
+                                [
+                                    {
+                                        text: 'Cancel',
+                                        style: 'cancel'
+                                    },
+                                    {
+                                        text: 'Go to Settings',
+                                        onPress: () => Linking.openSettings()
+                                    }
+                                ]
+                            ),
+                            style: 'cancel'
+                        },
+                        {
+                            text: 'Go to Settings',
+                            onPress: () => Linking.openSettings()
+                        }
+                    ]
+                )
+            }
             setAttachingImage(val => ({ ...val, loading: false }))
         })
     }
@@ -73,7 +144,6 @@ const CameraModal = ({ navigation }) => {
             swipeThreshold={50}
             animationInTiming={400}
             animationOutTiming={400}
-            avoidKeyboard={true}
             onModalHide={() => navigation.goBack()}
         >
             <View style={styles.panel}>
