@@ -22,7 +22,7 @@ const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, naviga
                         shadowOpacity: 0.4,
                     }}>
                         {userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber &&
-                        <MotiView from={{ opacity: 0, rotate: '180deg' }} animate={{ opacity: 1, rotate: '0deg' }} style={{ position: 'absolute', top: (windowWidth * 0.65) / 4, left: (windowWidth * 0.65) / 4 }}>
+                        <MotiView from={{ opacity: 0, rotate: '180deg' }} animate={{ opacity: 1, rotate: '0deg' }} style={{ position: 'absolute', top: (windowWidth * 0.65) / 6, left: (windowWidth * 0.65) / 4 }}>
                             <Icon
                                 name='checkmark-circle-outline'
                                 size={(windowWidth * 0.65) / 2}

@@ -18,7 +18,7 @@ const IntroVideo = ({ navigation }) => {
         <View style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
             {windowHeight / windowWidth === 2 ?
                 <Video
-                    source={require('../assets/intro-video-18-9.mp4')}
+                    source={require('../assets/intro-video-16-9.mp4')}
                     style={styles.introVideo}
                     fullscreen={true}
                     fullscreenOrientation={'portrait'}
