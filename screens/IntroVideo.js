@@ -18,7 +18,7 @@ const IntroVideo = ({ navigation }) => {
         <View style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
             {windowHeight / windowWidth === 2 ?
                 <Video
-                    source={require('../assets/intro-video-16-9.mp4')}
+                    source={'https://dp191919.s3.us-east-2.amazonaws.com/highres.mp4'}
                     style={styles.introVideo}
                     fullscreen={true}
                     fullscreenOrientation={'portrait'}
@@ -30,7 +30,7 @@ const IntroVideo = ({ navigation }) => {
                 />
                 :
                 <Video
-                    source={require('../assets/intro-video-16-9.mp4')}
+                    source={'https://dp191919.s3.us-east-2.amazonaws.com/lowres.mp4'}
                     style={styles.introVideo}
                     fullscreen={true}
                     fullscreenOrientation={'portrait'}
