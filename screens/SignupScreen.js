@@ -132,9 +132,9 @@ const SignupScreen = ({ navigation }) => {
             />
             <View style={styles.textPrivate}>
                 <Text style={styles.color_textPrivate}>By registering, you confirm that you agree to our </Text>
-                <TouchableOpacity onPress={() => Linking.openURL('http://dietpeeps.com/eula.html')}><Text style={styles.color_textPrivate, { color: '#F7B852', fontSize: 12 }}>Terms of Service</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => Linking.openURL('http://dietpeeps.com/eula.html')}><Text style={[styles.color_textPrivate, { color: '#F7B852', fontSize: 12 }]}>Terms of Service</Text></TouchableOpacity>
                 <Text style={styles.color_textPrivate}> and </Text>
-                <TouchableOpacity onPress={() => Linking.openURL('http://dietpeeps.com/privacy.html')}><Text style={styles.color_textPrivate, { color: '#F7B852', fontSize: 12 }}>Privacy Policy</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => Linking.openURL('http://dietpeeps.com/privacy.html')}><Text style={[styles.color_textPrivate, { color: '#F7B852', fontSize: 12 }]}>Privacy Policy</Text></TouchableOpacity>
                 <Text style={styles.color_textPrivate}>.</Text>
             </View>
             <TouchableOpacity style={{ marginTop: windowHeight / 30 }} onPress={() => navigation.navigate('Login')}>
