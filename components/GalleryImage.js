@@ -39,7 +39,7 @@ class GalleryImage extends PureComponent {
                             style={{ borderWidth: windowWidth * 0.32 * 0.015, borderRadius: windowWidth * 0.32 * 0.15, borderColor: '#fff' }}
                             widthAndHeight={windowWidth * 0.32 * 0.3}
                             series={[this.props.item.red * 10, this.props.item.yellow * 10, this.props.item.green * 10]}
-                            sliceColor={['#C70039', '#EBD32E', '#43CD3F']}
+                            sliceColor={['#ECF0E6', '#FFC482', '#67BB3A']}
                         />
                         </MotiView>
                     </View>

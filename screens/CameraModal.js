@@ -5,7 +5,7 @@ import Modal from 'react-native-modal'
 import ImagePicker from 'react-native-image-crop-picker'
 import { AuthContext } from '../navigation/AuthProvider'
 import analytics from '@react-native-firebase/analytics'
-
+import crashlytics from '@react-native-firebase/crashlytics'
 
 const CameraModal = ({ navigation }) => {
 
@@ -40,11 +40,11 @@ const CameraModal = ({ navigation }) => {
                 mime: i.mime,
             }] } })
         }).catch((e) => {
-            console.log('error while taking photo: ', e)
+            crashlytics().recordError(e)
+            console.error('error while taking photo: ', e)
             if (e.code === 'E_NO_CAMERA_PERMISSION') {
-                console.log('yo')
                 Alert.alert(
-                    'Access denied',
+                    'We need your permission',
                     'Please allow camera access in your app settings.',
                     [
                         {
@@ -97,10 +97,11 @@ const CameraModal = ({ navigation }) => {
                 }
             }) } })
         }).catch((e) => {
-            console.log('error while choosing photos from library: ', e.code)
+            crashlytics().recordError(e)
+            console.error('error while choosing photos from library: ', e.code)
             if (e.code === 'E_NO_LIBRARY_PERMISSION') {
                 Alert.alert(
-                    'Access denied',
+                    'We need your permission',
                     'Please allow photo library access in your app settings.',
                     [
                         {

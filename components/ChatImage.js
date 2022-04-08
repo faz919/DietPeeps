@@ -35,7 +35,7 @@ const ChatImage = ({ user, item, i, navigation }) => {
                                 style={{ borderWidth: pieChartDimensions * 0.05, borderRadius: pieChartDimensions * 0.5, borderColor: '#fff' }}
                                 widthAndHeight={pieChartDimensions}
                                 series={[i.red * 10, i.yellow * 10, i.green * 10]}
-                                sliceColor={['#C70039', '#EBD32E', '#43CD3F']}
+                                sliceColor={['#ECF0E6', '#FFC482', '#67BB3A']}
                             />
                             </MotiView>
                         </View>

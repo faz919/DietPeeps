@@ -69,7 +69,7 @@ const PhotoGallery = ({ navigation, route }) => {
                     setLoading(false)
                 }
             }, (e) => {
-                console.log('error while fetching chat images: ', e)
+                console.error('error while fetching chat images: ', e)
             })
     }, [])
 
@@ -218,7 +218,7 @@ const PhotoGallery = ({ navigation, route }) => {
                                                                         style={{ borderRadius: 30, alignSelf: 'center', marginLeft: 5 }}
                                                                         widthAndHeight={60}
                                                                         series={[selectedImage.red * 10, selectedImage.yellow * 10, selectedImage.green * 10]}
-                                                                        sliceColor={['#C70039', '#EBD32E', '#43CD3F']}
+                                                                        sliceColor={['#ECF0E6', '#FFC482', '#67BB3A']}
                                                                     />
                                                                 </MotiView>
                                                                 <MotiView
@@ -245,9 +245,9 @@ const PhotoGallery = ({ navigation, route }) => {
                                                                     }}
                                                                 >
                                                                     <View style={{ height: 70, borderRadius: 10, justifyContent: 'center', alignItems: 'flex-start', marginLeft: 0, padding: 10 }}>
-                                                                        <Text style={{ color: '#202060' }}>Red: {Math.round((selectedImage.red / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
-                                                                        <Text style={{ color: '#202060' }}>Yellow: {Math.round((selectedImage.yellow / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
                                                                         <Text style={{ color: '#202060' }}>Green: {Math.round((selectedImage.green / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
+                                                                        <Text style={{ color: '#202060' }}>Yellow: {Math.round((selectedImage.yellow / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
+                                                                        <Text style={{ color: '#202060' }}>White: {Math.round((selectedImage.red / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
                                                                     </View>
                                                                 </MotiView>
                                                             </View>
@@ -281,7 +281,7 @@ const PhotoGallery = ({ navigation, route }) => {
                                                                         color='black'
                                                                     />
                                                                 </TouchableOpacity> */}
-                                                                <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'Your Meal Score is calculated by first giving you points for all the green foods on your plate. Then the red foods on your plate are subtracted from this score.'}</Text>
+                                                                <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'Your Meal Score is calculated by first giving you points for all the green foods on your plate. Then the white foods on your plate are subtracted from this score.'}</Text>
                                                                 <Text />
                                                                 <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'A Meal Score of 60 or higher is considered a good score.'}</Text>
                                                             </TouchableOpacity>
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 5 },
         shadowRadius: 5,
         shadowOpacity: 0.3,
-        backgroundColor: 'rgba(255,255,255,0.9)',
+        backgroundColor: 'rgba(255,255,255,0.7)',
         borderRadius: 35,
     },
     statsViewContainer: {

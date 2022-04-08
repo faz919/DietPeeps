@@ -141,7 +141,7 @@ const UserProfile = ({ navigation }) => {
 
       return url
     } catch (e) {
-      console.log(e)
+      console.error(e)
       return null
     }
   }
@@ -161,15 +161,15 @@ const UserProfile = ({ navigation }) => {
         imageRef
           .delete()
           .catch((e) => {
-            console.log("Error while deleting image from Firebase Storage: ", e)
+            console.error("Error while deleting image from Firebase Storage: ", e)
           })
         return null
       } else {
-        console.log("user's profile picture does not exist on cloud storage")
+        console.error("user's profile picture does not exist on cloud storage")
         return null
       }
     } else {
-      console.log('no user photo found')
+      console.error('no user photo found')
       return null
     }
   }

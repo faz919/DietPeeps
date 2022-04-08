@@ -86,7 +86,7 @@ const CourseSelection = ({ navigation, route }) => {
         stopLoading()
         return null
       }, (e) => {
-        console.log('error while updating course data: ', e)
+        console.error('error while updating course data: ', e)
       })
     return () => unsub()
   }, [])

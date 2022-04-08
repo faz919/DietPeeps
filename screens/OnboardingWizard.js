@@ -10,7 +10,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Picker } from '@react-native-picker/picker'
 import { MotiView, MotiText, AnimatePresence, MotiImage } from 'moti'
 import { Easing } from 'react-native-reanimated'
-import messaging from '@react-native-firebase/messaging'
 import Icon from 'react-native-vector-icons/Ionicons'
 
 const OnboardingWizard = ({ navigation }) => {
@@ -18,6 +17,7 @@ const OnboardingWizard = ({ navigation }) => {
     const { user, updateInfo, setGlobalVars } = useContext(AuthContext)
     const [formResponses, setFormResponses] = useState({
         mealTimes: [],
+        goals: [],
         height: {
             ft: 5, in: 7,
             cm: 170, mm: 2
@@ -34,8 +34,8 @@ const OnboardingWizard = ({ navigation }) => {
         mealCount: 3,
         timezoneOffset: (new Date()).getTimezoneOffset() / 60
     })
-    const formLength = 8
-    const mealPickerScreen = 7
+    const formLength = 9
+    const mealPickerScreen = 8
     const [formPage, setFormPage] = useState(1)
     const [synced, setSynced] = useState(false)
     const [openTimePicker, setOpenTimePicker] = useState([])
@@ -46,6 +46,51 @@ const OnboardingWizard = ({ navigation }) => {
     })
     const [editingMealTime, setEditingMealTime] = useState(1)
     const [loadingScreen, setLoadingScreen] = useState(1)
+
+    const goals = [
+        'Eat healthy',
+        'Build muscle',
+        'Start a diet',
+        'Gain confidence in my body',
+        'Fit in my pants',
+        'Prepare for a wedding',
+        'Go to the gym more',
+        'Tone my body',
+        'Go for a 5K run',
+        'Eat less junk',
+        'Quit smoking',
+        'Quit drinking',
+        'Drink less alcohol',
+        'Enjoy life',
+        'Be more mindful',
+        'Live in the moment',
+        'Stress less',
+        'Reduce anxiety',
+        'Be more productive',
+        'Conquer my fears',
+        'Cut down on sugar',
+        'Stop eating junk food',
+        'Go gluten free',
+        'Reduce meat consumption',
+        'Reduce my carbon footprint',
+        'Become comfortable doing exercise outside',
+        'Help my family be more healthy',
+        'Break out of my comfort zone',
+        'Other'
+    ]
+
+    const toggleSelectGoal = (goal) => {
+        if (formResponses.goals.includes(goal)) {
+            let oldArr = formResponses.goals
+            let newArr = oldArr.filter(val => val != goal)
+            setFormResponses(val => ({ ...val, goals: newArr }))
+            
+        } else {
+            let newArr = formResponses.goals
+            newArr.push(goal)
+            setFormResponses(val => ({ ...val, goals: newArr }))
+        }
+    }
 
     useEffect(() => {
         if (!synced) {
@@ -126,7 +171,7 @@ const OnboardingWizard = ({ navigation }) => {
                                     }}
                                 >
                                     <View style={styles.ViewD2}>
-                                        <Text style={[styles.headline2, { color: '#202060', marginBottom: 20 }]}>
+                                        <Text style={[styles.headline2, { color: '#202060', marginBottom: 0 }]}>
                                             {'Tell us about yourself!'}
                                         </Text>
                                     </View>
@@ -134,7 +179,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 <MotiView
                                     from={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    delay={1700}
+                                    delay={1800}
                                 >
                                     <View style={styles.ViewD2}>
                                         <Text style={[styles.headline1, { color: '#202060', marginBottom: 20 }]}>
@@ -145,7 +190,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 <MotiView
                                     from={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    delay={1800}
+                                    delay={1900}
                                 >
                                     <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, weightGoal: 'Lose Weight' })); setFormPage(2) }} style={[styles.largeView, { flexDirection: 'row' }]}>
                                         <Text style={styles.title1}>Lose Weight</Text>
@@ -154,7 +199,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 <MotiView
                                     from={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    delay={1900}
+                                    delay={2000}
                                 >
                                     <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, weightGoal: 'Maintain Weight' })); setFormPage(2) }} style={[styles.largeView, { flexDirection: 'row' }]}>
                                         <Text style={styles.title1}>Maintain Weight</Text>
@@ -163,15 +208,52 @@ const OnboardingWizard = ({ navigation }) => {
                                 <MotiView
                                     from={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    delay={2000}
+                                    delay={2100}
                                 >
                                     <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, weightGoal: 'Gain Weight' })); setFormPage(2) }} style={[styles.largeView, { flexDirection: 'row' }]}>
                                         <Text style={styles.title1}>Gain Weight</Text>
                                     </TouchableOpacity>
                                 </MotiView>
+                                <MotiView
+                                    from={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    delay={2200}
+                                >
+                                    <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, weightGoal: 'Not Weight Related' })); setFormPage(2) }} style={[styles.largeView, { flexDirection: 'row' }]}>
+                                        <Text style={styles.title1}>Not Weight Related</Text>
+                                    </TouchableOpacity>
+                                </MotiView>
                             </MotiView>}
                         {formPage === 2 &&
-                            <MotiView key='page2' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                            <MotiView key='page2' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ justifyContent: 'space-around' }}>
+                                <View style={styles.ViewD2}>
+                                    <Text style={[styles.headline1, { color: '#202060', marginBottom: 20 }]}>
+                                        {formResponses.weightGoal === 'Not Weight Related' ? 'What are some of your goals?' : 'What other goals do you have?'}
+                                    </Text>
+                                </View>
+                                <ScrollView style={{ height: windowHeight * 0.5, backgroundColor: '#BDB9DB', borderRadius: 20, overflow: 'hidden', paddingHorizontal: 10, paddingBottom: 10 }}>
+                                    {goals.map((goal, index) => 
+                                        <TouchableOpacity key={goal} onPress={() => toggleSelectGoal(goal)} style={[styles.largeView, { backgroundColor: formResponses.goals.includes(goal) ? '#43CD3F' : '#fff', marginBottom: index + 1 === goals.length ? 10 : 0 }]}>
+                                            <Text style={[styles.title1, { color: formResponses.goals.includes(goal) ? '#fff' : '#202060' }]}>
+                                                {goal}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )}
+                                </ScrollView>
+                                <View style={styles.View_4v}>
+                                    <TouchableOpacity
+                                        onPress={() => { formPage === 2 && setFormPage(3) }}
+                                        style={[
+                                            styles.ButtonSolidQB,
+                                            { backgroundColor: '#4C44D4', marginTop: 20 },
+                                        ]}
+                                    >
+                                        <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </MotiView>}
+                        {formPage === 3 &&
+                            <MotiView key='page3' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                 <View style={styles.ViewD2}>
                                     <Text
                                         style={[
@@ -200,8 +282,8 @@ const OnboardingWizard = ({ navigation }) => {
                                     {''}
                                 </Text>
                             </MotiView>}
-                        {formPage === 3 &&
-                            <MotiView key='page3' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        {formPage === 4 &&
+                            <MotiView key='page4' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                 <View style={styles.ViewD2}>
                                     <Text
                                         style={[
@@ -234,8 +316,8 @@ const OnboardingWizard = ({ navigation }) => {
                                     </TouchableOpacity>
                                 </View>
                             </MotiView>}
-                        {formPage === 4 &&
-                            <MotiView key='page4' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        {formPage === 5 &&
+                            <MotiView key='page5' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                 <View style={styles.ViewD2}>
                                     <Text
                                         style={[
@@ -334,8 +416,8 @@ const OnboardingWizard = ({ navigation }) => {
                                     </TouchableOpacity>
                                 </View>
                             </MotiView>}
-                            {formPage === 5 &&
-                            <MotiView key='page5' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                            {formPage === 6 &&
+                            <MotiView key='page6' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                 <View style={styles.ViewD2}>
                                     <Text
                                         style={[
@@ -381,8 +463,8 @@ const OnboardingWizard = ({ navigation }) => {
                                     </TouchableOpacity>
                                 </View>
                             </MotiView>}    
-                        {formPage === 6 &&
-                            <MotiView key='page6' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        {formPage === 7 &&
+                            <MotiView key='page7' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                                 <View style={styles.ViewD2}>
                                     <Text
                                         style={[

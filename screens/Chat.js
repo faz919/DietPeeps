@@ -20,6 +20,7 @@ import { AnimatePresence, MotiView } from 'moti'
 
 import CourseData from '../courses/CourseData.json'
 import CourseLinkImage from '../components/CourseLinkImage'
+import crashlytics from '@react-native-firebase/crashlytics'
 
 const Chat = ({ navigation, route }) => {
 
@@ -82,10 +83,11 @@ const Chat = ({ navigation, route }) => {
             setAttachingImage(val => ({ ...val, loading: false }))
             setGlobalVars(val => ({ ...val, autoSend: true }))
         }).catch((e) => {
-            console.log('error while taking photo: ', e.code)
+            crashlytics().recordError(e)
+            console.error('error while taking photo: ', e.code)
             if (e.code === 'E_NO_CAMERA_PERMISSION') {
                 Alert.alert(
-                    'Access denied',
+                    'We need your permission',
                     'Please allow camera access in your app settings.',
                     [
                         {
@@ -140,10 +142,11 @@ const Chat = ({ navigation, route }) => {
             setAttachingImage(val => ({ ...val, visible: false }))
             setAttachingImage(val => ({ ...val, loading: false }))
         }).catch((e) => {
-            console.log('error while choosing photos from library: ', e.code)
+            crashlytics().recordError(e)
+            console.error('error while choosing photos from library: ', e.code)
             if (e.code === 'E_NO_LIBRARY_PERMISSION') {
                 Alert.alert(
-                    'Access denied',
+                    'We need your permission',
                     'Please allow photo library access in your app settings.',
                     [
                         {
@@ -218,8 +221,9 @@ const Chat = ({ navigation, route }) => {
     }, [imageInfo])
 
     const newMessage = async (message) => {
+        setMessageInput('')
         let imageInfo = await imageUploader()
-        console.log("image info: ", imageInfo, new Date())
+        // console.log("image info: ", imageInfo, new Date())
         if (message === '') {
             if (imageInfo == null) {
                 setSendingMessage(false)
@@ -245,7 +249,7 @@ const Chat = ({ navigation, route }) => {
                         timeSent: firestore.Timestamp.fromDate(new Date()),
                         userID: user.uid,
                     }).catch((e) => {
-                        console.log('error while uploading image data to analytics: ', e)
+                        console.error('error while uploading image data to analytics: ', e)
                     })
                 }
             }
@@ -259,7 +263,7 @@ const Chat = ({ navigation, route }) => {
             timeSent: firestore.Timestamp.fromDate(new Date()),
             userID: user.uid
         }).catch((e) => {
-            console.log('error while uploading message data to analytics: ', e)
+            console.error('error while uploading message data to analytics: ', e)
         })
 
         await firestore()
@@ -273,7 +277,7 @@ const Chat = ({ navigation, route }) => {
                 userID: user.uid,
             })
             .catch((e) => {
-                console.log("firestore error: ", e)
+                console.error("error while adding chat message: ", e)
             })
 
         await firestore()
@@ -287,7 +291,7 @@ const Chat = ({ navigation, route }) => {
                 ungradedImageCount: imageInfo != null && imageInfo.length > 0 ? firestore.FieldValue.increment(1) : firestore.FieldValue.increment(0)
             }, { merge: true })
             .catch((e) => {
-                console.log("latest message log: ", e)
+                console.error("error while updating chat room info: ", e)
             })
 
         setImages(null)

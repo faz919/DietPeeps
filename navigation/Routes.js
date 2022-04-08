@@ -46,7 +46,7 @@ const Routes = () => {
               screen_class: currentRouteName
             })
           } catch (e) {
-            console.log('does this thing work: ', e)
+            console.error('error while screen tracking: ', e)
           }
         }
         routeNameRef.current = currentRouteName
