@@ -43,34 +43,36 @@ const PhotoGallery = ({ navigation, route }) => {
     const bottomBarHeight = useBottomTabBarHeight()
 
     useEffect(() => {
-        let imageList = []
-        return firestore()
-            .collection('chat-rooms')
-            .doc(globalVars.chatID)
-            .collection('chat-messages')
-            .where('userID', '==', user.uid)
-            .orderBy('timeSent', 'desc')
-            .onSnapshot((querySnapshot) => {
-                querySnapshot.docs.forEach((doc) => {
-                    if (doc.data().img != null) {
-                        Array.prototype.push.apply(imageList, doc.data().img)
-                    }
-                })
-                setGlobalVars(val => ({ ...val, images: imageList }))
-                if (!imgCountUpdated && globalVars.userData?.totalImageCount !== imageList.length) {
-                    updateInfo({
-                        totalImageCount: imageList.length
+        if (globalVars.images == null) {
+            let imageList = []
+            return firestore()
+                .collection('chat-rooms')
+                .doc(globalVars.chatID)
+                .collection('chat-messages')
+                .where('userID', '==', user.uid)
+                .orderBy('timeSent', 'desc')
+                .onSnapshot((querySnapshot) => {
+                    querySnapshot.docs.forEach((doc) => {
+                        if (doc.data().img != null) {
+                            Array.prototype.push.apply(imageList, doc.data().img)
+                        }
                     })
-                    console.log('user total image count updated')
-                    setUpdated(true)
-                }
-                imageList = []
-                if (loading) {
-                    setLoading(false)
-                }
-            }, (e) => {
-                console.error('error while fetching chat images: ', e)
-            })
+                    setGlobalVars(val => ({ ...val, images: imageList }))
+                    if (!imgCountUpdated && globalVars.userData?.totalImageCount !== imageList.length) {
+                        updateInfo({
+                            totalImageCount: imageList.length
+                        })
+                        console.log('user total image count updated')
+                        setUpdated(true)
+                    }
+                    imageList = []
+                    if (loading) {
+                        setLoading(false)
+                    }
+                }, (e) => {
+                    console.error('error while fetching chat images: ', e)
+                })
+        }
     }, [])
 
     useEffect(() => {

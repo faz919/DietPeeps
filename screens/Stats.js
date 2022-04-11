@@ -33,31 +33,33 @@ const Stats = ({ navigation }) => {
     })
 
     useEffect(() => {
-        let imageList = []
-        return firestore()
-            .collection('chat-rooms')
-            .doc(globalVars.chatID)
-            .collection('chat-messages')
-            .where('userID', '==', user.uid)
-            .orderBy('timeSent', 'desc')
-            .onSnapshot((querySnapshot) => {
-                querySnapshot.docs.forEach((doc) => {
-                    if (doc.data().img != null) {
-                        for (let image of doc.data().img) {
-                            imageList.push({ ...image, timeSent: doc.data().timeSent })
+        if (globalVars.images == null) {
+            let imageList = []
+            return firestore()
+                .collection('chat-rooms')
+                .doc(globalVars.chatID)
+                .collection('chat-messages')
+                .where('userID', '==', user.uid)
+                .orderBy('timeSent', 'desc')
+                .onSnapshot((querySnapshot) => {
+                    querySnapshot.docs.forEach((doc) => {
+                        if (doc.data().img != null) {
+                            for (let image of doc.data().img) {
+                                imageList.push({ ...image, timeSent: doc.data().timeSent })
+                            }
+                            // Array.prototype.push.apply(imageList, doc.data().img)
                         }
-                        // Array.prototype.push.apply(imageList, doc.data().img)
+                    })
+                    // console.log('snapshot received at: ', new Date())
+                    setGlobalVars(val => ({ ...val, images: imageList }))
+                    imageList = []
+                    if (loading) {
+                        setLoading(false)
                     }
+                }, (e) => {
+                    console.error('error while fetching chat images: ', e)
                 })
-                console.log('snapshot received at: ', new Date())
-                setGlobalVars(val => ({ ...val, images: imageList }))
-                imageList = []
-                if (loading) {
-                    setLoading(false)
-                }
-            }, (e) => {
-                console.error('error while fetching chat images: ', e)
-            })
+        }
     }, [])
 
     useEffect(() => {
@@ -110,9 +112,11 @@ const Stats = ({ navigation }) => {
     }
 
     function sameDay(d1, d2) {
-        return d1.getFullYear() === d2.getFullYear() &&
+        if (d1?.getFullYear() != null && d2?.getFullYear() != null) {
+            return d1.getFullYear() === d2.getFullYear() &&
             d1.getMonth() === d2.getMonth() &&
             d1.getDate() === d2.getDate()
+        }
     }
 
     function sevenDays(d1, d2) {
@@ -126,6 +130,7 @@ const Stats = ({ navigation }) => {
     let streakCalendarDays = {}
     let graphDays = []
     let SevenDayAvg = 0, ThirtyDayAvg = 0
+
     globalVars.images && globalVars.images?.forEach((v, index) => { 
         let dayColor = ''
         switch (globalVars.images?.filter(val => sameDay(val.timeSent?.toDate(), globalVars.images[index]?.timeSent?.toDate())).length) {
@@ -204,8 +209,8 @@ const Stats = ({ navigation }) => {
                     <Text style={{ fontSize: 26, color: '#202060', fontWeight: 'bold', alignSelf: 'center', marginTop: 20 }}>
                         Daily Scores
                     </Text>
-                    {imageFilter.length === 0 ?
-                        <>
+                    {graphDays.length === 0 ?
+                        <View>
                             <View style={{ opacity: 0.3 }} pointerEvents='none'>
                                 <Chart
                                     style={{ height: windowHeight * 0.3, width: windowWidth }}
@@ -254,11 +259,11 @@ const Stats = ({ navigation }) => {
                             <Text style={{ position: 'absolute', fontSize: 18, alignSelf: 'center', top: windowHeight * 0.14 + 30, color: '#202060' }}>
                                 {'Send in your first photo today!'}
                             </Text>
-                        </> :
+                        </View> :
                         <Chart
                             style={{ height: windowHeight * 0.35, width: windowWidth * 0.95, alignSelf: 'center' }}
                             data={graphDays.reverse().map((day, index) => {
-                                const mealGrades = globalVars.images?.filter(val => sameDay(val.timeSent.toDate(), day?.toDate()) && val.graded)
+                                const mealGrades = globalVars.images?.filter(val => sameDay(val.timeSent?.toDate(), day?.toDate()) && val.graded)
                                 let totals = { red: 0, yellow: 0, green: 0 }
                                 mealGrades.forEach((meal, index) => {
                                     totals.red += meal.red
@@ -488,7 +493,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 5 },
         shadowRadius: 5,
         shadowOpacity: 0.3,
-        padding: 10,
+        padding: 10
     },
 })
 

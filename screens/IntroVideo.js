@@ -10,18 +10,21 @@ const IntroVideo = ({ navigation }) => {
     const [showSkip, setShowSkip] = useState(false)
 
     useEffect(() => {
-        videoPlaying && setTimeout(() => {
-            setShowSkip(true)
-        }, 20000)
+        if (videoPlaying) {
+            const skipButtonTimer = setTimeout(() => {
+                setShowSkip(true)
+            }, 20000)
+            return () => clearTimeout(skipButtonTimer)
+        }
     }, [videoPlaying])
 
     return (
         <View style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
-            {windowHeight / windowWidth === 2 ?
+            {windowHeight / windowWidth === (16/9) ?
                 <Video
-                    source={{ uri: 'https://dp191919.s3.us-east-2.amazonaws.com/highres.mp4'}}
+                    source={{ uri: 'https://dp191919.s3.us-east-2.amazonaws.com/lowres.mp4'}}
                     style={styles.introVideo}
-                    fullscreen={true}
+                    fullscreen
                     fullscreenOrientation={'portrait'}
                     fullscreenAutorotate={false}
                     onLoad={() => setVideoPlaying(true)}
@@ -35,9 +38,9 @@ const IntroVideo = ({ navigation }) => {
                 />
                 :
                 <Video
-                    source={{ uri: 'https://dp191919.s3.us-east-2.amazonaws.com/lowres.mp4'}}
+                    source={{ uri: 'https://dp191919.s3.us-east-2.amazonaws.com/highres.mp4'}}
                     style={styles.introVideo}
-                    fullscreen={true}
+                    fullscreen
                     fullscreenOrientation={'portrait'}
                     fullscreenAutorotate={false}
                     onLoad={() => setVideoPlaying(true)}

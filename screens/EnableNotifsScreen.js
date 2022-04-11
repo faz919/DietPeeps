@@ -27,6 +27,8 @@ const EnableNotifsScreen = ({ navigation }) => {
         setGlobalVars(val => ({...val, notificationsEnabled: false}))
         navigation.navigate('Main Menu')
       }
+    } else {
+      navigation.navigate('Main Menu')
     }
   }
 

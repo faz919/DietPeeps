@@ -152,7 +152,7 @@ const CourseSelection = ({ navigation, route }) => {
                       opacity: 0
                     }}
                     animate={{
-                      opacity: 1
+                      opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1
                     }}
                     transition={{
                       duration: 450
