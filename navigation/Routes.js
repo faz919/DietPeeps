@@ -39,7 +39,7 @@ const Routes = () => {
         const currentRouteName = navigationRef.getCurrentRoute().name
 
         if (previousRouteName !== currentRouteName) {
-          console.log('user navigated to', currentRouteName)
+          // console.log('user navigated to', currentRouteName)
           try {
             await analytics().logScreenView({
               screen_name: currentRouteName,

@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, TouchableOpacity, Text, View } from 'react-native'
+import { StyleSheet, TouchableOpacity, Text, View, ActivityIndicator } from 'react-native'
 import Video from 'react-native-video'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 
 const IntroVideo = ({ navigation }) => {
 
     const [videoPlaying, setVideoPlaying] = useState(false)
+    const [buffering, setBuffering] = useState(false)
     const [showSkip, setShowSkip] = useState(false)
 
     useEffect(() => {
-        videoPlaying ? setTimeout(() => {
+        videoPlaying && setTimeout(() => {
             setShowSkip(true)
-        }, 10000) : null
+        }, 20000)
     }, [videoPlaying])
 
     return (
         <View style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
             {windowHeight / windowWidth === 2 ?
                 <Video
-                    source={'https://dp191919.s3.us-east-2.amazonaws.com/highres.mp4'}
+                    source={{ uri: 'https://dp191919.s3.us-east-2.amazonaws.com/highres.mp4'}}
                     style={styles.introVideo}
                     fullscreen={true}
                     fullscreenOrientation={'portrait'}
@@ -27,10 +28,14 @@ const IntroVideo = ({ navigation }) => {
                     onEnd={() => navigation.replace('Onboarding')}
                     resizeMode='contain'
                     ignoreSilentSwitch='ignore'
+                    bufferConfig={{
+                        minBufferMS: 500,
+                        maxBufferMS: 50000
+                    }}
                 />
                 :
                 <Video
-                    source={'https://dp191919.s3.us-east-2.amazonaws.com/lowres.mp4'}
+                    source={{ uri: 'https://dp191919.s3.us-east-2.amazonaws.com/lowres.mp4'}}
                     style={styles.introVideo}
                     fullscreen={true}
                     fullscreenOrientation={'portrait'}
@@ -39,6 +44,10 @@ const IntroVideo = ({ navigation }) => {
                     onEnd={() => navigation.replace('Onboarding')}
                     resizeMode='contain'
                     ignoreSilentSwitch='ignore'
+                    bufferConfig={{
+                        minBufferMS: 500,
+                        maxBufferMS: 50000
+                    }}
                 />
             }
             {showSkip ?
@@ -46,6 +55,11 @@ const IntroVideo = ({ navigation }) => {
                     <Text style={styles.panelButtonTitle}>{'Skip'}</Text>
                 </TouchableOpacity>
                 : null}
+            {buffering && 
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size={60} color="#BDB9DB" />
+                </View>
+            }
         </View>
     )
 }

@@ -99,7 +99,7 @@ const LoginScreen = ({ navigation }) => {
                     backgroundColor="#F7E7E6"
                     onPress={() => {googleLogin(); setGlobalVars(val => ({...val, loggingIn: true}))}}
                 />
-                <TouchableOpacity style={{ marginTop: windowHeight / 30 }} onPress={() => navigation.navigate('Forgot Password')}>
+                <TouchableOpacity style={{ marginTop: windowHeight / 30 }} onPress={() => navigation.navigate('Intro Video')}>
                     <Text style={styles.navButtonText}>Forgot password?</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={{ marginTop: windowHeight / 30 }} onPress={() => navigation.navigate('Signup')}>
