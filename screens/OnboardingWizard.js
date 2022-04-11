@@ -32,7 +32,8 @@ const OnboardingWizard = ({ navigation }) => {
         },
         dob: new Date(2000, 0, 1),
         mealCount: 3,
-        timezoneOffset: (new Date()).getTimezoneOffset() / 60
+        timezoneOffset: (new Date()).getTimezoneOffset() / 60,
+        deviceOS: Platform.OS
     })
     const formLength = 9
     const mealPickerScreen = 8
@@ -264,13 +265,13 @@ const OnboardingWizard = ({ navigation }) => {
                                         {'What is your gender?'}
                                     </Text>
                                 </View>
-                                <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, gender: 'Female' })); setFormPage(3) }} style={[styles.largeView, { flexDirection: 'row' }]}>
+                                <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, gender: 'Female' })); setFormPage(4) }} style={[styles.largeView, { flexDirection: 'row' }]}>
                                     <Text style={styles.title1}>Female</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, gender: 'Male' })); setFormPage(3) }} style={[styles.largeView, { flexDirection: 'row' }]}>
+                                <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, gender: 'Male' })); setFormPage(4) }} style={[styles.largeView, { flexDirection: 'row' }]}>
                                     <Text style={styles.title1}>Male</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, gender: 'Other' })); setFormPage(3) }} style={[styles.largeView, { flexDirection: 'row' }]}>
+                                <TouchableOpacity onPress={() => { setFormResponses(val => ({ ...val, gender: 'Other' })); setFormPage(4) }} style={[styles.largeView, { flexDirection: 'row' }]}>
                                     <Text style={styles.title1}>Other</Text>
                                 </TouchableOpacity>
                                 <Text
@@ -306,7 +307,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 </View>
                                 <View style={styles.View_4v}>
                                     <TouchableOpacity
-                                        onPress={() => { formResponses.dob && formPage === 3 && setFormPage(4) }}
+                                        onPress={() => { formResponses.dob && formPage === 4 && setFormPage(5) }}
                                         style={[
                                             styles.ButtonSolidQB,
                                             { backgroundColor: '#4C44D4', marginTop: 20 },
@@ -406,7 +407,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 </View>
                                 <View style={styles.View_4v}>
                                     <TouchableOpacity
-                                        onPress={() => { formResponses.weight && formResponses.height && formPage === 4 && setFormPage(5) }}
+                                        onPress={() => { formResponses.weight && formResponses.height && formPage === 5 && setFormPage(6) }}
                                         style={[
                                             styles.ButtonSolidQB,
                                             { backgroundColor: '#4C44D4', marginTop: 20 },
@@ -453,7 +454,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 </View>
                                 <View style={styles.View_4v}>
                                     <TouchableOpacity
-                                        onPress={() => { formResponses.targetWeight && formPage === 5 && setFormPage(6) }}
+                                        onPress={() => { formResponses.targetWeight && formPage === 6 && setFormPage(7) }}
                                         style={[
                                             styles.ButtonSolidQB,
                                             { backgroundColor: '#4C44D4', marginTop: 20 },
@@ -491,7 +492,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 </View>
                                 <View style={styles.View_4v}>
                                     <TouchableOpacity
-                                        onPress={() => { formResponses.mealCount && formPage === 6 && setFormPage(7) }}
+                                        onPress={() => { formResponses.mealCount && formPage === 7 && setFormPage(8) }}
                                         style={[
                                             styles.ButtonSolidQB,
                                             { backgroundColor: '#4C44D4', marginTop: 20 },

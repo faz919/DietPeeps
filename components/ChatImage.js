@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TouchableOpacity, ImageBackground, View, Text, StyleSheet } from 'react-native'
+import { TouchableOpacity, ImageBackground, View, Text, StyleSheet, Share } from 'react-native'
 import PieChart from 'react-native-pie-chart'
 import { windowWidth } from '../utils/Dimensions'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
@@ -11,8 +11,10 @@ const ChatImage = ({ user, item, i, navigation }) => {
     const [loading, setLoading] = useState(true)
 
     return (
-        <TouchableOpacity key={i.url} onPress={() => navigation.navigate('Main Menu', { screen: 'Gallery', params: { imageInfo: i } })}>
-            <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: i.graded ? item.userID != user.uid ? 0.4 : 1 : 1 }} style={styles.textImage} source={{ uri: i.url }}>
+        <TouchableOpacity key={i.url} onPress={() => navigation.navigate('Main Menu', { screen: 'Gallery', params: { imageInfo: i } })} 
+        // onLongPress={() => Share.share({ message: item.msg, url: i.url })}
+        >
+            <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: i.graded ? item.userID !== user.uid ? 0.4 : 1 : 1 }} style={styles.textImage} source={{ uri: i.url }}>
                 {!loading && i.graded && item.userID != user.uid &&
                     <View style={{
                         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: windowWidth * 0.65, padding: 10, elevation: 10,

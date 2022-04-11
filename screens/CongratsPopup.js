@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet } from 'react-native'
-import { windowWidth } from '../utils/Dimensions'
+import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native'
+import { windowHeight, windowWidth } from '../utils/Dimensions'
 import Modal from 'react-native-modal'
 import ImagePicker from 'react-native-image-crop-picker'
 import { AuthContext } from '../navigation/AuthProvider'
@@ -13,25 +13,57 @@ const CongratsPopup = ({ navigation }) => {
 
     const { setGlobalVars } = useContext(AuthContext)
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener("focus", () => {
-            const screenTimer = setTimeout(() => {
-                navigation.pop()
-            }, 5000)
-        })
-        return unsubscribe
-    }, [navigation])
-
     return (
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ color:'#202060' }}>good job brodie</Text>
-            <ConfettiCannon count={200} origin={{x: -10, y: 0}} />
+            <View style={{ width: windowWidth * 0.9, height: windowHeight * 0.5, borderRadius: 10, backgroundColor: '#fff', padding: 15, alignItems: 'center', justifyContent: 'center', elevation: 10, 
+                        shadowColor: '#000000',
+                        shadowOffset: { width: 0, height: 0 },
+                        shadowRadius: 10,
+                        shadowOpacity: 0.4, }}>
+                
+                <Text style={{ color: '#202060', fontWeight: 'bold', fontSize: 26, textAlign: 'center' }}>Congratulations!</Text>
+                <Text style={{ color: '#BDB9DB', fontSize: 16, textAlign: 'center' }}>You completed today's courses!</Text>
+                <View style={styles.View_4v}>
+                    <TouchableOpacity
+                        onPress={() => navigation.pop()}
+                        style={[
+                            styles.ButtonSolidQB,
+                            { backgroundColor: '#4C44D4', marginTop: 10 },
+                        ]}
+                    >
+                        <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            {Platform.OS === 'ios' && <ConfettiCannon count={200} origin={{x: -10, y: 0}} />}
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-
+    View_4v: {
+        alignItems: 'center',
+    },
+    ButtonSolidQB: {
+        width: windowWidth * 0.8,
+        height: 50,
+        marginBottom: 12,
+        justifyContent: 'center',
+        borderRadius: 10,
+        backgroundColor: '#4C44D4',
+        alignItems: 'center',
+        marginVertical: 7,
+        elevation: 10,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowRadius: 5,
+        shadowOpacity: 0.4,
+    },
+    panelButtonText: {
+        fontSize: windowHeight * (17/844),
+        fontWeight: 'bold',
+        color: 'white',
+    },
 })
 
 export default CongratsPopup

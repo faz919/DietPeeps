@@ -33,33 +33,31 @@ const Stats = ({ navigation }) => {
     })
 
     useEffect(() => {
-        if (globalVars.images == null) {
-            let imageList = []
-            return firestore()
-                .collection('chat-rooms')
-                .doc(globalVars.chatID)
-                .collection('chat-messages')
-                .where('userID', '==', user.uid)
-                .orderBy('timeSent', 'desc')
-                .onSnapshot((querySnapshot) => {
-                    querySnapshot.docs.forEach((doc) => {
-                        if (doc.data().img != null) {
-                            for (let image of doc.data().img) {
-                                imageList.push({ ...image, timeSent: doc.data().timeSent })
-                            }
-                            // Array.prototype.push.apply(imageList, doc.data().img)
+        let imageList = []
+        return firestore()
+            .collection('chat-rooms')
+            .doc(globalVars.chatID)
+            .collection('chat-messages')
+            .where('userID', '==', user.uid)
+            .orderBy('timeSent', 'desc')
+            .onSnapshot((querySnapshot) => {
+                querySnapshot.docs.forEach((doc) => {
+                    if (doc.data().img != null) {
+                        for (let image of doc.data().img) {
+                            imageList.push({ ...image, timeSent: doc.data().timeSent })
                         }
-                    })
-                    // console.log('snapshot received at: ', new Date())
-                    setGlobalVars(val => ({ ...val, images: imageList }))
-                    imageList = []
-                    if (loading) {
-                        setLoading(false)
+                        // Array.prototype.push.apply(imageList, doc.data().img)
                     }
-                }, (e) => {
-                    console.error('error while fetching chat images: ', e)
                 })
-        }
+                // console.log('snapshot received at: ', new Date())
+                setGlobalVars(val => ({ ...val, images: imageList }))
+                imageList = []
+                if (loading) {
+                    setLoading(false)
+                }
+            }, (e) => {
+                console.error('error while fetching chat images: ', e)
+            })
     }, [])
 
     useEffect(() => {
@@ -346,13 +344,13 @@ const Stats = ({ navigation }) => {
                                     style={styles.explanationModal}
                                 >
                                     <TouchableOpacity activeOpacity={1} onPress={() => setShowCalendarInfo(false)}>
-                                        {/* <TouchableOpacity style={styles.cancelImage}>
-                                                            <Icon
-                                                                name='ios-close'
-                                                                size={20}
-                                                                color='black'
-                                                            />
-                                                        </TouchableOpacity> */}
+                                        {/* <TouchableOpacity style={styles.cancelImage} onPress={() => setShowCalendarInfo(false)}>
+                                            <Ionicons
+                                                name='ios-close'
+                                                size={20}
+                                                color='black'
+                                            />
+                                        </TouchableOpacity> */}
                                         <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'This calendar displays the number of photos sent on each day.'}</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
                                             <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: '#c1efc0' }} />
@@ -494,6 +492,17 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
         shadowOpacity: 0.3,
         padding: 10
+    },
+    cancelImage: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(180,180,180,0.7)',
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        width: 25,
+        height: 25,
+        borderRadius: 12.5
     },
 })
 

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, Image, SafeAreaView, ImageBackground, Platform, ScrollView } from 'react-native'
+import { View, StyleSheet, Text, FlatList, TouchableOpacity, Image, SafeAreaView, ImageBackground, Platform, ScrollView, Pressable } from 'react-native'
 import firestore from '@react-native-firebase/firestore'
 import Modal from "react-native-modal"
 import SkeletonPlaceholder from "react-native-skeleton-placeholder"
@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AnimatePresence, MotiText, MotiView, useAnimationState } from 'moti'
 import { Easing } from 'react-native-reanimated'
 import ProfilePic from '../components/ProfilePic'
+import Icon from 'react-native-vector-icons/Ionicons'
 
 const PhotoGallery = ({ navigation, route }) => {
     const { user, updateInfo, globalVars, setGlobalVars } = useContext(AuthContext)
@@ -276,7 +277,7 @@ const PhotoGallery = ({ navigation, route }) => {
                                                             style={styles.explanationModal}
                                                         >
                                                             <TouchableOpacity activeOpacity={1} onPress={() => setShowGradeInfo(false)}>
-                                                                {/* <TouchableOpacity style={styles.cancelImage}>
+                                                                {/* <TouchableOpacity onPress={() => setShowGradeInfo(false)} style={styles.cancelImage}>
                                                                     <Icon
                                                                         name='ios-close'
                                                                         size={20}
@@ -286,6 +287,7 @@ const PhotoGallery = ({ navigation, route }) => {
                                                                 <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'Your Meal Score is calculated by first giving you points for all the green foods on your plate. Then the white foods on your plate are subtracted from this score.'}</Text>
                                                                 <Text />
                                                                 <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'A Meal Score of 60 or higher is considered a good score.'}</Text>
+                                                                <Text adjustsFontSizeToFit={true} style={{ color: '#202060', fontSize: 12, alignSelf: 'center', marginTop: 5 }}>{'(Hide)'}</Text>
                                                             </TouchableOpacity>
                                                         </MotiView>}
                                                 </AnimatePresence>
