@@ -17,7 +17,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AnimatePresence, MotiText, MotiView, useAnimationState } from 'moti'
 import { Easing } from 'react-native-reanimated'
 import ProfilePic from '../components/ProfilePic'
-import Icon from 'react-native-vector-icons/Ionicons'
 
 const PhotoGallery = ({ navigation, route }) => {
     const { user, updateInfo, globalVars, setGlobalVars } = useContext(AuthContext)
@@ -37,44 +36,9 @@ const PhotoGallery = ({ navigation, route }) => {
     const [imageDetailLoaded, setImageDetailLoaded] = useState(false)
     const [selectedImage, setSelectedImage] = useState([])
     const [showGradeInfo, setShowGradeInfo] = useState(false)
-    const [userInfo, setUserInfo] = useState({})
-    const [imgCountUpdated, setUpdated] = useState(false)
 
     const insets = useSafeAreaInsets()
     const bottomBarHeight = useBottomTabBarHeight()
-
-    useEffect(() => {
-        if (globalVars.images == null) {
-            let imageList = []
-            return firestore()
-                .collection('chat-rooms')
-                .doc(globalVars.chatID)
-                .collection('chat-messages')
-                .where('userID', '==', user.uid)
-                .orderBy('timeSent', 'desc')
-                .onSnapshot((querySnapshot) => {
-                    querySnapshot.docs.forEach((doc) => {
-                        if (doc.data().img != null) {
-                            Array.prototype.push.apply(imageList, doc.data().img)
-                        }
-                    })
-                    setGlobalVars(val => ({ ...val, images: imageList }))
-                    if (!imgCountUpdated && globalVars.userData?.totalImageCount !== imageList.length) {
-                        updateInfo({
-                            totalImageCount: imageList.length
-                        })
-                        console.log('user total image count updated')
-                        setUpdated(true)
-                    }
-                    imageList = []
-                    if (loading) {
-                        setLoading(false)
-                    }
-                }, (e) => {
-                    console.error('error while fetching chat images: ', e)
-                })
-        }
-    }, [])
 
     useEffect(() => {
         if (globalVars.images >= 10) {
@@ -125,18 +89,6 @@ const PhotoGallery = ({ navigation, route }) => {
             getImageDetail(imageInfo)
         }
     }, [imageInfo])
-
-    useEffect(() => {
-        firestore()
-            .collection('user-info')
-            .doc(user.uid)
-            .get()
-            .then((doc) => {
-                if (doc.exists) {
-                    return setUserInfo(doc.data())
-                }
-            })
-    }, [])
 
     return (
         <SafeAreaView style={styles.container}>

@@ -46,6 +46,7 @@ const Chat = ({ navigation, route }) => {
     const [messagesEndReached, setMessagesEndReached] = useState(false)
     const [scrollToLatestButton, showScrollToLatestButton] = useState(false)
     const [scrollButtonLeft, setScrollButtonLeft] = useState(0)
+    const [imgCountUpdated, setUpdated] = useState(false)
 
     const messagesList = useRef()
 
@@ -393,6 +394,36 @@ const Chat = ({ navigation, route }) => {
             })
         return () => unsub()
     }, [globalVars.chatID, messageBatches])
+
+    useEffect(() => {
+        let imageList = []
+        return firestore()
+            .collection('chat-rooms')
+            .doc(globalVars.chatID)
+            .collection('chat-messages')
+            .where('userID', '==', user.uid)
+            .orderBy('timeSent', 'desc')
+            .onSnapshot((querySnapshot) => {
+                querySnapshot.docs.forEach((doc) => {
+                    if (doc.data().img != null) {
+                        Array.prototype.push.apply(imageList, doc.data().img)
+                    }
+                })
+                setGlobalVars(val => ({ ...val, images: imageList }))
+                if (!imgCountUpdated && globalVars.userData?.totalImageCount !== imageList.length) {
+                    updateInfo({
+                        totalImageCount: imageList.length
+                    })
+                    setUpdated(true)
+                }
+                imageList = []
+                if (loading) {
+                    setLoading(false)
+                }
+            }, (e) => {
+                console.error('error while fetching chat images: ', e)
+            })
+    }, [globalVars.chatID])
 
     useEffect(() => {
         const unsub = firestore()

@@ -79,7 +79,7 @@ const Settings = ({ navigation }) => {
                         style={styles.Divider}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Onboarding')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Congrats')}>
                     <View style={styles.Viewk7} >
                         <View style={styles.Viewmm}>
                             <AntDesign
