@@ -8,11 +8,11 @@ import { windowHeight, windowWidth } from '../utils/Dimensions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import ToggleButtonRow from '../components/ToggleButtonRow'
 import CourseImage from '../components/CourseImage'
-import { MotiView } from 'moti'
+import { AnimatePresence, MotiView } from 'moti'
 
 const CourseSelection = ({ navigation, route }) => {
 
-  const { courseInfo, courseCompleted } = route.params 
+  const { courseInfo, courseCompleted, courseDayCompleted } = route.params 
 
   const { updateInfo, user } = useContext(AuthContext)
   const [userCourseData, setUserCourseData] = useState(3)
@@ -39,9 +39,9 @@ const CourseSelection = ({ navigation, route }) => {
     if (courseInfo != null) {
       navigation.navigate('Course', { courseData: courseInfo, courseCompleted: courseCompleted })
     } 
-    // else if (courseInfo == null && courseCompleted) {
-    //   navigation.navigate('Congrats')
-    // }
+    else if (courseInfo == null && courseCompleted && courseDayCompleted) {
+      navigation.navigate('Congrats', { congratsType: 'courseDayCompletion' })
+    }
   }, [courseInfo, courseCompleted])
 
   useEffect(() => {
@@ -50,10 +50,13 @@ const CourseSelection = ({ navigation, route }) => {
       .doc(user.uid)
       .onSnapshot((doc) => {
         const c = doc.data().courseData
-        let now = new Date()
-        let oneDay = 60 * 60 * 24 * 1000
+        let localDayStart = new Date()
+        localDayStart.setHours(0)
+        localDayStart.setMinutes(0)
+        localDayStart.setSeconds(0)
+        localDayStart.setMilliseconds(0)
         if (c.courseDayCompleted) {
-          if (now - c.courseCompletedAt?.toDate() >= oneDay) {
+          if (localDayStart > c.courseCompletedAt?.toDate()) {
             setUserCourseData({
               latestCourseCompleted: c.latestCourseCompleted,
               courseCompletedAt: c.courseCompletedAt,
@@ -145,7 +148,7 @@ const CourseSelection = ({ navigation, route }) => {
                 </View>
               )}
               inverted
-              renderItem={({ item }) => {
+              renderItem={({ item, index }) => {
                 return (
                   <MotiView
                     from={{
@@ -157,7 +160,8 @@ const CourseSelection = ({ navigation, route }) => {
                     transition={{
                       duration: 450
                     }}
-                   style={[styles.Viewe6, { borderRadius: 6, opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }]}>
+                    key={index}
+                    style={[styles.Viewe6, { borderRadius: 6, opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }]}>
                     <CourseImage item={item} userCourseData={userCourseData} navigation={navigation} /> 
                     <View style={styles.View_92}>
                       <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
@@ -210,7 +214,7 @@ const CourseSelection = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   Textp6: {
     textAlign: 'center',
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
     fontSize: 24,
     letterSpacing: 0,
     lineHeight: 34,
@@ -232,7 +236,7 @@ const styles = StyleSheet.create({
     width: '100%',
     textAlign: 'left',
     marginBottom: 4,
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
     fontSize: 18,
     letterSpacing: 0,
     color: '#202060'

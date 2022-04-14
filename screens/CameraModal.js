@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, Alert, Linking } from 'react-native'
-import { windowWidth } from '../utils/Dimensions'
+import { windowHeight, windowWidth } from '../utils/Dimensions'
 import Modal from 'react-native-modal'
 import ImagePicker from 'react-native-image-crop-picker'
 import { AuthContext } from '../navigation/AuthProvider'
@@ -202,7 +202,8 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     panelButton: {
-        padding: 13,
+        height: windowHeight / 17,
+        justifyContent: 'center',
         borderRadius: 10,
         backgroundColor: '#4C44D4',
         alignItems: 'center',
@@ -210,8 +211,10 @@ const styles = StyleSheet.create({
     },
     panelButtonTitle: {
         fontSize: 17,
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: 'white',
+        textAlign: 'center',
+        width: '100%'
     },
     modalLoading: {
         position: 'absolute',

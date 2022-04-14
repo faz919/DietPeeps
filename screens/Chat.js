@@ -10,7 +10,7 @@ import firestore from '@react-native-firebase/firestore'
 import ImagePicker from 'react-native-image-crop-picker'
 import { AuthContext } from '../navigation/AuthProvider'
 
-import { windowWidth } from '../utils/Dimensions.js'
+import { windowHeight, windowWidth } from '../utils/Dimensions.js'
 import moment from 'moment'
 import messaging from '@react-native-firebase/messaging'
 import analytics from '@react-native-firebase/analytics'
@@ -21,11 +21,12 @@ import { AnimatePresence, MotiView } from 'moti'
 import CourseData from '../courses/CourseData.json'
 import CourseLinkImage from '../components/CourseLinkImage'
 import crashlytics from '@react-native-firebase/crashlytics'
+import DeviceInfo from 'react-native-device-info'
 
 const Chat = ({ navigation, route }) => {
 
     const { imageInfo } = route.params
-    
+
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
             navigation.setParams({ imageInfo: null })
@@ -50,7 +51,7 @@ const Chat = ({ navigation, route }) => {
 
     const messagesList = useRef()
 
-    const scrollToLatest = () => { 
+    const scrollToLatest = () => {
         messagesList && messagesList.current.scrollToIndex({ index: 0, viewOffset: 80 })
     }
 
@@ -185,22 +186,41 @@ const Chat = ({ navigation, route }) => {
             firestore()
                 .collection('user-info')
                 .doc(user.uid)
-                .get()
-                .then((userData) => {
+                .onSnapshot(async (userData) => {
                     setGlobalVars(val => ({ ...val, userData: userData.data() }))
                     const usr = userData.data()
+                    const deviceInfo = {
+                        deviceOS: Platform.OS,
+                        deviceModel: DeviceInfo.getModel(),
+                        deviceID: DeviceInfo.getUniqueId()
+                    }
+                    const appInfo = {
+                        versionName: '1.024',
+                        versionCode: 10
+                    }
+                    // check if user has completed onboarding
                     if (usr.userBioData == null && globalVars.userBioData == null) {
                         navigation.replace('Onboarding Wizard')
                     }
-                    if (usr.displayName == null || usr.photoURL == null) {
+                    // check if user has null display name, photo url, or email
+                    usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })
+                    usr.photoURL !== user.photoURL && updateInfo({ photoURL: user.photoURL })
+                    usr.email !== user.email && updateInfo({ email: user.email })
+                    // check if user has null chat id
+                    usr.chatID == null && globalVars.chatID != null && updateInfo({ chatID: globalVars.chatID })
+                    // check if user has null settings or device info
+                    usr.settings == null && updateInfo({
+                        settings: {
+                            notificationTypes: ['chatMessage', 'imageGrade', 'courseLink', 'statSummary', 'mealReminder']
+                        }
+                    })
+                    usr.deviceInfo == null && updateInfo({ deviceInfo })
+                    usr.appInfo !== appInfo && updateInfo({ appInfo })
+                    // check user streak
+                    if (!yesterday(usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.streakUpdated?.toDate())) {
                         updateInfo({
-                            displayName: user.displayName,
-                            photoURL: user.photoURL,
-                        })
-                    }
-                    if (usr.chatID == null && globalVars.chatID != null) {
-                        updateInfo({
-                            chatID: globalVars.chatID
+                            streak: 0,
+                            streakUpdated: firestore.Timestamp.fromDate(new Date())
                         })
                     }
                 })
@@ -221,6 +241,18 @@ const Chat = ({ navigation, route }) => {
         }
     }, [imageInfo])
 
+    function yesterday(date) {
+        var yesterday = new Date()
+        yesterday.setDate(yesterday.getDate() - 1)
+        return yesterday.toDateString() === date.toDateString()
+    }
+
+    function sameDay(d1, d2) {
+        return d1.getFullYear() === d2.getFullYear() &&
+            d1.getMonth() === d2.getMonth() &&
+            d1.getDate() === d2.getDate()
+    }
+
     const newMessage = async (message) => {
         setMessageInput('')
         let imageInfo = await imageUploader()
@@ -235,12 +267,15 @@ const Chat = ({ navigation, route }) => {
             }
         }
 
+        let tempLastImageSent
+
         if (imageInfo != null) {
             if (imageInfo.length === 0) {
                 imageInfo = null
                 return null
             } else if (imageInfo.length > 0) {
-                updateInfo({ 
+                tempLastImageSent = globalVars.userData.lastImageSent?.toDate()
+                updateInfo({
                     lastImageSent: firestore.Timestamp.fromDate(new Date()),
                     totalImageCount: firestore.FieldValue.increment(imageInfo.length)
                 })
@@ -284,9 +319,9 @@ const Chat = ({ navigation, route }) => {
         await firestore()
             .collection('chat-rooms')
             .doc(globalVars.chatID)
-            .set({ 
-                latestMessageTime: firestore.Timestamp.fromDate(new Date()), 
-                latestMessage: message === '' ? '[Image]' : message, 
+            .set({
+                latestMessageTime: firestore.Timestamp.fromDate(new Date()),
+                latestMessage: message === '' ? '[Image]' : message,
                 unreadCount: firestore.FieldValue.increment(1),
                 latestMessageSender: user.uid,
                 ungradedImageCount: imageInfo != null && imageInfo.length > 0 ? firestore.FieldValue.increment(1) : firestore.FieldValue.increment(0)
@@ -298,6 +333,21 @@ const Chat = ({ navigation, route }) => {
         setImages(null)
         setMessageInput('')
         setSendingMessage(false)
+
+        let localDayStart = new Date()
+        localDayStart.setHours(0)
+        localDayStart.setMinutes(0)
+        localDayStart.setSeconds(0)
+        localDayStart.setMilliseconds(0)
+        if (tempLastImageSent != null) {
+            if (localDayStart > tempLastImageSent) {
+                navigation.navigate('Congrats', { congratsType: 'imageSent' })
+                updateInfo({
+                    streak: firestore.FieldValue.increment(1),
+                    streakUpdated: firestore.Timestamp.fromDate(new Date())
+                })
+            }
+        }
     }
 
     const imageUploader = async () => {
@@ -473,126 +523,18 @@ const Chat = ({ navigation, route }) => {
     }, [])
 
     useEffect(() => {
-        if (isFirstLogin && globalVars.notificationsEnabled != null && globalVars.coachID != null) {
-            if (messages.length > 0) {
-                AsyncStorage.setItem('@tutorial_finished', 'true')
-                AsyncStorage.setItem('@tutorial_started', 'true')
-            } else {
-                AsyncStorage.setItem('@tutorial_started', 'true')
-                firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .collection('chat-messages')
-                    .add({
-                        img: null,
-                        msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
-                        userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.fromDate(new Date())
-                    })
-                setTimeout(() => {
-                    firestore()
-                        .collection('chat-rooms')
-                        .doc(globalVars.chatID)
-                        .collection('chat-messages')
-                        .add({
-                            img: null,
-                            msg: `My name is ${globalVars.coachData?.displayName}, and I'll be your personal coach. My goal is to help you succeed by making small steps every single day.`,
-                            userID: globalVars.coachID,
-                            timeSent: firestore.Timestamp.fromDate(new Date())
-                        })
-                }, 3000)
-                setTimeout(() => {
-                    firestore()
-                        .collection('chat-rooms')
-                        .doc(globalVars.chatID)
-                        .collection('chat-messages')
-                        .add({
-                            img: null,
-                            msg: `To do this, you'll need to send me a photo of every meal that you eat.`,
-                            userID: globalVars.coachID,
-                            timeSent: firestore.Timestamp.fromDate(new Date())
-                        })
-                }, 8000)
-                setTimeout(() => {
-                    firestore()
-                        .collection('chat-rooms')
-                        .doc(globalVars.chatID)
-                        .collection('chat-messages')
-                        .add({
-                            img: null,
-                            msg: `My job as coach is to look at these photos and score them based on how healthy they are.`,
-                            userID: globalVars.coachID,
-                            timeSent: firestore.Timestamp.fromDate(new Date())
-                        })
-                }, 13000)
-                setTimeout(() => {
-                    firestore()
-                        .collection('chat-rooms')
-                        .doc(globalVars.chatID)
-                        .collection('chat-messages')
-                        .add({
-                            img: null,
-                            msg: `First, a couple of questions for you: `,
-                            userID: globalVars.coachID,
-                            timeSent: firestore.Timestamp.fromDate(new Date())
-                        })
-                }, 17000)
-                setTimeout(() => {
-                    firestore()
-                        .collection('chat-rooms')
-                        .doc(globalVars.chatID)
-                        .collection('chat-messages')
-                        .add({
-                            img: null,
-                            msg: `1) Do you have a nickname that you prefer?`,
-                            userID: globalVars.coachID,
-                            timeSent: firestore.Timestamp.fromDate(new Date())
-                        })
-                }, 20000)
-                setTimeout(() => {
-                    AsyncStorage.setItem('@tutorial_finished', 'true')
-                    firestore()
-                        .collection('chat-rooms')
-                        .doc(globalVars.chatID)
-                        .collection('chat-messages')
-                        .add({
-                            img: null,
-                            msg: `2) Any questions for me so far?`,
-                            userID: globalVars.coachID,
-                            timeSent: firestore.Timestamp.fromDate(new Date())
-                        })
-                }, 23000)
-            }
-        }
-    }, [isFirstLogin, globalVars.notificationsEnabled, globalVars.coachID])
-
-    useEffect(() => {
-        const checkTutorial = async () => {
-            let started = await AsyncStorage.getItem('@tutorial_started')
-            let finished = await AsyncStorage.getItem('@tutorial_finished')
-            if (JSON.parse(started) && !JSON.parse(finished) && globalVars.chatID != null && globalVars.coachID != null) {
-                await firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .collection('chat-messages')
-                    .get()
-                    .then((querySnapshot) => {
-                        const batch = firestore().batch()
-                        querySnapshot.forEach((doc) => {
-                            batch.delete(doc.ref)
-                        })
-                        batch.commit()
-                    })
-                firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .collection('chat-messages')
-                    .add({
-                        img: null,
-                        msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
-                        userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.fromDate(new Date())
-                    })
+        if (globalVars.newUser && globalVars.coachID && globalVars.chatID) {
+            firestore()
+                .collection('chat-rooms')
+                .doc(globalVars.chatID)
+                .collection('chat-messages')
+                .add({
+                    img: null,
+                    msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
+                    userID: globalVars.coachID,
+                    timeSent: firestore.Timestamp.fromDate(new Date())
+                })
+            setTimeout(() => {
                 firestore()
                     .collection('chat-rooms')
                     .doc(globalVars.chatID)
@@ -603,6 +545,8 @@ const Chat = ({ navigation, route }) => {
                         userID: globalVars.coachID,
                         timeSent: firestore.Timestamp.fromDate(new Date())
                     })
+            }, 3000)
+            setTimeout(() => {
                 firestore()
                     .collection('chat-rooms')
                     .doc(globalVars.chatID)
@@ -613,6 +557,8 @@ const Chat = ({ navigation, route }) => {
                         userID: globalVars.coachID,
                         timeSent: firestore.Timestamp.fromDate(new Date())
                     })
+            }, 8000)
+            setTimeout(() => {
                 firestore()
                     .collection('chat-rooms')
                     .doc(globalVars.chatID)
@@ -623,6 +569,8 @@ const Chat = ({ navigation, route }) => {
                         userID: globalVars.coachID,
                         timeSent: firestore.Timestamp.fromDate(new Date())
                     })
+            }, 13000)
+            setTimeout(() => {
                 firestore()
                     .collection('chat-rooms')
                     .doc(globalVars.chatID)
@@ -633,6 +581,8 @@ const Chat = ({ navigation, route }) => {
                         userID: globalVars.coachID,
                         timeSent: firestore.Timestamp.fromDate(new Date())
                     })
+            }, 17000)
+            setTimeout(() => {
                 firestore()
                     .collection('chat-rooms')
                     .doc(globalVars.chatID)
@@ -643,6 +593,9 @@ const Chat = ({ navigation, route }) => {
                         userID: globalVars.coachID,
                         timeSent: firestore.Timestamp.fromDate(new Date())
                     })
+            }, 20000)
+            setTimeout(() => {
+                AsyncStorage.setItem('@tutorial_finished', 'true')
                 firestore()
                     .collection('chat-rooms')
                     .doc(globalVars.chatID)
@@ -653,12 +606,103 @@ const Chat = ({ navigation, route }) => {
                         userID: globalVars.coachID,
                         timeSent: firestore.Timestamp.fromDate(new Date())
                     })
-                AsyncStorage.setItem('@tutorial_finished', 'true')
-            }
+            }, 23000)
         }
+    }, [globalVars.newUser, globalVars.coachID, globalVars.chatID])
 
-        return () => checkTutorial()
-    }, [globalVars.chatID])
+    // useEffect(() => {
+    //     const checkTutorial = async () => {
+    //         let started = await AsyncStorage.getItem('@tutorial_started')
+    //         let finished = await AsyncStorage.getItem('@tutorial_finished')
+    //         if (JSON.parse(started) && !JSON.parse(finished) && globalVars.chatID != null && globalVars.coachID != null) {
+    //             await firestore()
+    //                 .collection('chat-rooms')
+    //                 .doc(globalVars.chatID)
+    //                 .collection('chat-messages')
+    //                 .get()
+    //                 .then((querySnapshot) => {
+    //                     const batch = firestore().batch()
+    //                     querySnapshot.forEach((doc) => {
+    //                         batch.delete(doc.ref)
+    //                     })
+    //                     batch.commit()
+    //                 })
+    //             firestore()
+    //                 .collection('chat-rooms')
+    //                 .doc(globalVars.chatID)
+    //                 .collection('chat-messages')
+    //                 .add({
+    //                     img: null,
+    //                     msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
+    //                     userID: globalVars.coachID,
+    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                 })
+    //             firestore()
+    //                 .collection('chat-rooms')
+    //                 .doc(globalVars.chatID)
+    //                 .collection('chat-messages')
+    //                 .add({
+    //                     img: null,
+    //                     msg: `My name is ${globalVars.coachData?.displayName}, and I'll be your personal coach. My goal is to help you succeed by making small steps every single day.`,
+    //                     userID: globalVars.coachID,
+    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                 })
+    //             firestore()
+    //                 .collection('chat-rooms')
+    //                 .doc(globalVars.chatID)
+    //                 .collection('chat-messages')
+    //                 .add({
+    //                     img: null,
+    //                     msg: `To do this, you'll need to send me a photo of every meal that you eat.`,
+    //                     userID: globalVars.coachID,
+    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                 })
+    //             firestore()
+    //                 .collection('chat-rooms')
+    //                 .doc(globalVars.chatID)
+    //                 .collection('chat-messages')
+    //                 .add({
+    //                     img: null,
+    //                     msg: `My job as coach is to look at these photos and score them based on how healthy they are.`,
+    //                     userID: globalVars.coachID,
+    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                 })
+    //             firestore()
+    //                 .collection('chat-rooms')
+    //                 .doc(globalVars.chatID)
+    //                 .collection('chat-messages')
+    //                 .add({
+    //                     img: null,
+    //                     msg: `First, a couple of questions for you: `,
+    //                     userID: globalVars.coachID,
+    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                 })
+    //             firestore()
+    //                 .collection('chat-rooms')
+    //                 .doc(globalVars.chatID)
+    //                 .collection('chat-messages')
+    //                 .add({
+    //                     img: null,
+    //                     msg: `1) Do you have a nickname that you prefer?`,
+    //                     userID: globalVars.coachID,
+    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                 })
+    //             firestore()
+    //                 .collection('chat-rooms')
+    //                 .doc(globalVars.chatID)
+    //                 .collection('chat-messages')
+    //                 .add({
+    //                     img: null,
+    //                     msg: `2) Any questions for me so far?`,
+    //                     userID: globalVars.coachID,
+    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                 })
+    //             AsyncStorage.setItem('@tutorial_finished', 'true')
+    //         }
+    //     }
+
+    //     return () => checkTutorial()
+    // }, [globalVars.chatID])
 
     useEffect(() => {
         AsyncStorage.getItem('@notifs_enabled').then((value) => {
@@ -724,7 +768,7 @@ const Chat = ({ navigation, route }) => {
                                             <ChatImage key={i.url} user={user} item={item} i={i} navigation={navigation} />
                                         ))
                                     }
-                                    {item.msgType === 'courseLink' && 
+                                    {item.msgType === 'courseLink' &&
                                         <CourseLinkImage key={item.id} user={user} messageData={item} userCourseData={globalVars.userData?.courseData} courseInfo={CourseData.find(course => course.UniqueCourseNumber === item.courseInfo.UniqueCourseNumber)} navigation={navigation} />
                                     }
                                     <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>
@@ -794,51 +838,55 @@ const Chat = ({ navigation, route }) => {
                                     onSubmitEditing={() => {
                                         if (messageInput || images?.length > 0) {
                                             setSendingMessage(true)
-                                            scrollToLatest()
+                                            messages.length > 0 && scrollToLatest()
                                             newMessage(messageInput)
                                         }
                                     }}
                                 />
                                 <AnimatePresence>
-                                {sendingMessage ?
-                                <MotiView key='loading' style={{ position: 'absolute', right: 15, top: 2 }} from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }}>
-                                    <ActivityIndicator size={25} color="#4D43BD" />
-                                </MotiView> :
-                                    !messageInput && (images?.length === 0 || !images ) ? 
-                                    <MotiView key='emoji' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
-                                        {/* <TouchableOpacity onPress={() => {}}>
+                                    {sendingMessage ?
+                                        <MotiView key='loading' style={{ position: 'absolute', right: 15, top: 2 }} from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }}>
+                                            <ActivityIndicator size={25} color="#4D43BD" />
+                                        </MotiView> :
+                                        !messageInput && (images?.length === 0 || !images) ?
+                                            <MotiView key='emoji' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
+                                                {/* <TouchableOpacity onPress={() => {}}>
                                             <Ionicons
                                                 name="happy"
                                                 size={25}
                                                 color='#BDB9DB'
                                             />
                                         </TouchableOpacity> */}
-                                    </MotiView> :
-                                    <MotiView key='text' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
-                                        <TouchableOpacity disabled={!messageInput && (images?.length === 0 || !images )} onPress={() => {setSendingMessage(true); scrollToLatest(); newMessage(messageInput)}}>
-                                            <Ionicons
-                                                name="send"
-                                                size={25}
-                                                color='#4D43BD'
-                                            />
-                                        </TouchableOpacity>
-                                    </MotiView>
-                                }
+                                            </MotiView> :
+                                            <MotiView key='text' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
+                                                <TouchableOpacity disabled={!messageInput && (images?.length === 0 || !images)} onPress={() => {
+                                                    setSendingMessage(true)
+                                                    messages.length > 0 && scrollToLatest()
+                                                    newMessage(messageInput)
+                                                }}>
+                                                    <Ionicons
+                                                        name="send"
+                                                        size={25}
+                                                        color='#4D43BD'
+                                                    />
+                                                </TouchableOpacity>
+                                            </MotiView>
+                                    }
                                 </AnimatePresence>
                             </View>
                         </View>
                     </MotiView>
-                <AnimatePresence>
-                    {scrollToLatestButton && <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={[styles.scrollToLatestButton, { left: scrollButtonLeft + 5 }]}>
-                        <TouchableOpacity onPress={() => scrollToLatest()}>
-                            <Ionicons
-                                name="ios-chevron-down"
-                                size={30}
-                                color='#BDB9DB'
-                            />
-                        </TouchableOpacity>
-                    </MotiView>}
-                </AnimatePresence>
+                    <AnimatePresence>
+                        {scrollToLatestButton && <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={[styles.scrollToLatestButton, { left: scrollButtonLeft + 5 }]}>
+                            <TouchableOpacity onPress={() => scrollToLatest()}>
+                                <Ionicons
+                                    name="ios-chevron-down"
+                                    size={30}
+                                    color='#BDB9DB'
+                                />
+                            </TouchableOpacity>
+                        </MotiView>}
+                    </AnimatePresence>
                 </KeyboardAvoidingView>
                 <MotiView from={{ height: 0 }} animate={{ height: 180 }} delay={850} transition={{ type: 'timing' }} style={styles.scrollViewMask} />
                 <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} delay={500} style={styles.HUDWrapper}>
@@ -1037,7 +1085,7 @@ const styles = StyleSheet.create({
         top: 15,
         left: 75,
         fontSize: 22,
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: '#202060',
         width: windowWidth
     },
@@ -1138,7 +1186,8 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     panelButton: {
-        padding: 13,
+        height: windowHeight / 17,
+        justifyContent: 'center',
         borderRadius: 10,
         backgroundColor: '#4C44D4',
         alignItems: 'center',
@@ -1146,8 +1195,10 @@ const styles = StyleSheet.create({
     },
     panelButtonTitle: {
         fontSize: 17,
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: 'white',
+        textAlign: 'center',
+        width: '100%'
     },
     pieChartContainer: {
         elevation: 10,

@@ -76,7 +76,8 @@ const styles = StyleSheet.create({
         right: 0,
     },
     panelButton: {
-        padding: 13,
+        height: windowHeight / 17,
+        justifyContent: 'center',
         borderRadius: 10,
         backgroundColor: '#4C44D4',
         alignItems: 'center',
@@ -89,8 +90,10 @@ const styles = StyleSheet.create({
     },
     panelButtonTitle: {
         fontSize: 17,
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: 'white',
+        textAlign: 'center',
+        width: '100%'
     },
 })
 

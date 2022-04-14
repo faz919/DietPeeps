@@ -23,7 +23,7 @@ const ChatImage = ({ user, item, i, navigation }) => {
                         shadowRadius: 5,
                         shadowOpacity: 0.4,
                     }}>
-                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginBottom: -15, color: '#202060', fontSize: 60, fontWeight: 'bold' }}>{i.grade}</MotiText>
+                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginBottom: -15, color: '#202060', fontSize: 60, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal' }}>{i.grade}</MotiText>
                         <View style={styles.pieChartContainer}>
                             <MotiView
                                 from={{

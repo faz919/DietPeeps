@@ -66,3 +66,6 @@ GoogleService-Info.plist
 
 # Course data
 /courses/CourseData.json
+
+# RevenueCat API Keys
+/constants/constants.js

@@ -142,7 +142,7 @@ const PhotoGallery = ({ navigation, route }) => {
                                             <View style={{ width: windowWidth * 0.9, height: windowHeight * 0.5, flexDirection: 'row', justifyContent: 'space-between' }}>
                                                 <View style={{ width: windowWidth * 0.9, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                                                     <View style={{ left: 5, elevation: 2, shadowColor: '#000000', shadowOffset: { width: 0, height: 0 }, shadowRadius: 5, shadowOpacity: 0.5 }}>
-                                                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} adjustsFontSizeToFit={true} style={{ width: windowWidth * 0.9 * 0.4, fontWeight: 'bold', color: '#fff', fontSize: windowWidth * 0.15 }}>{selectedImage.grade}</MotiText>
+                                                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} adjustsFontSizeToFit={true} style={{ width: windowWidth * 0.9 * 0.4, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', color: '#fff', fontSize: windowWidth * 0.15 }}>{selectedImage.grade}</MotiText>
                                                     </View>
                                                     <View style={{ position: 'absolute', bottom: 10, right: 15 }}>
                                                         <MotiView

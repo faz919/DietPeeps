@@ -30,8 +30,8 @@ const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, naviga
                                 style={styles.checkmarkStyle}
                             />
                         </MotiView>}
-                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ color: '#fff', fontSize: 25, fontWeight: 'bold' }}>{courseInfo.Title}</MotiText>
-                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ marginBottom: -5, color: '#fff', fontSize: 20, fontWeight: 'bold' }}>{courseInfo.Subtitle}</MotiText>
+                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ color: '#fff', fontSize: 25, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal' }}>{courseInfo.Title}</MotiText>
+                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ marginBottom: -5, color: '#fff', fontSize: 20, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal' }}>{courseInfo.Subtitle}</MotiText>
                     </View>
                 :
                 <SkeletonPlaceholder backgroundColor='#e6e7fa' highlightColor='#fff' speed={1000}>

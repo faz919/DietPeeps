@@ -400,7 +400,6 @@ const styles = StyleSheet.create({
     marginTop: 30
   },
   panelButton: {
-    padding: 13,
     height: windowHeight / 15,
     justifyContent: 'center',
     borderRadius: 10,
@@ -411,15 +410,17 @@ const styles = StyleSheet.create({
   },
   panelButtonTitle: {
     fontSize: 17,
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
     color: 'white',
+    textAlign: 'center',
+    width: '100%'
   },
   Text_8H: {
     marginBottom: 6,
     fontSize: 20,
     lineHeight: 24,
     fontFamily: 'System',
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
   },
   panel: {
     padding: 20,
@@ -440,25 +441,14 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: 27,
     height: 35,
-    color: '#202060'
+    color: '#202060',
+    width: '100%'
   },
   panelSubtitle: {
       fontSize: 14,
       color: 'gray',
       textAlign: 'center',
       marginBottom: 10,
-  },
-  panelButton: {
-      padding: 13,
-      borderRadius: 10,
-      backgroundColor: '#4C44D4',
-      alignItems: 'center',
-      marginVertical: 7,
-  },
-  panelButtonTitle: {
-      fontSize: 17,
-      fontWeight: 'bold',
-      color: 'white',
   },
   modalLoading: {
     position: 'absolute',

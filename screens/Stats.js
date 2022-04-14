@@ -41,14 +41,15 @@ const Stats = ({ navigation }) => {
             .where('userID', '==', user.uid)
             .orderBy('timeSent', 'desc')
             .onSnapshot((querySnapshot) => {
-                querySnapshot.docs.forEach((doc) => {
+                for (let i = 0; i < querySnapshot.size; i++) {
+                    let doc = querySnapshot.docs[i]
                     if (doc.data().img != null) {
                         for (let image of doc.data().img) {
                             imageList.push({ ...image, timeSent: doc.data().timeSent })
                         }
                         // Array.prototype.push.apply(imageList, doc.data().img)
                     }
-                })
+                }
                 // console.log('snapshot received at: ', new Date())
                 setGlobalVars(val => ({ ...val, images: imageList }))
                 imageList = []
@@ -60,34 +61,35 @@ const Stats = ({ navigation }) => {
             })
     }, [])
 
-    useEffect(() => {
-        firestore()
-            .collection("user-info")
-            .doc(user.uid)
-            .get()
-            .then((doc) => {
-                let now = new Date()
-                let lastImage = doc.data().lastImageSent?.toDate()
-                let streakUpdated = doc.data().streakUpdated?.toDate()
-                const oneDay = 60 * 60 * 24 * 1000
-                if (now - streakUpdated > oneDay) {
-                    if (now - lastImage <= oneDay) {
-                        updateInfo({
-                            streak: firestore.FieldValue.increment(1),
-                            streakUpdated: firestore.Timestamp.fromDate(new Date())
-                        })
-                    } else if (now - lastImage > oneDay) {
-                        updateInfo({
-                            streak: 0,
-                            streakUpdated: firestore.Timestamp.fromDate(new Date())
-                        })
-                    }
-                }
-            })
-            .catch((e) => {
-                console.error('error while checking streak: ', e)
-            })
-    }, [])
+    // old streak checker system //
+    // useEffect(() => {
+    //     firestore()
+    //         .collection("user-info")
+    //         .doc(user.uid)
+    //         .get()
+    //         .then((doc) => {
+    //             let now = new Date()
+    //             let lastImage = doc.data().lastImageSent?.toDate()
+    //             let streakUpdated = doc.data().streakUpdated?.toDate()
+    //             const oneDay = 60 * 60 * 24 * 1000
+    //             if (now - streakUpdated > oneDay) {
+    //                 if (now - lastImage <= oneDay) {
+    //                     updateInfo({
+    //                         streak: firestore.FieldValue.increment(1),
+    //                         streakUpdated: firestore.Timestamp.fromDate(new Date())
+    //                     })
+    //                 } else if (now - lastImage > oneDay) {
+    //                     updateInfo({
+    //                         streak: 0,
+    //                         streakUpdated: firestore.Timestamp.fromDate(new Date())
+    //                     })
+    //                 }
+    //             }
+    //         })
+    //         .catch((e) => {
+    //             console.error('error while checking streak: ', e)
+    //         })
+    // }, [])
 
     // useEffect(() => {
     //     firestore()
@@ -178,10 +180,6 @@ const Stats = ({ navigation }) => {
         })
         return Math.round((((totals.green - totals.red) / (totals.green + totals.yellow + totals.red)) + 1) * 50)
     })
-
-    // imageFilter.reverse().map((value, index) => {
-    //     return { x: index + 1, y: value.grade == null ? 0 : value.grade  }
-    // })
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: '#E6E7FA'}}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ top: 80 }}>
@@ -192,22 +190,22 @@ const Stats = ({ navigation }) => {
                 <View>
                     <View style={{ backgroundColor: '#fff', borderRadius: 20, width: windowWidth - 30, height: windowHeight / 8, marginTop: 20, alignSelf: 'center', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
                         <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 10, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: windowWidth / 10, color: '#202060' }}>{globalVars.userData?.streak}</Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>Streak</Text>
+                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{globalVars.userData?.streak}</Text>
+                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>Streak</Text>
                         </View>
                         <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 10, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayAvg}</Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Avg</Text>
+                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayAvg}</Text>
+                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Avg</Text>
                         </View>
                         <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 10, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: windowWidth / 10, color: '#202060' }}>{ThirtyDayAvg}</Text>
-                            <Text style={{ fontWeight: 'bold', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>30 Day Avg</Text>
+                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{ThirtyDayAvg}</Text>
+                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>30 Day Avg</Text>
                         </View>
                     </View>
-                    <Text style={{ fontSize: 26, color: '#202060', fontWeight: 'bold', alignSelf: 'center', marginTop: 20 }}>
+                    <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', marginTop: 20 }}>
                         Daily Scores
                     </Text>
-                    {graphDays.length === 0 ?
+                    {graphDays.length === 0 || globalVars.images?.length === 0 || globalVars.images == null || graphDays == null ?
                         <View>
                             <View style={{ opacity: 0.3 }} pointerEvents='none'>
                                 <Chart
@@ -296,7 +294,7 @@ const Stats = ({ navigation }) => {
                                 }}
                                 tooltipComponent={<Tooltip />} />
                         </Chart>}
-                    <Text onLayout={(event) => { const { y } = event.nativeEvent.layout; setCalendarInfoIcon(y) }} style={{ fontSize: 26, color: '#202060', fontWeight: 'bold', alignSelf: 'center' }}>
+                    <Text onLayout={(event) => { const { y } = event.nativeEvent.layout; setCalendarInfoIcon(y) }} style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center' }}>
                         Meal Photo Calendar
                     </Text>
                     <Calendar
@@ -400,7 +398,7 @@ const Stats = ({ navigation }) => {
 const styles = StyleSheet.create({
     Textp6: {
         textAlign: 'center',
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         fontSize: 24,
         letterSpacing: 0,
         lineHeight: 34,
@@ -435,7 +433,7 @@ const styles = StyleSheet.create({
     displayName: {
         left: 25,
         fontSize: 22,
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: '#202060',
         width: windowWidth 
     },

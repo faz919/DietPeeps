@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
                                 }
                             }, { merge: true })
                             .then(() => {
-                                setGlobalVars(val => ({ ...val, loggingIn: false }))
+                                setGlobalVars(val => ({ ...val, loggingIn: false, newUser: true }))
                                 const _user = auth().currentUser
                                 _user.reload()
                             })

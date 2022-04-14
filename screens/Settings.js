@@ -79,7 +79,7 @@ const Settings = ({ navigation }) => {
                         style={styles.Divider}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Congrats')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Subscription')}>
                     <View style={styles.Viewk7} >
                         <View style={styles.Viewmm}>
                             <AntDesign
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         lineHeight: 24,
         fontFamily: 'System',
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
     },
     ViewLa: {
         flexGrow: 1,

@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
         fontSize: 28,
         marginBottom: 20,
         color: '#202060',
-        fontWeight: 'bold'
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal'
     },
     navButton: {
         marginTop: 15,

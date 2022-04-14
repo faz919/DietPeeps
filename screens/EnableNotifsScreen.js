@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headline2: {
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
     fontSize: 40,
     letterSpacing: 0,
   },
@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   },
   panelButtonText: {
     fontSize: 17,
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
     color: 'white',
   },
 })

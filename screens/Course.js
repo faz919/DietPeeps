@@ -68,7 +68,7 @@ const Course = ({ navigation, route }) => {
                 courseDayCompleted: courseData.UniqueCourseNumber >= courseData.MaxCourseinDay ? true : false
             }
         })
-        navigation.navigate('Main Menu', { screen: 'Courses', params: { courseInfo: null, courseCompleted: true } })
+        navigation.navigate('Main Menu', { screen: 'Courses', params: { courseInfo: null, courseCompleted: true, courseDayCompleted: courseData.UniqueCourseNumber >= courseData.MaxCourseinDay ? true : false } })
     }
     
     return (
@@ -188,7 +188,7 @@ const Course = ({ navigation, route }) => {
                         <MotiText
                             style={{
                                 fontSize: 40,
-                                fontWeight: 'bold',
+                                fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
                                 letterSpacing: 0,
                                 textAlign: 'center',
                                 color: '#fff',
@@ -230,7 +230,7 @@ const Course = ({ navigation, route }) => {
                     </View>
                     :
                     showButton ?
-                        <TouchableOpacity disabled={!courseCompleted} style={[styles.panelButton, { opacity: courseCompleted ? 0.5 : 1 }]} onPress={completeCourse}>
+                        <TouchableOpacity disabled={courseCompleted} style={[styles.panelButton, { opacity: courseCompleted ? 0.5 : 1 }]} onPress={completeCourse}>
                             <Text style={styles.panelButtonTitle}>{courseCompleted ? 'Course Completed!' : 'Complete Course'}</Text>
                         </TouchableOpacity>
                         : null
@@ -243,7 +243,6 @@ const Course = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
     panelButton: {
-        padding: 13,
         borderRadius: 10,
         backgroundColor: '#4C44D4',
         alignItems: 'center',
@@ -251,12 +250,16 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: '95%',
         alignSelf: 'center',
-        bottom: 25
+        bottom: 25,
+        height: windowHeight / 17,
+        justifyContent: 'center',
     },
     panelButtonTitle: {
         fontSize: 17,
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: 'white',
+        textAlign: 'center',
+        width: '100%'
     },
 })
 

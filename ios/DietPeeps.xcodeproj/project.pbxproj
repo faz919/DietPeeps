@@ -14,6 +14,7 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A14F364E703D6817272D4F7B /* libPods-DietPeeps-DietPeepsTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */; };
 		D56A6AB227CF67A0002A7CF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D56A6AB127CF67A0002A7CF7 /* GoogleService-Info.plist */; };
+		D5FBF3282806D56300C7E8CF /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5FBF3272806D56300C7E8CF /* StoreKit.framework */; };
 		E270F422FCE46730C639B702 /* libPods-DietPeeps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E08BD998306182F0AED6417 /* libPods-DietPeeps.a */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DietPeeps-DietPeepsTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D53B2D3227BA15CA00F7B5BF /* DietPeeps.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = DietPeeps.entitlements; path = DietPeeps/DietPeeps.entitlements; sourceTree = "<group>"; };
 		D56A6AB127CF67A0002A7CF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D5FBF3272806D56300C7E8CF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -63,6 +65,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E270F422FCE46730C639B702 /* libPods-DietPeeps.a in Frameworks */,
+				D5FBF3282806D56300C7E8CF /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -103,6 +106,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D5FBF3272806D56300C7E8CF /* StoreKit.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				4E08BD998306182F0AED6417 /* libPods-DietPeeps.a */,
 				BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */,

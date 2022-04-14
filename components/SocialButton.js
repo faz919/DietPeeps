@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
   },
   btnTxtWrapper: {
     flex: 1,
@@ -52,6 +52,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
   },
 });

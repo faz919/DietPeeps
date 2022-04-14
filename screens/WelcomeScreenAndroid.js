@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { windowWidth } from '../utils/Dimensions.js'
 import requestUserPermission from '../utils/notificationServices.js'
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headline2: {
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
     fontSize: 40,
     letterSpacing: 0,
   },
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   },
   panelButtonText: {
     fontSize: 17,
-    fontWeight: 'bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
     color: 'white',
   },
 })

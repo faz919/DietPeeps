@@ -32,8 +32,7 @@ const OnboardingWizard = ({ navigation }) => {
         },
         dob: new Date(2000, 0, 1),
         mealCount: 3,
-        timezoneOffset: (new Date()).getTimezoneOffset() / 60,
-        deviceOS: Platform.OS
+        timezoneOffset: (new Date()).getTimezoneOffset() / 60
     })
     const formLength = 9
     const mealPickerScreen = 8
@@ -232,14 +231,24 @@ const OnboardingWizard = ({ navigation }) => {
                                         {formResponses.weightGoal === 'Not Weight Related' ? 'What are some of your goals?' : 'What other goals do you have?'}
                                     </Text>
                                 </View>
-                                <ScrollView style={{ height: windowHeight * 0.5, backgroundColor: '#BDB9DB', borderRadius: 20, overflow: 'hidden', paddingHorizontal: 10, paddingBottom: 10 }}>
-                                    {goals.map((goal, index) => 
-                                        <TouchableOpacity key={goal} onPress={() => toggleSelectGoal(goal)} style={[styles.largeView, { backgroundColor: formResponses.goals.includes(goal) ? '#43CD3F' : '#fff', marginBottom: index + 1 === goals.length ? 10 : 0 }]}>
-                                            <Text style={[styles.title1, { color: formResponses.goals.includes(goal) ? '#fff' : '#202060' }]}>
-                                                {goal}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    )}
+                                <ScrollView showsVerticalScrollIndicator={false} style={{ height: windowHeight * 0.5, overflow: 'hidden', 
+                                // if you want a border box
+                                //  backgroundColor: '#BDB9DB', borderRadius: 20,  paddingHorizontal: 10, paddingBottom: 10
+                                 }}>
+                                    <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                        {goals.map((goal, index) => 
+                                            <TouchableOpacity key={goal} onPress={() => toggleSelectGoal(goal)} style={{ flexDirection: 'row', alignItems: 'center', margin: 5, padding: 5, borderRadius: 10, backgroundColor: formResponses.goals.includes(goal) ? '#43CD3F' : '#fff', marginBottom: index + 1 === goals.length ? 10 : 0 }}>
+                                                <Text style={{ fontSize: windowHeight * (18/844), textAlign: 'center', color: formResponses.goals.includes(goal) ? '#fff' : '#202060', marginRight: 5 }}>
+                                                    {goal}
+                                                </Text>
+                                                <Icon 
+                                                    name={formResponses.goals.includes(goal) ? 'checkmark-sharp' : 'add'}
+                                                    size={windowHeight * (18/844)}
+                                                    color={formResponses.goals.includes(goal) ? '#fff' : '#202060'}
+                                                />
+                                            </TouchableOpacity>
+                                        )}
+                                    </View>
                                 </ScrollView>
                                 <View style={styles.View_4v}>
                                     <TouchableOpacity
@@ -570,7 +579,7 @@ const OnboardingWizard = ({ navigation }) => {
                                             }}
                                             from={{ rotate: '0deg' }}
                                             animate={{ rotate: '360deg' }}
-                                            transition={{ loop: true, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
+                                            transition={{ loop: Platform.OS === 'ios' ? true : false, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
                                         >
                                             <Icon 
                                                 name='settings-sharp'
@@ -586,7 +595,7 @@ const OnboardingWizard = ({ navigation }) => {
                                             }}
                                             from={{ rotate: '0deg' }}
                                             animate={{ rotate: '-360deg' }}
-                                            transition={{ loop: true, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
+                                            transition={{ loop: Platform.OS === 'ios' ? true : false, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
                                         >
                                             <Icon 
                                                 name='settings-sharp'
@@ -858,26 +867,25 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     headline2: {
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         fontSize: windowHeight * (40/844),
         letterSpacing: 0,
         textAlign: 'center',
         marginVertical: 20
     },
     headline1: {
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         fontSize: windowHeight * (30/844),
         letterSpacing: 0,
         textAlign: 'center',
         marginVertical: 20
     },
     title1: {
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         fontSize: windowHeight * (25/844),
         letterSpacing: 0,
         textAlign: 'center',
         color: '#202060',
-        marginVertical: 20
     },
     subtitle1: {
         fontSize: windowHeight * (16/844),
@@ -886,7 +894,7 @@ const styles = StyleSheet.create({
     },
     panelButtonText: {
         fontSize: windowHeight * (17/844),
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: 'white',
     },
     largeView: {
@@ -907,7 +915,7 @@ const styles = StyleSheet.create({
     },  
     loadingScreenText: {
         fontSize: windowHeight * (35/844),
-        fontWeight: 'bold',
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         letterSpacing: 0,
         textAlign: 'center',
         color: '#202060',

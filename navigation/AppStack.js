@@ -19,6 +19,7 @@ import WelcomeScreen from "../screens/WelcomeScreenAndroid.js"
 import CaptchaScreen from "../screens/CompleteCaptcha.js"
 import OnboardingWizard from "../screens/OnboardingWizard.js"
 import CongratsPopup from "../screens/CongratsPopup.js"
+import SubscriptionScreen from "../screens/SubscriptionScreen.js"
 
 const AppStack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -82,7 +83,7 @@ const App = () => {
       }} />
       {/* <AppStack.Screen name="Courses" component={CourseSelection} options={{ headerShown: false }} /> */}
       <AppStack.Screen name="CameraModal" component={CameraModal} options={{ presentation: 'transparentModal', headerShown: false }} />
-      <AppStack.Screen name="Congrats" component={CongratsPopup} options={{ presentation: 'transparentModal', headerShown: false }} />
+      <AppStack.Screen name="Congrats" component={CongratsPopup} options={{ presentation: 'transparentModal', headerShown: false }} initialParams={{ congratsType: null }} />
       <AppStack.Screen name="Enable Notifs" component={EnableNotifsScreen} options={{ 
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
@@ -131,6 +132,12 @@ const App = () => {
         gestureEnabled: true,
         gestureDirection: "vertical"
       }} />
+      {/* <AppStack.Screen name="Subscription" component={SubscriptionScreen} options={{
+        headerShown: false,
+        ...TransitionPresets.ModalPresentationIOS,
+        gestureEnabled: true,
+        gestureDirection: "vertical"
+      }} /> */}
     </AppStack.Navigator>
   );
 }
