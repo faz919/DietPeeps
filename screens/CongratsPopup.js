@@ -16,6 +16,8 @@ const CongratsPopup = ({ navigation, route }) => {
     const [hideAnim, startHideAnim] = useState(false)
     let congratsTitle, congratsMessage
 
+    console.log(congratsType)
+
     switch (congratsType) {
         case 'courseDayCompletion':
             congratsTitle = 'Congratulations!'
@@ -24,6 +26,10 @@ const CongratsPopup = ({ navigation, route }) => {
         case 'imageSent':
             congratsTitle = 'Good job!'
             congratsMessage = 'Another day, another image! Keep it going!'
+            break
+        case 'subscribed':
+            congratsTitle = 'Welcome to DietPeeps!'
+            congratsMessage = "We're so glad to have you here!"
             break
         default:
             congratsTitle = 'Well done!'

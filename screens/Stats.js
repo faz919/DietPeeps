@@ -24,14 +24,6 @@ const Stats = ({ navigation }) => {
     const imageFilter = globalVars.images?.filter(image => image.graded === true)
     const insets = useSafeAreaInsets()
 
-    // double view trick
-    const scrolling = useRef(new Animated.Value(0)).current;
-    const translation = scrolling.interpolate({
-        inputRange: [0, windowHeight],
-        outputRange: [0, -windowHeight],
-        extrapolate: 'clamp',
-    })
-
     useEffect(() => {
         let imageList = []
         return firestore()
@@ -60,48 +52,6 @@ const Stats = ({ navigation }) => {
                 console.error('error while fetching chat images: ', e)
             })
     }, [])
-
-    // old streak checker system //
-    // useEffect(() => {
-    //     firestore()
-    //         .collection("user-info")
-    //         .doc(user.uid)
-    //         .get()
-    //         .then((doc) => {
-    //             let now = new Date()
-    //             let lastImage = doc.data().lastImageSent?.toDate()
-    //             let streakUpdated = doc.data().streakUpdated?.toDate()
-    //             const oneDay = 60 * 60 * 24 * 1000
-    //             if (now - streakUpdated > oneDay) {
-    //                 if (now - lastImage <= oneDay) {
-    //                     updateInfo({
-    //                         streak: firestore.FieldValue.increment(1),
-    //                         streakUpdated: firestore.Timestamp.fromDate(new Date())
-    //                     })
-    //                 } else if (now - lastImage > oneDay) {
-    //                     updateInfo({
-    //                         streak: 0,
-    //                         streakUpdated: firestore.Timestamp.fromDate(new Date())
-    //                     })
-    //                 }
-    //             }
-    //         })
-    //         .catch((e) => {
-    //             console.error('error while checking streak: ', e)
-    //         })
-    // }, [])
-
-    // useEffect(() => {
-    //     firestore()
-    //         .collection('user-info')
-    //         .doc(user.uid)
-    //         .get()
-    //         .then((doc) => {
-    //             if (doc.exists) {
-    //                 return setUserInfo(doc.data())
-    //             }
-    //         })
-    // }, [])
 
     const tempPfp = () => {
         if (user.providerData[0].providerId === "apple.com") {

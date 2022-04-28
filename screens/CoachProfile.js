@@ -4,6 +4,7 @@ import { AuthContext } from '../navigation/AuthProvider'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import BackButton from '../components/BackButton'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
+import { windowHeight } from '../utils/Dimensions'
 
 const CoachProfile = ({ navigation }) => {
 
@@ -14,7 +15,7 @@ const CoachProfile = ({ navigation }) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
       <View style={styles.ViewWi}>
         <ImageBackground onLoad={() => setLoading(false)} style={[styles.Image_9l, { backgroundColor: '#e6e7fa' }]}
-          source={{ uri: globalVars.coachData.photoURL }}
+          source={{ uri: globalVars.coachData?.photoURL }}
         >
           {loading &&
             <SkeletonPlaceholder backgroundColor='#BDB9DB' highlightColor='#e6e7fa' speed={1000}>
@@ -25,7 +26,7 @@ const CoachProfile = ({ navigation }) => {
       <View style={styles.ViewmY}>
         <View style={styles.ViewvG}>
           <Text style={[styles.TextOd, { color: '#202060' }]}>
-            {globalVars.coachData.displayName}
+            {globalVars.coachData?.displayName}
           </Text>
           <MaterialCommunityIcons
             color={'#202060'}
@@ -33,33 +34,6 @@ const CoachProfile = ({ navigation }) => {
             name='check-decagram'
           />
         </View>
-
-        {/* <View style={styles.ViewEk}>
-          <TouchableOpacity>
-            <FontAwesome
-              color='#202060'
-              size={24}
-              name='twitter-square'
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <FontAwesome
-              color='#202060'
-              size={24}
-              name='google-plus-square'
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.TouchableOpacityLv}>
-            <FontAwesome
-              color='#202060'
-              size={24}
-              name='facebook-square'
-            />
-          </TouchableOpacity>
-        </View> */}
-
         <Text style={[styles.Textra, { color: '#202060' }]}>
           {'About Me'}
         </Text>
@@ -122,12 +96,40 @@ const CoachProfile = ({ navigation }) => {
               {globalVars.coachData.coachInfo?.interests[2]}
             </Text>
           </View>
-        </View> </>}
+        </View>  
+        </>}
       </View>
       <BackButton navigation={navigation} style={{ transform: [{ rotateZ: '270deg' }], top: 30 }} />
     </SafeAreaView>
   )
 }
+
+
+        // <View style={styles.ViewEk}>
+        //   <TouchableOpacity>
+        //     <FontAwesome
+        //       color='#202060'
+        //       size={24}
+        //       name='twitter-square'
+        //     />
+        //   </TouchableOpacity>
+
+        //   <TouchableOpacity>
+        //     <FontAwesome
+        //       color='#202060'
+        //       size={24}
+        //       name='google-plus-square'
+        //     />
+        //   </TouchableOpacity>
+
+        //   <TouchableOpacity style={styles.TouchableOpacityLv}>
+        //     <FontAwesome
+        //       color='#202060'
+        //       size={24}
+        //       name='facebook-square'
+        //     />
+        //   </TouchableOpacity>
+        // </View> 
 
 const styles = StyleSheet.create({
   Image_9l: {

@@ -525,7 +525,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DietPeeps/DietPeeps.entitlements;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = UGZBZJXSGR;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = DietPeeps/Info.plist;
@@ -533,7 +533,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.022;
+				MARKETING_VERSION = 1.024;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -554,14 +554,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DietPeeps/DietPeeps.entitlements;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = UGZBZJXSGR;
 				INFOPLIST_FILE = DietPeeps/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.022;
+				MARKETING_VERSION = 1.024;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

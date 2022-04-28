@@ -194,7 +194,7 @@ export const AuthProvider = ({ children }) => {
                     try {
                         await auth().signInWithEmailAndPassword(email, password).then(() => {
                             logLoginEvent()
-                            setGlobalVars(val => ({ ...val, loggingIn: false, newAccount: false }))
+                            setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                             messaging()
                                 .getToken()
                                 .then(token => {
@@ -210,7 +210,7 @@ export const AuthProvider = ({ children }) => {
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
                         crashlytics().recordError(e)
-                        setGlobalVars(val => ({ ...val, loggingIn: false }))
+                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                     }
                 },
                 googleLogin: async () => {
@@ -233,29 +233,29 @@ export const AuthProvider = ({ children }) => {
                                 let now = new Date()
                                 if (now - Date.parse(_user.metadata.creationTime) > 5000) {
                                     logLoginEvent()
-                                    setGlobalVars(val => ({ ...val, loggingIn: false }))
+                                    setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                                 } else {
                                     makeNewUserChat()
                                 }
                             } else {
                                 console.log('User was not just created.')
                                 logLoginEvent()
-                                setGlobalVars(val => ({ ...val, loggingIn: false, newAccount: false }))
+                                setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                             }
                         })
                             .catch((e) => {
                                 console.log('Error when updating user info for Google login: ', e)
                                 crashlytics().recordError(e)
-                                setGlobalVars(val => ({ ...val, loggingIn: false }))
+                                setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                             })
                     } catch (e) {
                         const eMessage = e.message.toString()
                         console.log(e)
                         crashlytics().recordError(e)
                         if (e.code === statusCodes.SIGN_IN_CANCELLED) {
-                            setGlobalVars(val => ({ ...val, loggingIn: false }))
+                            setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                         }
-                        setGlobalVars(val => ({ ...val, loggingIn: false }))
+                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                     }
                 },
                 appleLogin: async () => {
@@ -304,14 +304,14 @@ export const AuthProvider = ({ children }) => {
                                     let now = new Date()
                                     if (now - Date.parse(_user.metadata.creationTime) > 5000) {
                                         logLoginEvent()
-                                        setGlobalVars(val => ({ ...val, loggingIn: false }))
+                                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                                     } else {
                                         makeNewUserChat()
                                     }
                                 } else {
                                     console.log('User was not just created.')
                                     logLoginEvent()
-                                    setGlobalVars(val => ({ ...val, loggingIn: false, newAccount: false }))
+                                    setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                                 }
                             })
                         } else {
@@ -322,7 +322,7 @@ export const AuthProvider = ({ children }) => {
                         //setAuthErrorText(eMessage.substring(0, eMessage.indexOf('(')))
                         console.log(e)
                         crashlytics().recordError(e)
-                        setGlobalVars(val => ({ ...val, loggingIn: false }))
+                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                     }
                 },
                 register: async (name, email, password) => {
@@ -353,7 +353,7 @@ export const AuthProvider = ({ children }) => {
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
                         crashlytics().recordError(e)
-                        setGlobalVars(val => ({ ...val, loggingIn: false }))
+                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                     }
                 },
                 forgotPassword: async (email) => {
@@ -390,7 +390,7 @@ export const AuthProvider = ({ children }) => {
                             Alert.alert(
                                 'Account deleted!',
                                 'Your account has been successfully deleted.')
-                            setGlobalVars(val => ({ ...val, loggingIn: false }))
+                            setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()

@@ -22,6 +22,8 @@ import CourseData from '../courses/CourseData.json'
 import CourseLinkImage from '../components/CourseLinkImage'
 import crashlytics from '@react-native-firebase/crashlytics'
 import DeviceInfo from 'react-native-device-info'
+import Purchases from 'react-native-purchases'
+import { ENTITLEMENT_ID } from '../constants/constants'
 
 const Chat = ({ navigation, route }) => {
 
@@ -187,45 +189,66 @@ const Chat = ({ navigation, route }) => {
                 .collection('user-info')
                 .doc(user.uid)
                 .onSnapshot(async (userData) => {
-                    setGlobalVars(val => ({ ...val, userData: userData.data() }))
-                    const usr = userData.data()
-                    const deviceInfo = {
-                        deviceOS: Platform.OS,
-                        deviceModel: DeviceInfo.getModel(),
-                        deviceID: DeviceInfo.getUniqueId()
-                    }
-                    const appInfo = {
-                        versionName: '1.024',
-                        versionCode: 10
-                    }
-                    // check if user has completed onboarding
-                    if (usr.userBioData == null && globalVars.userBioData == null) {
-                        navigation.replace('Onboarding Wizard')
-                    }
-                    // check if user has null display name, photo url, or email
-                    usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })
-                    usr.photoURL !== user.photoURL && updateInfo({ photoURL: user.photoURL })
-                    usr.email !== user.email && updateInfo({ email: user.email })
-                    // check if user has null chat id
-                    usr.chatID == null && globalVars.chatID != null && updateInfo({ chatID: globalVars.chatID })
-                    // check if user has null settings or device info
-                    usr.settings == null && updateInfo({
-                        settings: {
-                            notificationTypes: ['chatMessage', 'imageGrade', 'courseLink', 'statSummary', 'mealReminder']
+                    if (userData.exists) {
+                        setGlobalVars(val => ({ ...val, userData: userData.data() }))
+                        const usr = userData.data()
+                        const deviceInfo = {
+                            deviceOS: Platform.OS,
+                            deviceModel: DeviceInfo.getModel(),
+                            deviceID: DeviceInfo.getUniqueId()
                         }
-                    })
-                    usr.deviceInfo == null && updateInfo({ deviceInfo })
-                    usr.appInfo !== appInfo && updateInfo({ appInfo })
-                    // check user streak
-                    if (!yesterday(usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.streakUpdated?.toDate())) {
-                        updateInfo({
-                            streak: 0,
-                            streakUpdated: firestore.Timestamp.fromDate(new Date())
+                        const appInfo = {
+                            versionName: '1.024',
+                            versionCode: 10
+                        }
+                        // check if user has completed onboarding
+                        if (usr.userBioData == null && globalVars.userBioData == null) {
+                            navigation.replace('Onboarding Wizard')
+                        }
+                        // check if user has null display name, photo url, or email
+                        usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })
+                        usr.photoURL !== user.photoURL && updateInfo({ photoURL: user.photoURL })
+                        usr.email !== user.email && updateInfo({ email: user.email })
+                        // check if user has null chat id
+                        usr.chatID == null && globalVars.chatID != null && updateInfo({ chatID: globalVars.chatID })
+                        // check if user has null settings or device info
+                        usr.settings == null && updateInfo({
+                            settings: {
+                                notificationTypes: ['chatMessage', 'imageGrade', 'courseLink', 'statSummary', 'mealReminder']
+                            }
+                        })
+                        usr.deviceInfo == null && updateInfo({ deviceInfo })
+                        usr.appInfo !== appInfo && updateInfo({ appInfo })
+                        // check user streak
+                        if (!yesterday(usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.streakUpdated?.toDate())) {
+                            updateInfo({
+                                streak: 0,
+                                streakUpdated: firestore.Timestamp.fromDate(new Date())
+                            })
+                        }
+                        // check user subscription status
+                        Purchases.addPurchaserInfoUpdateListener(info => {
+                            checkUserMembership(usr)
                         })
                     }
                 })
         }
     }, [user])
+
+    const checkUserMembership = async (usr) => {
+        try {
+            const purchaserInfo = await Purchases.getPurchaserInfo()
+            if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined') {
+                if (!usr.subscribed) {
+                    updateInfo({ subscribed: true })
+                }
+            } else {
+                updateInfo({ subscribed: false })
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
 
     useEffect(() => {
         if (globalVars.autoSend && images?.length > 0) {

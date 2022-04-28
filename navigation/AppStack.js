@@ -132,12 +132,12 @@ const App = () => {
         gestureEnabled: true,
         gestureDirection: "vertical"
       }} />
-      {/* <AppStack.Screen name="Subscription" component={SubscriptionScreen} options={{
+      <AppStack.Screen name="Subscription" component={SubscriptionScreen} options={{
         headerShown: false,
-        ...TransitionPresets.ModalPresentationIOS,
+        ...TransitionPresets.SlideFromRightIOS,
         gestureEnabled: true,
-        gestureDirection: "vertical"
-      }} /> */}
+        gestureDirection: "horizontal"
+      }} />
     </AppStack.Navigator>
   );
 }
