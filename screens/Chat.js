@@ -226,7 +226,7 @@ const Chat = ({ navigation, route }) => {
                             deviceID: DeviceInfo.getUniqueId()
                         }
                         const appInfo = {
-                            versionName: '1.03',
+                            versionName: '1.030',
                             versionCode: 13
                         }
                         // check if user has completed onboarding
@@ -268,40 +268,42 @@ const Chat = ({ navigation, route }) => {
                         }
                         // check course completions
                         const c = usr.courseData
-                        if (c.courseDayCompleted) {
-                          if (localDayStart > c.courseCompletedAt?.toDate()) {
+                        if (c.courseDayCompleted && localDayStart > c.courseCompletedAt?.toDate()) {
                             updateInfo({
-                              courseData: {
-                                latestCourseCompleted: c.latestCourseCompleted,
-                                courseCompletedAt: c.courseCompletedAt,
-                                courseDay: c.courseDay + 1,
-                                courseDayCompleted: false
-                              }
+                                courseData: {
+                                    latestCourseCompleted: c.latestCourseCompleted,
+                                    courseCompletedAt: c.courseCompletedAt,
+                                    courseDay: c.courseDay + 1,
+                                    courseDayCompleted: false
+                                }
                             })
-                          }
                         }
                         // check user subscription status
                         Purchases.addPurchaserInfoUpdateListener(info => {
                             checkUserMembership(usr)
                         })
                         // if user isn't subscribed, check how long it's been since they joined
-                        if (!usr.subscribed) {
-                            const joinDate = new Date(user.metadata.creationTime)
-                            const oneDay = 60 * 60 * 1000 * 24
-                            const daysSinceJoin = Math.floor((new Date() - joinDate) / oneDay)
-                            const daysReminded = await AsyncStorage.getItem('days_reminded').then((res) => res != null && res.json())
-                            const extraTrialDays = await AsyncStorage.getItem('extra_days').then((res) => res != null && res.json())
-                            if (extraTrialDays != null) {
-                                daysSinceJoin >= extraTrialDays + 3 && setTrialPeriodFinished(true)
-                            } else {
-                                setShowExtraDaysButton(true)
+                        try {
+                            if (!usr.subscribed) {
+                                const joinDate = new Date(user.metadata.creationTime)
+                                const oneDay = 60 * 60 * 1000 * 24
+                                const daysSinceJoin = Math.floor((new Date() - joinDate) / oneDay)
+                                const daysReminded = JSON.parse(await AsyncStorage.getItem('days_reminded'))
+                                const extraTrialDays = JSON.parse(await AsyncStorage.getItem('extra_days'))
+                                if (extraTrialDays != null && extraTrialDays instanceof Number) {
+                                    daysSinceJoin >= extraTrialDays + 3 && setTrialPeriodFinished(true)
+                                } else {
+                                    setShowExtraDaysButton(true)
+                                }
+                                daysSinceJoin >= 14 && !extraTrialDays && setTrialPeriodFinished(true)
+                                if (daysReminded == null || !daysReminded?.includes(daysSinceJoin)) {
+                                    daysSinceJoin >= 14 ? navigation.navigate('Subscription') :
+                                        daysSinceJoin === 12 ? navigation.navigate('Subscription', { trialReminder: 14 - daysSinceJoin }) :
+                                            daysSinceJoin === 7 && navigation.navigate('Subscription', { trialReminder: 14 - daysSinceJoin })
+                                }
                             }
-                            daysSinceJoin >= 14 && !extraTrialDays && setTrialPeriodFinished(true)
-                            if (daysReminded == null || !daysReminded?.includes(daysSinceJoin)) {
-                                daysSinceJoin >= 14 ? navigation.navigate('Subscription') :
-                                    daysSinceJoin >= 12 ? navigation.navigate('Subscription', { trialReminder: 2 }) :
-                                        daysSinceJoin >= 7 && navigation.navigate('Subscription', { trialReminder: 7 })
-                            }
+                        } catch (e) {
+                            console.log(e)
                         }
                     }
                 })

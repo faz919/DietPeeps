@@ -8,25 +8,25 @@ import { windowHeight, windowWidth } from '../utils/Dimensions'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import ToggleButtonRow from '../components/ToggleButtonRow'
 import CourseImage from '../components/CourseImage'
-import { AnimatePresence, MotiView } from 'moti'
+import { MotiView } from 'moti'
 
 const CourseSelection = ({ navigation, route }) => {
 
   const { courseInfo, courseCompleted, courseDayCompleted } = route.params 
 
-  const { updateInfo, user } = useContext(AuthContext)
+  const { globalVars } = useContext(AuthContext)
   const [userCourseData, setUserCourseData] = useState(3)
   const [loading, setLoading] = useState(true)
   const [starred, setStarred] = useState([])
   const [sortBy, setSortBy] = useState('To Do')
 
-  const stopLoading = () => {
-    if (loading) {
-      setTimeout(() => {
-        setLoading(false)
-      }, 500)
-    }
-  }
+  // const stopLoading = () => {
+  //   if (loading) {
+  //     setTimeout(() => {
+  //       setLoading(false)
+  //     }, 500)
+  //   }
+  // }
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
@@ -45,8 +45,12 @@ const CourseSelection = ({ navigation, route }) => {
   }, [courseInfo, courseCompleted])
 
   useEffect(() => {
-    const c = globalVars.userData.courseData
-    setUserCourseData(c)
+    setLoading(true)
+    if (globalVars.userData) {
+      const c = globalVars.userData.courseData
+      setUserCourseData(c)
+    }
+    setLoading(false)
   }, [globalVars.userData])
 
   // useEffect(() => {

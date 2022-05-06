@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import Purchases from 'react-native-purchases'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { AuthContext } from '../navigation/AuthProvider'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
@@ -15,17 +14,25 @@ const SubscriptionScreen = ({ navigation, route }) => {
     const { trialReminder } = route.params
 
     useEffect(() => {
-        if (trialReminder && trialReminder !== 'none') {
-            AsyncStorage.getItem('days_reminded').then((value) => {
-                if (value == null) {
-                    AsyncStorage.setItem('days_reminded', '[]')
-                } else {
-                    const days = JSON.parse(value)
-                    days.push(trialReminder)
-                    AsyncStorage.setItem('days_reminded', JSON.stringify(days))
+        const checkStuff = async () => {
+            try {
+                if (trialReminder && trialReminder !== 'none') {
+                    AsyncStorage.getItem('days_reminded').then((value) => {
+                        console.log(value)
+                        if (value == null) {
+                            AsyncStorage.setItem('days_reminded', '[]')
+                        } else {
+                            const days = JSON.parse(value)
+                            days.push(14 - trialReminder)
+                            AsyncStorage.setItem('days_reminded', JSON.stringify(days))
+                        }
+                    })
                 }
-            })
+            } catch (e) {
+                console.log(e)
+            }
         }
+        checkStuff()
     }, [trialReminder])
 
     const { updateInfo } = useContext(AuthContext)
@@ -44,7 +51,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
     const fetchOfferings = async () => {
         try {
             const subscriptions = await Purchases.getOfferings()
-            console.log(subscriptions.current.availablePackages[0].product)
+            // console.log(subscriptions.current.availablePackages[0].product)
             subscriptions.current != null && setSubscription(subscriptions.current)
             setLoading(false)
         } catch (e) {
@@ -57,7 +64,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
         setLoading(true)
         try {
             const { purchaserInfo, productIdentifier } = await Purchases.purchasePackage(subscription)
-            console.log(purchaserInfo)
+            // console.log(purchaserInfo)
             if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined') {
                 console.log('Success!')
                 updateInfo({ subscribed: true, subscriptionInfo: { purchaserInfo } })

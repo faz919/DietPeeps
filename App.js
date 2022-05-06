@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import Providers from './navigation'
 import SplashScreen from  "react-native-splash-screen"
 import Purchases from "react-native-purchases"
-import { IOS_API_KEY, ANDROID_API_KEY, ENTITLEMENT_ID } from "./constants/constants"
+import { IOS_API_KEY, ANDROID_API_KEY } from "./constants/constants"
 import { Platform } from "react-native"
 
 const App = () => {

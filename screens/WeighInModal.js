@@ -29,11 +29,13 @@ const WeighInModal = ({ navigation }) => {
 
     const weighIn = async () => {
         setLoading(true)
-        // if (globalVars.userData.weightHistory?.length === 30) {
-        //     updateInfo({
-        //         weightHistory: firestore.FieldValue.arrayRemove()
-        //     })
-        // }
+        if (globalVars.userData.weightHistory?.length >= 30) {
+            let newWeightHistory = globalVars.userData.weightHistory
+            newWeightHistory.shift()
+            updateInfo({
+                weightHistory: newWeightHistory
+            })
+        }
         updateInfo({
             weightHistory: firestore.FieldValue.arrayUnion({ weight: { kgs: weight.kgs, lbs: weight.lbs }, time: firestore.Timestamp.fromDate(new Date()) }),
             lastWeighIn: firestore.Timestamp.fromDate(new Date()),

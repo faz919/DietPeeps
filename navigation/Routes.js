@@ -1,14 +1,19 @@
-import React, {useContext, useState, useEffect, useRef} from 'react'
-import {NavigationContainer, useNavigationContainerRef, validatePathConfig} from '@react-navigation/native'
+import React, { useContext, useState, useEffect, useRef } from 'react'
+import { NavigationContainer, useNavigationContainerRef, validatePathConfig } from '@react-navigation/native'
 import auth from '@react-native-firebase/auth'
-import {AuthContext} from './AuthProvider'
+import { AuthContext } from './AuthProvider'
 import analytics from '@react-native-firebase/analytics'
+import { Mixpanel } from 'mixpanel-react-native'
+import { MIXPANEL_TOKEN } from '../constants/constants'
 
 import AuthStack from './AuthStack'
 import AppStack from './AppStack'
 
+const mixpanel = new Mixpanel(MIXPANEL_TOKEN)
+mixpanel.init()
+
 const Routes = () => {
-  const {user, setUser, setGlobalVars} = useContext(AuthContext)
+  const { user, setUser } = useContext(AuthContext)
   const [initializing, setInitializing] = useState(true)
 
   const navigationRef = useNavigationContainerRef()
@@ -16,14 +21,13 @@ const Routes = () => {
 
   const onAuthStateChanged = (user) => {
     setUser(user)
-    // why???
-    // setGlobalVars(val => ({...val, chatID: null}))
     if (initializing) setInitializing(false)
   };
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged)
-    return subscriber; // unsubscribe on unmount
+    // unsubscribe on unmount
+    return subscriber
   }, []);
 
   if (initializing) return null;
@@ -45,6 +49,7 @@ const Routes = () => {
               screen_name: currentRouteName,
               screen_class: currentRouteName
             })
+            mixpanel.track('Screen View', { 'Screen': currentRouteName })
           } catch (e) {
             console.error('error while screen tracking: ', e)
           }
