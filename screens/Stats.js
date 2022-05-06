@@ -10,48 +10,48 @@ import ProfilePic from '../components/ProfilePic'
 import { Calendar } from 'react-native-calendars'
 import moment from 'moment'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import { AnimatePresence, MotiView } from 'moti'
+import { AnimatePresence, MotiText, MotiView } from 'moti'
+import { Easing } from 'react-native-reanimated'
 
 const Stats = ({ navigation }) => {
 
     const { updateInfo, user, globalVars, setGlobalVars } = useContext(AuthContext)
 
-    const [userInfo, setUserInfo] = useState({})
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [calendarInfoIcon, setCalendarInfoIcon] = useState()
     const [calendarInfoModal, setShowCalendarInfo] = useState(false)
+    const [selectedGraph, setSelectedGraph] = useState('dailyScores')
 
-    const imageFilter = globalVars.images?.filter(image => image.graded === true)
     const insets = useSafeAreaInsets()
 
-    useEffect(() => {
-        let imageList = []
-        return firestore()
-            .collection('chat-rooms')
-            .doc(globalVars.chatID)
-            .collection('chat-messages')
-            .where('userID', '==', user.uid)
-            .orderBy('timeSent', 'desc')
-            .onSnapshot((querySnapshot) => {
-                for (let i = 0; i < querySnapshot.size; i++) {
-                    let doc = querySnapshot.docs[i]
-                    if (doc.data().img != null) {
-                        for (let image of doc.data().img) {
-                            imageList.push({ ...image, timeSent: doc.data().timeSent })
-                        }
-                        // Array.prototype.push.apply(imageList, doc.data().img)
-                    }
-                }
-                // console.log('snapshot received at: ', new Date())
-                setGlobalVars(val => ({ ...val, images: imageList }))
-                imageList = []
-                if (loading) {
-                    setLoading(false)
-                }
-            }, (e) => {
-                console.error('error while fetching chat images: ', e)
-            })
-    }, [])
+    // useEffect(() => {
+    //     let imageList = []
+    //     return firestore()
+    //         .collection('chat-rooms')
+    //         .doc(globalVars.chatID)
+    //         .collection('chat-messages')
+    //         .where('userID', '==', user.uid)
+    //         .orderBy('timeSent', 'desc')
+    //         .onSnapshot((querySnapshot) => {
+    //             for (let i = 0; i < querySnapshot.size; i++) {
+    //                 let doc = querySnapshot.docs[i]
+    //                 if (doc.data().img != null) {
+    //                     for (let image of doc.data().img) {
+    //                         imageList.push({ ...image, timeSent: doc.data().timeSent })
+    //                     }
+    //                     // Array.prototype.push.apply(imageList, doc.data().img)
+    //                 }
+    //             }
+    //             // console.log('snapshot received at: ', new Date())
+    //             setGlobalVars(val => ({ ...val, images: imageList }))
+    //             imageList = []
+    //             if (loading) {
+    //                 setLoading(false)
+    //             }
+    //         }, (e) => {
+    //             console.error('error while fetching chat images: ', e)
+    //         })
+    // }, [])
 
     const tempPfp = () => {
         if (user.providerData[0].providerId === "apple.com") {
@@ -64,8 +64,8 @@ const Stats = ({ navigation }) => {
     function sameDay(d1, d2) {
         if (d1?.getFullYear() != null && d2?.getFullYear() != null) {
             return d1.getFullYear() === d2.getFullYear() &&
-            d1.getMonth() === d2.getMonth() &&
-            d1.getDate() === d2.getDate()
+                d1.getMonth() === d2.getMonth() &&
+                d1.getDate() === d2.getDate()
         }
     }
 
@@ -73,15 +73,14 @@ const Stats = ({ navigation }) => {
         return Math.abs(d1 - d2) <= 60 * 60 * 24 * 1000 * 7
     }
 
-    function thirtyDays(d1, d2) {
-        return Math.abs(d1 - d2) <= 60 * 60 * 24 * 1000 * 30
-    }
+    // function thirtyDays(d1, d2) {
+    //     return Math.abs(d1 - d2) <= 60 * 60 * 24 * 1000 * 30
+    // }
 
     let streakCalendarDays = {}
     let graphDays = []
-    let SevenDayAvg = 0, ThirtyDayAvg = 0
 
-    globalVars.images && globalVars.images?.forEach((v, index) => { 
+    globalVars.images && globalVars.images?.forEach((v, index) => {
         let dayColor = ''
         switch (globalVars.images?.filter(val => sameDay(val.timeSent?.toDate(), globalVars.images[index]?.timeSent?.toDate())).length) {
             case 1:
@@ -94,7 +93,7 @@ const Stats = ({ navigation }) => {
                 dayColor = '#43CD3F'
                 break
         }
-        streakCalendarDays[moment(v.timeSent?.toDate()).format('YYYY[-]MM[-]DD')] = { startingDay: true, endingDay: true, color: dayColor } 
+        streakCalendarDays[moment(v.timeSent?.toDate()).format('YYYY[-]MM[-]DD')] = { startingDay: true, endingDay: true, color: dayColor }
 
         if (graphDays.length === 0 || graphDays.filter(val => sameDay(val?.toDate(), globalVars.images[index]?.timeSent?.toDate())).length === 0) {
             if (v.graded) {
@@ -103,7 +102,7 @@ const Stats = ({ navigation }) => {
         }
     })
 
-    SevenDayAvg = graphDays.map((day, index) => {
+    const SevenDayAvg = () => {
         const mealGrades = globalVars.images?.filter(val => sevenDays(val.timeSent?.toDate(), new Date()) && val.graded)
         if (mealGrades.length === 0) {
             return '-'
@@ -115,116 +114,46 @@ const Stats = ({ navigation }) => {
             totals.green += meal.green
         })
         return Math.round((((totals.green - totals.red) / (totals.green + totals.yellow + totals.red)) + 1) * 50)
-    })
+    }
 
-    ThirtyDayAvg = graphDays.map((day, index) => {
-        const mealGrades = globalVars.images?.filter(val => thirtyDays(val.timeSent?.toDate(), new Date()) && val.graded)
-        if (mealGrades.length === 0) {
+    const SevenDayWeightAvg = () => {
+        const sevenDayWeightHistory = globalVars.userData.weightHistory?.filter(val => sevenDays(val.time?.toDate(), new Date()))
+        if (sevenDayWeightHistory.length === 0) {
             return '-'
         }
-        let totals = { red: 0, yellow: 0, green: 0 }
-        mealGrades.forEach((meal, index) => {
-            totals.red += meal.red
-            totals.yellow += meal.yellow
-            totals.green += meal.green
+        let weightSum = 0
+        sevenDayWeightHistory.forEach((weighIn, index) => {
+            weightSum += globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs
         })
-        return Math.round((((totals.green - totals.red) / (totals.green + totals.yellow + totals.red)) + 1) * 50)
-    })
-    return (
-        <SafeAreaView style={{flex: 1, backgroundColor: '#E6E7FA'}}>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ top: 80 }}>
-            {loading ? 
-                <View style={{ flex: 1, width: windowWidth, height: windowHeight, backgroundColor: '#E6E7FA' }}>
-                    <ActivityIndicator style={{ alignSelf: 'center', top: 100 }} size={35} color="#202060" />
-                </View>: 
-                <View>
-                    <View style={{ backgroundColor: '#fff', borderRadius: 20, width: windowWidth - 30, height: windowHeight / 8, marginTop: 20, alignSelf: 'center', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
-                        <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 10, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{globalVars.userData?.streak}</Text>
-                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>Streak</Text>
-                        </View>
-                        <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 10, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayAvg}</Text>
-                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Avg</Text>
-                        </View>
-                        <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 10, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{ThirtyDayAvg}</Text>
-                            <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>30 Day Avg</Text>
-                        </View>
-                    </View>
-                    <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', marginTop: 20 }}>
-                        Daily Scores
-                    </Text>
-                    {graphDays.length === 0 || globalVars.images?.length === 0 || globalVars.images == null || graphDays == null ?
-                        <View>
-                            <View style={{ opacity: 0.3 }} pointerEvents='none'>
-                                <Chart
-                                    style={{ height: windowHeight * 0.3, width: windowWidth }}
-                                    data={[{ x: -2, y: 15 },
-                                    { x: -1, y: 10 },
-                                    { x: 0, y: 12 },
-                                    { x: 1, y: 7 },
-                                    { x: 2, y: 6 },
-                                    { x: 3, y: 3 },
-                                    { x: 4, y: 5 },
-                                    { x: 5, y: 8 },
-                                    { x: 6, y: 12 },
-                                    { x: 7, y: 14 },
-                                    { x: 8, y: 12 },
-                                    { x: 9, y: 13.5 },
-                                    { x: 10, y: 18 },]}
-                                    padding={{ left: 25, bottom: 20, right: 15, top: 20 }}
-                                    xDomain={{ min: 0, max: 10 }}
-                                    yDomain={{ min: 0, max: 20 }}
-                                >
-                                    <VerticalAxis tickCount={11} />
-                                    <HorizontalAxis tickCount={11} />
-                                    <Area smoothing='cubic-spline'
-                                        tension={0.3}
-                                        theme={{
-                                            gradient: {
-                                                from: { color: '#43CD3F' },
-                                                to: { color: '#fff', opacity: 0.4 }
-                                            }
-                                        }} />
-                                    <Line smoothing='cubic-spline'
-                                        tension={0.3}
-                                        theme={{
-                                            stroke: { color: '#43CD3F', width: 3 },
-                                            scatter: {
-                                                default: { width: 10, height: 10, rx: 7.5, color: '#fff' },
-                                                selected: { width: 20, height: 20, rx: 12.5, color: '#fff' }
-                                            }
-                                        }}
-                                        tooltipComponent={<Tooltip />} />
-                                </Chart>
-                            </View>
-                            <Text style={{ position: 'absolute', fontSize: 26, alignSelf: 'center', top: windowHeight * 0.14, color: '#202060' }}>
-                                {'No graded photo data'}
-                            </Text>
-                            <Text style={{ position: 'absolute', fontSize: 18, alignSelf: 'center', top: windowHeight * 0.14 + 30, color: '#202060' }}>
-                                {'Send in your first photo today!'}
-                            </Text>
-                        </View> :
+        return Math.round(weightSum / sevenDayWeightHistory.length)
+    }
+
+    const DailyScoresGraph = () => {
+        if (graphDays.length === 0 || globalVars.images?.length === 0 || globalVars.images == null || graphDays == null || globalVars.images?.filter(val => val.graded)?.length === 0) {
+            return (
+                <View style={{ height: windowHeight * 0.35, width: windowWidth, paddingHorizontal: 30, position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ opacity: 0.3 }} pointerEvents='none'>
                         <Chart
-                            style={{ height: windowHeight * 0.35, width: windowWidth * 0.95, alignSelf: 'center' }}
-                            data={graphDays.reverse().map((day, index) => {
-                                const mealGrades = globalVars.images?.filter(val => sameDay(val.timeSent?.toDate(), day?.toDate()) && val.graded)
-                                let totals = { red: 0, yellow: 0, green: 0 }
-                                mealGrades.forEach((meal, index) => {
-                                    totals.red += meal.red
-                                    totals.yellow += meal.yellow
-                                    totals.green += meal.green
-                                })
-                                return { y: Math.round((((totals.green - totals.red) / (totals.green + totals.yellow + totals.red)) + 1) * 50), x: index + 1 }
-                            })}
-                            padding={{ left: 30, bottom: 30, right: 30, top: 40 }}
-                            xDomain={{ min: 1, max: graphDays.length <= 1 ? 2 : graphDays.length }}
-                            yDomain={{ min: 0, max: 100 }}
-                            viewport={{ size: { width: graphDays.length >= 6 ? 6 : graphDays.length <= 1 ? 1 : graphDays.length - 1 } }}
+                            style={{ height: windowHeight * 0.35, width: windowWidth }}
+                            data={[{ x: -2, y: 15 },
+                            { x: -1, y: 10 },
+                            { x: 0, y: 12 },
+                            { x: 1, y: 7 },
+                            { x: 2, y: 6 },
+                            { x: 3, y: 3 },
+                            { x: 4, y: 5 },
+                            { x: 5, y: 8 },
+                            { x: 6, y: 12 },
+                            { x: 7, y: 14 },
+                            { x: 8, y: 12 },
+                            { x: 9, y: 13.5 },
+                            { x: 10, y: 18 },]}
+                            padding={{ left: 25, bottom: 20, right: 15, top: 20 }}
+                            xDomain={{ min: 0, max: 10 }}
+                            yDomain={{ min: 0, max: 20 }}
                         >
                             <VerticalAxis tickCount={11} />
-                            <HorizontalAxis tickCount={graphDays.length <= 1 ? 2 : graphDays.length} />
+                            <HorizontalAxis tickCount={11} />
                             <Area smoothing='cubic-spline'
                                 tension={0.3}
                                 theme={{
@@ -243,90 +172,334 @@ const Stats = ({ navigation }) => {
                                     }
                                 }}
                                 tooltipComponent={<Tooltip />} />
-                        </Chart>}
-                    <Text onLayout={(event) => { const { y } = event.nativeEvent.layout; setCalendarInfoIcon(y) }} style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center' }}>
-                        Meal Photo Calendar
+                        </Chart>
+                    </View>
+                    <Text style={{ position: 'absolute', fontSize: 26, alignSelf: 'center', top: windowHeight * 0.14, color: '#202060', textAlign: 'center' }}>
+                        {'No graded photo data'}
                     </Text>
-                    <Calendar
-                        minDate={user.metadata.creationTime}
-                        maxDate={(new Date()).toDateString()}
-                        hideExtraDays
-                        showSixWeeks={false}
-                        style={{ 
-                            backgroundColor: 'transparent',
-                            height: windowHeight * (450 / 844)
-                        }}
-                        markingType={'period'}
-                        markedDates={streakCalendarDays}
-                        theme={{ 
-                            backgroundColor: 'transparent', 
-                            calendarBackground: 'transparent',
-                            textMonthFontWeight: 'bold',
-                            arrowColor: '#4D43BD',
-                            monthTextColor: '#202060',
-                            textSectionTitleColor: '#BDB9DB',
-                            textSectionTitleDisabledColor: '#BDB9DB',
-                            textDisabledColor: '#BDB9DB',
-                            indicatorColor: '#202060',
-                            selectedDayTextColor: '#202060',
-                            todayTextColor: '#202060',
-                            selectedDayBackgroundColor: '#BDB9DB',
-                            dayTextColor: '#202060'
-                        }}
-                    />
-                    <View style={{position: 'absolute', top: calendarInfoIcon ? calendarInfoIcon + 2 : 2, right: 15}}>
-                        <TouchableOpacity style={{position: 'absolute', top: 0, right: 0}} onPress={() => setShowCalendarInfo(true)}>
-                            <MaterialCommunityIcons
-                                name="information-outline"
-                                size={28}
-                                color="#202060"
-                            />
-                        </TouchableOpacity>
-                        <AnimatePresence>
-                            {calendarInfoModal &&
-                                <MotiView
-                                    from={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 250 }}
-                                    style={styles.explanationModal}
+                    <Text style={{ position: 'absolute', fontSize: 18, alignSelf: 'center', top: windowHeight * 0.14 + 30, color: '#202060', textAlign: 'center' }}>
+                        {'Send in your first photo today!'}
+                    </Text>
+                </View>
+            )
+        }
+        return (
+            <Chart
+                style={{ height: windowHeight * 0.35, width: windowWidth, alignSelf: 'center', position: 'absolute' }}
+                data={graphDays.reverse().map((day, index) => {
+                    const mealGrades = globalVars.images?.filter(val => sameDay(val.timeSent?.toDate(), day?.toDate()) && val.graded)
+                    let totals = { red: 0, yellow: 0, green: 0 }
+                    mealGrades.forEach((meal, index) => {
+                        totals.red += meal.red
+                        totals.yellow += meal.yellow
+                        totals.green += meal.green
+                    })
+                    return { y: Math.round((((totals.green - totals.red) / (totals.green + totals.yellow + totals.red)) + 1) * 50), x: index + 1 }
+                })}
+                padding={{ left: 30, bottom: 30, right: 30, top: 40 }}
+                xDomain={{ min: 1, max: graphDays.length <= 1 ? 2 : graphDays.length }}
+                yDomain={{ min: 0, max: 100 }}
+                viewport={{ size: { width: graphDays.length >= 6 ? 5 : graphDays.length <= 1 ? 1 : graphDays.length - 1 } }}
+            >
+                <VerticalAxis tickCount={11} />
+                <HorizontalAxis tickCount={graphDays.length <= 1 ? 2 : graphDays.length} />
+                <Area smoothing='cubic-spline'
+                    tension={0.3}
+                    theme={{
+                        gradient: {
+                            from: { color: '#43CD3F' },
+                            to: { color: '#fff', opacity: 0.4 }
+                        }
+                    }} />
+                <Line smoothing='cubic-spline'
+                    tension={0.3}
+                    theme={{
+                        stroke: { color: '#43CD3F', width: 3 },
+                        scatter: {
+                            default: { width: 10, height: 10, rx: 7.5, color: '#fff' },
+                            selected: { width: 20, height: 20, rx: 12.5, color: '#fff' }
+                        }
+                    }}
+                    tooltipComponent={<Tooltip />} />
+            </Chart>
+        )
+    }
+
+    const WeightHistoryGraph = () => {
+        if (globalVars.userData.weightHistory == null || globalVars.userData.weightHistory.length === 0) {
+            return (
+                <View style={{ height: windowHeight * 0.35, width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30, position: 'absolute' }}>
+                    <View style={{ opacity: 0.3 }} pointerEvents='none'>
+                        <Chart
+                            style={{ height: windowHeight * 0.35, width: windowWidth }}
+                            data={[{ x: -2, y: 15 },
+                            { x: -1, y: 10 },
+                            { x: 0, y: 12 },
+                            { x: 1, y: 7 },
+                            { x: 2, y: 6 },
+                            { x: 3, y: 3 },
+                            { x: 4, y: 5 },
+                            { x: 5, y: 8 },
+                            { x: 6, y: 12 },
+                            { x: 7, y: 14 },
+                            { x: 8, y: 12 },
+                            { x: 9, y: 13.5 },
+                            { x: 10, y: 18 },]}
+                            padding={{ left: 25, bottom: 20, right: 15, top: 20 }}
+                            xDomain={{ min: 0, max: 10 }}
+                            yDomain={{ min: 0, max: 20 }}
+                        >
+                            <VerticalAxis tickCount={11} />
+                            <HorizontalAxis tickCount={11} />
+                            <Area smoothing='cubic-spline'
+                                tension={0.3}
+                                theme={{
+                                    gradient: {
+                                        from: { color: '#43CD3F' },
+                                        to: { color: '#fff', opacity: 0.4 }
+                                    }
+                                }} />
+                            <Line smoothing='cubic-spline'
+                                tension={0.3}
+                                theme={{
+                                    stroke: { color: '#43CD3F', width: 3 },
+                                    scatter: {
+                                        default: { width: 10, height: 10, rx: 7.5, color: '#fff' },
+                                        selected: { width: 20, height: 20, rx: 12.5, color: '#fff' }
+                                    }
+                                }}
+                                tooltipComponent={<Tooltip />} />
+                        </Chart>
+                    </View>
+                    <Text style={{ position: 'absolute', fontSize: 26, alignSelf: 'center', top: windowHeight * 0.14, color: '#202060', textAlign: 'center' }}>
+                        {'No weight history'}
+                    </Text>
+                    <Text style={{ position: 'absolute', fontSize: 18, alignSelf: 'center', top: windowHeight * 0.14 + 30, color: '#202060', textAlign: 'center' }}>
+                        {'Tap the scale icon in the chat box to weigh yourself today!'}
+                    </Text>
+                </View>
+            )
+        }
+        const chartMin = Math.min(...globalVars.userData.weightHistory.map(weighIn => globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs))
+        const chartMax = Math.max(...globalVars.userData.weightHistory.map(weighIn => globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs))
+        return (
+            <Chart
+                style={{ height: windowHeight * 0.35, width: windowWidth, alignSelf: 'center', position: 'absolute' }}
+                data={globalVars.userData.weightHistory.map((weighIn, index) => {
+                    return { y: globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs, x: index + 1 }
+                })}
+                padding={{ left: 30, bottom: 30, right: 30, top: 40 }}
+                xDomain={{ min: 1, max: globalVars.userData.weightHistory.length <= 1 ? 2 : globalVars.userData.weightHistory.length }}
+                yDomain={{ min: 20 * Math.floor(chartMin / 20), max: 20 * Math.ceil(chartMax / 20) }}
+                viewport={{ size: { width: globalVars.userData.weightHistory.length >= 6 ? 5 : globalVars.userData.weightHistory.length <= 1 ? 1 : globalVars.userData.weightHistory.length - 1 } }}
+            >
+                <VerticalAxis tickCount={Math.floor((20 * Math.ceil(chartMax / 20) - (20 * Math.floor(chartMin / 20))) / 5) + 1} />
+                <HorizontalAxis tickCount={globalVars.userData.weightHistory.length <= 1 ? 2 : globalVars.userData.weightHistory.length} />
+                <Area smoothing='cubic-spline'
+                    tension={0.3}
+                    theme={{
+                        gradient: {
+                            from: { color: '#43CD3F' },
+                            to: { color: '#fff', opacity: 0.4 }
+                        }
+                    }} />
+                <Line smoothing='cubic-spline'
+                    tension={0.3}
+                    theme={{
+                        stroke: { color: '#43CD3F', width: 3 },
+                        scatter: {
+                            default: { width: 10, height: 10, rx: 7.5, color: '#fff' },
+                            selected: { width: 20, height: 20, rx: 12.5, color: '#fff' }
+                        }
+                    }}
+                    tooltipComponent={<Tooltip />} />
+            </Chart>
+        )
+    }
+
+    return (
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#E6E7FA' }}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ top: 80 }}>
+                {loading ?
+                    <View style={{ flex: 1, width: windowWidth, height: windowHeight, backgroundColor: '#E6E7FA' }}>
+                        <ActivityIndicator style={{ alignSelf: 'center', top: 100 }} size={35} color="#202060" />
+                    </View> :
+                    <View>
+                        <View style={{ backgroundColor: '#fff', borderRadius: 20, width: windowWidth - 30, height: windowHeight / 8, marginTop: 20, alignSelf: 'center', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
+                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 8, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{globalVars.userData?.streak}</Text>
+                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>Streak</Text>
+                            </View>
+                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 8, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayAvg()}</Text>
+                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Meal Score Avg</Text>
+                            </View>
+                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 8, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
+                                <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                                    <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayWeightAvg()}</Text>
+                                    <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060' }}>{globalVars.userData.usesImperial ? 'lbs' : 'kgs'}</Text>
+                                </View>
+                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Weight Avg</Text>
+                            </View>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, marginTop: 20 }}>
+                            <AnimatePresence exitBeforeEnter>
+                                {selectedGraph === 'weightHistory' ?
+                                    <MotiView key='weightHistoryChevron' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                        <TouchableOpacity onPress={() => setSelectedGraph('dailyScores')}>
+                                            <MaterialCommunityIcons
+                                                name="chevron-left"
+                                                size={28}
+                                                color="#202060"
+                                            />
+                                        </TouchableOpacity>
+                                    </MotiView> :
+                                    <MotiView key='weightHistoryChevronPlaceholder' style={{ opacity: 0 }}>
+                                        <MaterialCommunityIcons
+                                            name="chevron-left"
+                                            size={28}
+                                            color="#202060"
+                                        />
+                                    </MotiView>}
+                            </AnimatePresence>
+                            <AnimatePresence>
+                                {selectedGraph === 'dailyScores' ?
+                                <MotiView 
+                                    from={{ translateX: -(windowWidth / 2), opacity: 0 }} animate={{ translateX: 0, opacity: 1 }} exit={{ translateX: -(windowWidth / 2), opacity: 0 }} 
+                                    transition={{ type: 'timing', easing: Easing.bezier(.8,-0.01,.1,.99), translateX: { duration: 350 }, opacity: { duration: 200 } }} key='dailyScoresText' 
+                                    style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', width: windowWidth, flexDirection: 'row' }} pointerEvents='box-none'
                                 >
-                                    <TouchableOpacity activeOpacity={1} onPress={() => setShowCalendarInfo(false)}>
-                                        {/* <TouchableOpacity style={styles.cancelImage} onPress={() => setShowCalendarInfo(false)}>
+                                    <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                                        Daily Scores
+                                    </Text>
+                                </MotiView> :
+                                <MotiView 
+                                    from={{ translateX: (windowWidth / 2), opacity: 0 }} animate={{ translateX: 0, opacity: 1 }} exit={{ translateX: (windowWidth / 2), opacity: 0 }} 
+                                    transition={{ type: 'timing', easing: Easing.bezier(.8,-0.01,.1,.99), translateX: { duration: 350 }, opacity: { duration: 200 } }} key='weightHistoryText' 
+                                    style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', width: windowWidth, flexDirection: 'row' }} pointerEvents='box-none'
+                                >
+                                    <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                                        Weight History
+                                    </Text>
+                                </MotiView>
+                                }
+                            </AnimatePresence>
+                            <Text style={{ fontSize: 26, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', opacity: 0 }}>Daily Scores</Text>
+                            <AnimatePresence exitBeforeEnter>
+                                {selectedGraph === 'dailyScores' ?
+                                    <MotiView key='dailyScoresChevron' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                        <TouchableOpacity onPress={() => setSelectedGraph('weightHistory')}>
+                                            <MaterialCommunityIcons
+                                                name="chevron-right"
+                                                size={28}
+                                                color="#202060"
+                                            />
+                                        </TouchableOpacity>
+                                    </MotiView> :
+                                    <MotiView key='dailyScoresChevronPlaceholder' style={{ opacity: 0 }}>
+                                        <MaterialCommunityIcons
+                                            name="chevron-left"
+                                            size={28}
+                                            color="#202060"
+                                        />
+                                    </MotiView>}
+                            </AnimatePresence>
+                        </View>
+                        <AnimatePresence>
+                            {selectedGraph === 'dailyScores' ?
+                                <MotiView key='dailyScores' from={{ translateX: -windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: -windowWidth }} pointerEvents='box-none'>
+                                    <DailyScoresGraph />
+                                </MotiView>
+                                :
+                                <MotiView key='weightHistory' from={{ translateX: windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: windowWidth }} pointerEvents='box-none'>
+                                    <WeightHistoryGraph />
+                                </MotiView>
+                            }
+                        </AnimatePresence>
+                        <Text onLayout={(event) => { const { y } = event.nativeEvent.layout; setCalendarInfoIcon(y) }} style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', top: windowHeight * 0.35 }}>
+                            Meal Photo Calendar
+                        </Text>
+                        <Calendar
+                            minDate={user.metadata.creationTime}
+                            maxDate={(new Date()).toDateString()}
+                            hideExtraDays
+                            showSixWeeks={false}
+                            style={{
+                                backgroundColor: 'transparent',
+                                height: windowHeight * (450 / 844),
+                                top: windowHeight * 0.35
+                            }}
+                            markingType={'period'}
+                            markedDates={streakCalendarDays}
+                            theme={{
+                                backgroundColor: 'transparent',
+                                calendarBackground: 'transparent',
+                                textMonthFontWeight: 'bold',
+                                arrowColor: '#202060',
+                                monthTextColor: '#202060',
+                                textSectionTitleColor: '#BDB9DB',
+                                textSectionTitleDisabledColor: '#BDB9DB',
+                                textDisabledColor: '#BDB9DB',
+                                indicatorColor: '#202060',
+                                selectedDayTextColor: '#202060',
+                                todayTextColor: '#202060',
+                                selectedDayBackgroundColor: '#BDB9DB',
+                                dayTextColor: '#202060'
+                            }}
+                        />
+                        <View style={{ position: 'absolute', top: calendarInfoIcon ? calendarInfoIcon + 2 : 2, right: 15 }}>
+                            <TouchableOpacity style={{ position: 'absolute', top: 0, right: 0 }} onPress={() => setShowCalendarInfo(true)}>
+                                <MaterialCommunityIcons
+                                    name="information-outline"
+                                    size={28}
+                                    color="#202060"
+                                />
+                            </TouchableOpacity>
+                            <AnimatePresence>
+                                {calendarInfoModal &&
+                                    <MotiView
+                                        from={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 250 }}
+                                        style={styles.explanationModal}
+                                    >
+                                        <TouchableOpacity activeOpacity={1} onPress={() => setShowCalendarInfo(false)}>
+                                            {/* <TouchableOpacity style={styles.cancelImage} onPress={() => setShowCalendarInfo(false)}>
                                             <Ionicons
                                                 name='ios-close'
                                                 size={20}
                                                 color='black'
                                             />
                                         </TouchableOpacity> */}
-                                        <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'This calendar displays the number of photos sent on each day.'}</Text>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
-                                            <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: '#c1efc0' }} />
-                                            <Text style={{ color: '#202060', textAlign: 'right', maxWidth: '75%' }}>
-                                                Indicates 1 meal photo was sent
-                                            </Text>
-                                        </View>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
-                                            <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: '#81de7e' }} />
-                                            <Text style={{ color: '#202060', textAlign: 'right', maxWidth: '75%' }}>
-                                                Indicates 2 meal photos were sent
-                                            </Text>
-                                        </View>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
-                                            <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: '#43CD3F' }} />
-                                            <Text style={{ color: '#202060', textAlign: 'right', maxWidth: '75%' }}>
-                                                Indicates 3+ meal photos were sent
-                                            </Text>
-                                        </View>
-                                        <Text adjustsFontSizeToFit={true} style={{ color: '#202060', fontSize: 12, alignSelf: 'center', marginTop: 5 }}>{'(Hide)'}</Text>
-                                    </TouchableOpacity>
-                                </MotiView>}
-                        </AnimatePresence>
+                                            <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'This calendar displays the number of photos sent on each day.'}</Text>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
+                                                <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: '#c1efc0' }} />
+                                                <Text style={{ color: '#202060', textAlign: 'right', maxWidth: '75%' }}>
+                                                    Indicates 1 meal photo was sent
+                                                </Text>
+                                            </View>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
+                                                <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: '#81de7e' }} />
+                                                <Text style={{ color: '#202060', textAlign: 'right', maxWidth: '75%' }}>
+                                                    Indicates 2 meal photos were sent
+                                                </Text>
+                                            </View>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
+                                                <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: '#43CD3F' }} />
+                                                <Text style={{ color: '#202060', textAlign: 'right', maxWidth: '75%' }}>
+                                                    Indicates 3+ meal photos were sent
+                                                </Text>
+                                            </View>
+                                            <Text adjustsFontSizeToFit={true} style={{ color: '#202060', fontSize: 12, alignSelf: 'center', marginTop: 5 }}>{'(Hide)'}</Text>
+                                        </TouchableOpacity>
+                                    </MotiView>}
+                            </AnimatePresence>
+                        </View>
                     </View>
-                </View>
-            }
+                }
             </ScrollView>
-            <View style={[styles.HUDWrapper, { top: Platform.OS === 'ios' ? insets.top : 0}]}>
+            <View style={[styles.HUDWrapper, { top: Platform.OS === 'ios' ? insets.top : 0 }]}>
                 <View style={styles.headerWrapper}>
                     <TouchableOpacity style={{ left: 15 }} onPress={() => navigation.navigate('User Profile')}>
                         <ProfilePic size={50} source={{ uri: user.photoURL == null ? tempPfp() : user.photoURL }} />
@@ -385,7 +558,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: '#202060',
-        width: windowWidth 
+        width: windowWidth
     },
     onlineStatus: {
         position: 'absolute',

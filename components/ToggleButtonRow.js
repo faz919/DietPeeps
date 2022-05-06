@@ -93,10 +93,10 @@ const ToggleButtonRow = ({
 									inputRange: interpolatedValuesInput,
 									outputRange: interpolatedValuesOutput,
 								}),
-								borderTopRightRadius: value === 'Starred' ? 10 : 0,
-								borderBottomRightRadius: value === 'Starred' ? 10 : 0,
-								borderTopLeftRadius: value === 'Completed' ? 10 : 0,
-								borderBottomLeftRadius: value === 'Completed' ? 10 : 0,
+								borderTopRightRadius: value === values[values.length - 1] ? 10 : 0,
+								borderBottomRightRadius: value === values[values.length - 1] ? 10 : 0,
+								borderTopLeftRadius: value === values[0] ? 10 : 0,
+								borderBottomLeftRadius: value === values[0] ? 10 : 0,
 							},
 						]}
 					/>

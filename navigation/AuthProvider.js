@@ -96,6 +96,8 @@ export const AuthProvider = ({ children }) => {
                                     latestCourseCompleted: 0
                                 },
                                 lastLoggedIn: _user.metadata.lastSignInTime,
+                                lastWeighIn: firestore.Timestamp.fromDate(new Date()),
+                                usesImperial: true,
                                 photoURLLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
                                 emailLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
                                 displayNameLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
@@ -394,7 +396,7 @@ export const AuthProvider = ({ children }) => {
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()
-                        setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
+                        setAuthErrorText(e)
                         console.log(e)
                         crashlytics().recordError(e)
                     }

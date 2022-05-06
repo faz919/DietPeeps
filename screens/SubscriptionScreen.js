@@ -8,8 +8,25 @@ import { AuthContext } from '../navigation/AuthProvider'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import firestore from '@react-native-firebase/firestore'
 import { ENTITLEMENT_ID } from '../constants/constants'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const SubscriptionScreen = ({ navigation }) => {
+const SubscriptionScreen = ({ navigation, route }) => {
+
+    const { trialReminder } = route.params
+
+    useEffect(() => {
+        if (trialReminder && trialReminder !== 'none') {
+            AsyncStorage.getItem('days_reminded').then((value) => {
+                if (value == null) {
+                    AsyncStorage.setItem('days_reminded', '[]')
+                } else {
+                    const days = JSON.parse(value)
+                    days.push(trialReminder)
+                    AsyncStorage.setItem('days_reminded', JSON.stringify(days))
+                }
+            })
+        }
+    }, [trialReminder])
 
     const { updateInfo } = useContext(AuthContext)
 
@@ -19,7 +36,8 @@ const SubscriptionScreen = ({ navigation }) => {
 
     useEffect(() => {
         if (subscribed) {
-            navigation.replace('Congrats', { congratsType: 'subscribed' })
+            navigation.navigate('Main Menu', { screen: 'Coach', params: { hasSubscribed: true } })
+            setLoading(false)
         }
     }, [subscribed])
 
@@ -44,11 +62,11 @@ const SubscriptionScreen = ({ navigation }) => {
                 console.log('Success!')
                 updateInfo({ subscribed: true, subscriptionInfo: { purchaserInfo } })
                 setSubscribed(true)
-                setLoading(false)
-            } else {
-                console.error('Unable to purchase subscription, or check subscription status. Please try again.')
-                setLoading(false)
-            }
+            } 
+            // else {
+            //     console.error('Unable to purchase subscription, or check subscription status. Please try again.')
+            //     setLoading(false)
+            // }
         } catch (e) {
             console.error('error while making purchase: ', e)
             setLoading(false)
@@ -61,9 +79,9 @@ const SubscriptionScreen = ({ navigation }) => {
 
     const promoText = [
         'Meal grading',
-        '24/7 support from your personal coach',
-        'Live feedback',
-        'Etc.'
+        'Live feedback from your personal coach',
+        'Detailed statistics',
+        'Extensive course curriculum on healthy eating habits'
     ]
 
     return (
@@ -87,13 +105,18 @@ const SubscriptionScreen = ({ navigation }) => {
                 borderRadius: 20
             }}>
                 <View style={styles.ViewT7}>
-                    <View style={{ borderRadius: windowHeight / 20, borderWidth: 1, borderColor: '#202060', justifyContent: 'center', flexDirection: 'row', alignItems: 'baseline', height: windowHeight / 10, minWidth: windowWidth / 2, paddingTop: windowHeight / 40, paddingHorizontal: 20 }}>
+                    <View style={{ borderRadius: windowHeight / 20, borderWidth: 1, borderColor: '#202060', justifyContent: 'center', flexDirection: 'row', alignItems: 'baseline', height: windowHeight / 10, minWidth: windowWidth / 2, paddingTop: windowHeight / 40, paddingHorizontal: 20, marginVertical: windowHeight > 700 ? 0 : windowHeight / 20 }}>
                         <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>$</Text>
-                        {subscription && <Text style={{ color: '#202060', fontSize: windowHeight / 15, lineHeight: windowHeight / 15 }}>{(subscription.availablePackages[0]?.product?.price).toFixed(2)}</Text>}
+                        {subscription && <Text style={{ color: '#202060', fontSize: windowHeight / 15, lineHeight: windowHeight / 15 }}>{(subscription.availablePackages[0]?.product?.price?.toFixed(2))}</Text>}
                         <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>/month</Text>
                     </View>
                     <View style={styles.ViewsW}>
-                        <Text style={{ textAlign: 'center', fontSize: 15, color: '#202060', marginBottom: 12 }}>Hey there! Looks like your free trial period is finished. Become a DietPeeps Subscriber to receive:</Text>
+                        {trialReminder && trialReminder !== 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Hey there! You have {trialReminder} days remaining in your free trial. Become a DietPeeps Subscriber to receive:</Text>
+                        :
+                        trialReminder === 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Enjoying DietPeeps? Become a Subscriber today to receive:</Text>
+                        :
+                        <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Hey there! Looks like your free trial period is finished. Become a DietPeeps Subscriber to receive:</Text>
+                        }
                         {promoText.map((text, index) =>
                             <View style={styles.Viewvs} key={index}>
                                 <MaterialCommunityIcons
@@ -106,7 +129,7 @@ const SubscriptionScreen = ({ navigation }) => {
                                     <Text
                                         style={[
                                             styles.subtitle1,
-                                            { color: '#202060' },
+                                            { color: '#202060', fontWeight: '400' },
                                         ]}
                                         allowFontScaling={true}
                                     >
@@ -131,6 +154,9 @@ const SubscriptionScreen = ({ navigation }) => {
                                     <ActivityIndicator color='#fff' />
                                     : <Text style={styles.panelButtonText}>{'Subscribe'}</Text>}
                             </LinearGradient>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.pop() || navigation.replace('Main Menu')}>
+                            <Text style={{fontSize: 16, color: '#202060' }}>Not now</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -213,7 +239,8 @@ const styles = StyleSheet.create({
     },
     View_4v: {
         alignItems: 'center',
-        width: windowWidth - 50
+        width: windowWidth - 50,
+        top: windowHeight > 700 ? 0 : windowHeight / 30
     },
     ViewT7: {
         justifyContent: 'space-evenly',

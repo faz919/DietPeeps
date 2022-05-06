@@ -20,6 +20,7 @@ import CaptchaScreen from "../screens/CompleteCaptcha.js"
 import OnboardingWizard from "../screens/OnboardingWizard.js"
 import CongratsPopup from "../screens/CongratsPopup.js"
 import SubscriptionScreen from "../screens/SubscriptionScreen.js"
+import WeighInModal from "../screens/WeighInModal.js"
 
 const AppStack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -56,7 +57,7 @@ const MainMenu = () => {
       tabBarInactiveTintColor: "#BDB9DB",
       tabBarActiveTintColor: "#4D43BD",
     })}>
-      <Tab.Screen name="Coach" component={Chat} initialParams={{ imageInfo: null }} />
+      <Tab.Screen name="Coach" component={Chat} initialParams={{ imageInfo: null, hasSubscribed: null }} />
       <Tab.Screen name="Gallery" component={PhotoGallery} initialParams={{ imageInfo: null }} />
       <Tab.Screen name="Camera" component={CameraModal}
         listeners={(params) => ({
@@ -77,6 +78,10 @@ const App = () => {
     <AppStack.Navigator initialRouteName={'Main Menu'} >
       <AppStack.Screen name="Main Menu" component={MainMenu} options={{ headerShown: false }} />
       {/* <AppStack.Screen name="Photo Gallery" component={PhotoGallery} options={{ headerShown: false }} /> */}
+      <AppStack.Screen name="Enable Notifs" component={EnableNotifsScreen} options={{ 
+        headerShown: false,
+        ...TransitionPresets.ModalPresentationIOS,
+      }} />
       <AppStack.Screen name="Onboarding Wizard" component={OnboardingWizard} options={{
         headerShown: false,
         ...TransitionPresets.SlideFromRightIOS,
@@ -84,10 +89,7 @@ const App = () => {
       {/* <AppStack.Screen name="Courses" component={CourseSelection} options={{ headerShown: false }} /> */}
       <AppStack.Screen name="CameraModal" component={CameraModal} options={{ presentation: 'transparentModal', headerShown: false }} />
       <AppStack.Screen name="Congrats" component={CongratsPopup} options={{ presentation: 'transparentModal', headerShown: false }} initialParams={{ congratsType: null }} />
-      <AppStack.Screen name="Enable Notifs" component={EnableNotifsScreen} options={{ 
-        headerShown: false,
-        ...TransitionPresets.ModalPresentationIOS,
-      }} />
+      <AppStack.Screen name="WeighInModal" component={WeighInModal} options={{ presentation: 'transparentModal', headerShown: false }} />
       <AppStack.Screen name="Welcome" component={WelcomeScreen} options={{ 
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
@@ -120,19 +122,19 @@ const App = () => {
         gestureEnabled: true,
         gestureDirection: "horizontal"
       }} />
-      <AppStack.Screen name="Onboarding" component={OnboardingScreen} options={{
+      {/* <AppStack.Screen name="Onboarding" component={OnboardingScreen} options={{
         headerShown: false,
         ...TransitionPresets.SlideFromRightIOS,
         gestureEnabled: true,
         gestureDirection: "horizontal"
-      }} />
+      }} /> */}
       <AppStack.Screen name="Coach Profile" component={CoachProfile} options={{
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
         gestureEnabled: true,
         gestureDirection: "vertical"
       }} />
-      <AppStack.Screen name="Subscription" component={SubscriptionScreen} options={{
+      <AppStack.Screen name="Subscription" component={SubscriptionScreen} initialParams={{ trialReminder: null }} options={{
         headerShown: false,
         ...TransitionPresets.SlideFromRightIOS,
         gestureEnabled: true,

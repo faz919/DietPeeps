@@ -11,7 +11,6 @@ const App = () => {
   useEffect(() => {
     SplashScreen.hide()
     Purchases.setDebugLogsEnabled(true)
-    Purchases.setup()
     if (Platform.OS === 'ios') {
       Purchases.setup(IOS_API_KEY)
     } else if (Platform.OS === 'android') {

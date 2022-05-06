@@ -40,8 +40,10 @@ const CameraModal = ({ navigation }) => {
                 mime: i.mime,
             }] } })
         }).catch((e) => {
-            crashlytics().recordError(e)
-            console.error('error while taking photo: ', e)
+            if (e.code !== 'E_PICKER_CANCELLED') {
+                crashlytics().recordError(e)
+                console.error('error while taking photo: ', e.message)
+            }
             if (e.code === 'E_NO_CAMERA_PERMISSION') {
                 Alert.alert(
                     'We need your permission',
@@ -97,8 +99,10 @@ const CameraModal = ({ navigation }) => {
                 }
             }) } })
         }).catch((e) => {
-            crashlytics().recordError(e)
-            console.error('error while choosing photos from library: ', e.code)
+            if (e.code !== 'E_PICKER_CANCELLED') {
+                crashlytics().recordError(e)
+                console.error('error while choosing photos from library: ', e.message)
+            }
             if (e.code === 'E_NO_LIBRARY_PERMISSION') {
                 Alert.alert(
                     'We need your permission',

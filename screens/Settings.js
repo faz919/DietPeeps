@@ -79,13 +79,13 @@ const Settings = ({ navigation }) => {
                         style={styles.Divider}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Subscription')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Subscription', { trialReminder: 'none' })}>
                     <View style={styles.Viewk7} >
                         <View style={styles.Viewmm}>
                             <AntDesign
                                 size={24}
                                 color={'#202060'}
-                                name='questioncircle'
+                                name='star'
                             />
                             <Text
                                 style={[styles.TextFE, { color: '#202060' }]}
@@ -93,7 +93,7 @@ const Settings = ({ navigation }) => {
                                 ellipsizeMode={'tail'}
                                 textBreakStrategy={'highQuality'}
                             >
-                                {'Instructions'}
+                                {'Subscription'}
                             </Text>
                         </View>
 

@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react'
 import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard, Linking } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Modal from 'react-native-modal'
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -18,16 +19,22 @@ import ChatImage from '../components/ChatImage'
 import ProfilePic from '../components/ProfilePic'
 import { AnimatePresence, MotiView } from 'moti'
 
+import ribbon from '../assets/ribbon.png'
 import CourseData from '../courses/CourseData.json'
 import CourseLinkImage from '../components/CourseLinkImage'
 import crashlytics from '@react-native-firebase/crashlytics'
 import DeviceInfo from 'react-native-device-info'
 import Purchases from 'react-native-purchases'
 import { ENTITLEMENT_ID } from '../constants/constants'
+import { Easing } from 'react-native-reanimated'
+import { BlurView } from "@react-native-community/blur"
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const Chat = ({ navigation, route }) => {
 
-    const { imageInfo } = route.params
+    const { imageInfo, hasSubscribed } = route.params
+
+    const insets = useSafeAreaInsets()
 
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
@@ -50,6 +57,23 @@ const Chat = ({ navigation, route }) => {
     const [scrollToLatestButton, showScrollToLatestButton] = useState(false)
     const [scrollButtonLeft, setScrollButtonLeft] = useState(0)
     const [imgCountUpdated, setUpdated] = useState(false)
+    const [wizardRedirected, setWizardRedirected] = useState(false)
+    const [subscribed, setSubscribed] = useState(null)
+    const [trialPeriodFinished, setTrialPeriodFinished] = useState(false)
+    const [showExtraDaysButton, setShowExtraDaysButton] = useState(false)
+    const [showWeighInButton, setShowWeighIn] = useState(false)
+
+    useEffect(() => {
+        if (subscribed) {
+            setTrialPeriodFinished(false)
+        }
+    }, [subscribed])
+
+    useEffect(() => {
+        if (hasSubscribed) {
+            navigation.navigate('Congrats', { congratsType: 'subscribed' })
+        }
+    }, [hasSubscribed])
 
     const messagesList = useRef()
 
@@ -87,8 +111,10 @@ const Chat = ({ navigation, route }) => {
             setAttachingImage(val => ({ ...val, loading: false }))
             setGlobalVars(val => ({ ...val, autoSend: true }))
         }).catch((e) => {
-            crashlytics().recordError(e)
-            console.error('error while taking photo: ', e.code)
+            if (e.code !== 'E_PICKER_CANCELLED') {
+                crashlytics().recordError(e)
+                console.error('error while taking photo: ', e.message)
+            }
             if (e.code === 'E_NO_CAMERA_PERMISSION') {
                 Alert.alert(
                     'We need your permission',
@@ -146,8 +172,10 @@ const Chat = ({ navigation, route }) => {
             setAttachingImage(val => ({ ...val, visible: false }))
             setAttachingImage(val => ({ ...val, loading: false }))
         }).catch((e) => {
-            crashlytics().recordError(e)
-            console.error('error while choosing photos from library: ', e.code)
+            if (e.code !== 'E_PICKER_CANCELLED') {
+                crashlytics().recordError(e)
+                console.error('error while choosing photos from library: ', e.message)
+            }
             if (e.code === 'E_NO_LIBRARY_PERMISSION') {
                 Alert.alert(
                     'We need your permission',
@@ -198,12 +226,13 @@ const Chat = ({ navigation, route }) => {
                             deviceID: DeviceInfo.getUniqueId()
                         }
                         const appInfo = {
-                            versionName: '1.024',
-                            versionCode: 10
+                            versionName: '1.03',
+                            versionCode: 13
                         }
                         // check if user has completed onboarding
-                        if (usr.userBioData == null && globalVars.userBioData == null) {
+                        if (usr.userBioData == null && globalVars.userBioData == null && !wizardRedirected) {
                             navigation.replace('Onboarding Wizard')
+                            setWizardRedirected(true)
                         }
                         // check if user has null display name, photo url, or email
                         usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })
@@ -226,10 +255,54 @@ const Chat = ({ navigation, route }) => {
                                 streakUpdated: firestore.Timestamp.fromDate(new Date())
                             })
                         }
+                        // check last weigh in
+                        let localDayStart = new Date()
+                        localDayStart.setHours(0)
+                        localDayStart.setMinutes(0)
+                        localDayStart.setSeconds(0)
+                        localDayStart.setMilliseconds(0)
+                        if (usr.lastWeighIn?.toDate() < localDayStart || usr.lastWeighIn == null) {
+                            setShowWeighIn(true)
+                        } else {
+                            setShowWeighIn(false)
+                        }
+                        // check course completions
+                        const c = usr.courseData
+                        if (c.courseDayCompleted) {
+                          if (localDayStart > c.courseCompletedAt?.toDate()) {
+                            updateInfo({
+                              courseData: {
+                                latestCourseCompleted: c.latestCourseCompleted,
+                                courseCompletedAt: c.courseCompletedAt,
+                                courseDay: c.courseDay + 1,
+                                courseDayCompleted: false
+                              }
+                            })
+                          }
+                        }
                         // check user subscription status
                         Purchases.addPurchaserInfoUpdateListener(info => {
                             checkUserMembership(usr)
                         })
+                        // if user isn't subscribed, check how long it's been since they joined
+                        if (!usr.subscribed) {
+                            const joinDate = new Date(user.metadata.creationTime)
+                            const oneDay = 60 * 60 * 1000 * 24
+                            const daysSinceJoin = Math.floor((new Date() - joinDate) / oneDay)
+                            const daysReminded = await AsyncStorage.getItem('days_reminded').then((res) => res != null && res.json())
+                            const extraTrialDays = await AsyncStorage.getItem('extra_days').then((res) => res != null && res.json())
+                            if (extraTrialDays != null) {
+                                daysSinceJoin >= extraTrialDays + 3 && setTrialPeriodFinished(true)
+                            } else {
+                                setShowExtraDaysButton(true)
+                            }
+                            daysSinceJoin >= 14 && !extraTrialDays && setTrialPeriodFinished(true)
+                            if (daysReminded == null || !daysReminded?.includes(daysSinceJoin)) {
+                                daysSinceJoin >= 14 ? navigation.navigate('Subscription') :
+                                    daysSinceJoin >= 12 ? navigation.navigate('Subscription', { trialReminder: 2 }) :
+                                        daysSinceJoin >= 7 && navigation.navigate('Subscription', { trialReminder: 7 })
+                            }
+                        }
                     }
                 })
         }
@@ -241,9 +314,12 @@ const Chat = ({ navigation, route }) => {
             if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined') {
                 if (!usr.subscribed) {
                     updateInfo({ subscribed: true })
+                    setSubscribed(true)
                 }
+                setSubscribed(true)
             } else {
                 updateInfo({ subscribed: false })
+                setSubscribed(false)
             }
         } catch (e) {
             console.error(e)
@@ -365,6 +441,32 @@ const Chat = ({ navigation, route }) => {
         if (tempLastImageSent != null) {
             if (localDayStart > tempLastImageSent) {
                 navigation.navigate('Congrats', { congratsType: 'imageSent' })
+                await firestore()
+                    .collection('chat-rooms')
+                    .doc(globalVars.chatID)
+                    .collection('chat-messages')
+                    .add({
+                        msg: `Congratulations! You've just extended your streak to ${globalVars.userData.streak === 0 ? `1 day!` : `${globalVars.userData.streak + 1} days!`}`,
+                        img: null,
+                        timeSent: firestore.Timestamp.fromDate(new Date()),
+                        userID: globalVars.coachID,
+                        msgType: 'streakCongrats'
+                    })
+                    .catch((e) => {
+                        console.error("error while adding chat message: ", e)
+                    })
+
+                await firestore()
+                    .collection('chat-rooms')
+                    .doc(globalVars.chatID)
+                    .set({
+                        latestMessageTime: firestore.Timestamp.fromDate(new Date()),
+                        latestMessage: `Congratulations! You've just extended your streak to ${globalVars.userData.streak === 0 ? `1 day!` : `${globalVars.userData.streak + 1} days!`}`,
+                        latestMessageSender: globalVars.coachID,
+                    }, { merge: true })
+                    .catch((e) => {
+                        console.error("error while updating chat room info: ", e)
+                    })
                 updateInfo({
                     streak: firestore.FieldValue.increment(1),
                     streakUpdated: firestore.Timestamp.fromDate(new Date())
@@ -469,34 +571,66 @@ const Chat = ({ navigation, route }) => {
     }, [globalVars.chatID, messageBatches])
 
     useEffect(() => {
-        let imageList = []
-        return firestore()
-            .collection('chat-rooms')
-            .doc(globalVars.chatID)
-            .collection('chat-messages')
-            .where('userID', '==', user.uid)
-            .orderBy('timeSent', 'desc')
-            .onSnapshot((querySnapshot) => {
-                querySnapshot.docs.forEach((doc) => {
-                    if (doc.data().img != null) {
-                        Array.prototype.push.apply(imageList, doc.data().img)
-                    }
-                })
-                setGlobalVars(val => ({ ...val, images: imageList }))
-                if (!imgCountUpdated && globalVars.userData?.totalImageCount !== imageList.length) {
-                    updateInfo({
-                        totalImageCount: imageList.length
+        if (globalVars.chatID != null) {
+            let imageList = []
+            return firestore()
+                .collection('chat-rooms')
+                .doc(globalVars.chatID)
+                .collection('chat-messages')
+                .where('userID', '==', user.uid)
+                .orderBy('timeSent', 'desc')
+                .onSnapshot((querySnapshot) => {
+                    querySnapshot.docs.forEach((doc) => {
+                        if (doc.data().img != null) {
+                            for (let image of doc.data().img) {
+                                imageList.push({ ...image, timeSent: doc.data().timeSent })
+                            }
+                        }
                     })
-                    setUpdated(true)
-                }
-                imageList = []
-                if (loading) {
-                    setLoading(false)
-                }
-            }, (e) => {
-                console.error('error while fetching chat images: ', e)
-            })
+                    setGlobalVars(val => ({ ...val, images: imageList }))
+                    if (globalVars.userData != null && !imgCountUpdated && globalVars.userData?.totalImageCount !== imageList.length) {
+                        updateInfo({
+                            totalImageCount: imageList.length
+                        })
+                        setUpdated(true)
+                    }
+                    imageList = []
+                    if (loading) {
+                        setLoading(false)
+                    }
+                }, (e) => {
+                    console.error('error while fetching chat images: ', e)
+                })
+        }
     }, [globalVars.chatID])
+
+    function sameDay(d1, d2) {
+        if (d1?.getFullYear() != null && d2?.getFullYear() != null) {
+            return d1.getFullYear() === d2.getFullYear() &&
+            d1.getMonth() === d2.getMonth() &&
+            d1.getDate() === d2.getDate()
+        }
+    }
+
+    function sevenDays(d1, d2) {
+        return Math.abs(d1 - d2) <= 60 * 60 * 24 * 1000 * 7
+    }
+
+    const SevenDayAvg = () => {
+        if (globalVars.images != null && globalVars.images?.length !== 0) {
+            const mealGrades = globalVars.images?.filter(val => sevenDays(val.timeSent?.toDate(), new Date()) && val.graded)
+            if (mealGrades.length === 0) {
+                return '-'
+            }
+            let totals = { red: 0, yellow: 0, green: 0 }
+            mealGrades.forEach((meal, index) => {
+                totals.red += meal.red
+                totals.yellow += meal.yellow
+                totals.green += meal.green
+            })
+            return Math.round((((totals.green - totals.red) / (totals.green + totals.yellow + totals.red)) + 1) * 50)
+        }
+    }
 
     useEffect(() => {
         const unsub = firestore()
@@ -544,6 +678,12 @@ const Chat = ({ navigation, route }) => {
             }
         })
     }, [])
+
+    useEffect(() => {
+        if (globalVars.userData) {
+            checkUserMembership(globalVars.userData)
+        }
+    }, [globalVars.userData])
 
     useEffect(() => {
         if (globalVars.newUser && globalVars.coachID && globalVars.chatID) {
@@ -746,225 +886,288 @@ const Chat = ({ navigation, route }) => {
         setImages(result)
     }
 
+    const giveExtraTrialDays = async () => {
+        const joinDate = new Date(user.metadata.creationTime)
+        const oneDay = 60 * 60 * 1000 * 24
+        const daysSinceJoin = Math.floor((new Date() - joinDate) / oneDay)
+        await AsyncStorage.setItem('extra_days', JSON.stringify(daysSinceJoin))
+        setTrialPeriodFinished(false)
+    }
+
+    const openChatCameraPicker = async () => {
+        setAttachingImage(val => ({ ...val, visible: true }))
+        await analytics().logScreenView({
+            screen_name: 'CameraModalChatButton',
+            screen_class: 'CameraModalChatButton'
+        })
+    }
+
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={{ flex: 1 }}>
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' && 'position'}
-                    keyboardVerticalOffset={45}
-                    // contentContainerStyle={{ flex: 1 }}
-                    enabled={Platform.OS === 'ios'}
-                    style={{ flex: 1 }}
-                >
-                    <FlatList
-                        ref={messagesList}
-                        onScroll={detectScrollPos}
-                        onEndReached={!messagesEndReached && loadMoreMessages}
-                        onEndReachedThreshold={0.1}
-                        overScrollMode={'never'}
-                        inverted
-                        initialNumToRender={9}
-                        keyboardDismissMode='on-drag'
-                        ListEmptyComponent={(
-                            loading ?
-                                <View>
-                                    <Text style={{ position: 'absolute', bottom: 0, right: 20, color: "#BDB9DB" }}>loading messages...</Text>
-                                    <ActivityIndicator style={{ position: 'absolute', bottom: 20, right: 20 }} size={35} color="#BDB9DB" />
-                                </View>
-                                : <View style={{ flex: 1, alignItems: 'center' }}>
-                                    <Text style={{ color: "#BBBBC5" }}>You have no messages with this person.</Text>
-                                </View>
-                        )}
-                        ListHeaderComponent={(
-                            <View style={{ margin: 40 }} />
-                        )}
-                        ListFooterComponent={(
-                            <View style={{ margin: 50 }} />
-                        )}
-                        showsVerticalScrollIndicator={false}
-                        data={messages}
-                        renderItem={({ item }) => (
-                            <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start' }}>
-                                <View style={item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg}>
-                                    {item.img != null &&
-                                        item.img.map((i) => (
-                                            <ChatImage key={i.url} user={user} item={item} i={i} navigation={navigation} />
-                                        ))
-                                    }
-                                    {item.msgType === 'courseLink' &&
-                                        <CourseLinkImage key={item.id} user={user} messageData={item} userCourseData={globalVars.userData?.courseData} courseInfo={CourseData.find(course => course.UniqueCourseNumber === item.courseInfo.UniqueCourseNumber)} navigation={navigation} />
-                                    }
-                                    <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>
-                                </View>
-                                <Text style={[styles.msgTimeText, { alignSelf: item.userID === user.uid ? 'flex-end' : 'flex-start' }]}>
-                                    {item.timeSent == undefined ? moment(item.timeSent).calendar() : moment(item.timeSent.toDate()).calendar()}
-                                </Text>
-                            </MotiView>
-                        )}
-                        keyExtractor={(item) => item.id}
-                    />
-                    <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 300 }} style={styles.sendMsgContainer}>
-                        <View style={styles.addImgContainer} onLayout={(event) => {
-                            const { x } = event.nativeEvent.layout
-                            setScrollButtonLeft(x)
-                        }}>
-                            <TouchableOpacity onPress={() => setAttachingImage(val => ({ ...val, visible: true }))}>
-                                <Ionicons
-                                    name="camera"
-                                    size={30}
-                                    color='#BDB9DB'
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        <View style={styles.msgInputContainer}>
-                            {images === [] ? null :
-                                <FlatList
-                                    horizontal={true}
-                                    showsHorizontalScrollIndicator={true}
-                                    overScrollMode={'never'}
-                                    data={images}
-                                    ListHeaderComponent={(
-                                        <View style={{ margin: 5 }} />
-                                    )}
-                                    ListFooterComponent={(
-                                        <View style={{ margin: 5 }} />
-                                    )}
-                                    renderItem={({ item }) => (
-                                        <View key={item.uri} style={{ paddingHorizontal: 10, paddingVertical: 20 }}>
-                                            <ImageBackground style={{ height: 200, width: 200 }} imageStyle={{ borderRadius: 10 }} source={{ uri: item.uri }}>
-                                                {sendingMessage ? null :
-                                                    <TouchableOpacity style={styles.cancelImage} onPress={() => cancelImage(item)}>
-                                                        <Icon
-                                                            name='ios-close'
-                                                            size={20}
-                                                            color='black'
+        <>
+            <SafeAreaView style={styles.container}>
+                <View style={{ flex: 1 }}>
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' && 'position'}
+                        keyboardVerticalOffset={45}
+                        // contentContainerStyle={{ flex: 1 }}
+                        enabled={Platform.OS === 'ios'}
+                        style={{ flex: 1 }}
+                    >
+                        <FlatList
+                            ref={messagesList}
+                            onScroll={detectScrollPos}
+                            onEndReached={!messagesEndReached && loadMoreMessages}
+                            onEndReachedThreshold={0.1}
+                            overScrollMode={'never'}
+                            inverted
+                            initialNumToRender={9}
+                            keyboardDismissMode='on-drag'
+                            ListEmptyComponent={(
+                                loading ?
+                                    <View>
+                                        <Text style={{ position: 'absolute', bottom: 0, right: 20, color: "#BDB9DB" }}>loading messages...</Text>
+                                        <ActivityIndicator style={{ position: 'absolute', bottom: 20, right: 20 }} size={35} color="#BDB9DB" />
+                                    </View>
+                                    : <View style={{ flex: 1, alignItems: 'center' }}>
+                                        <Text style={{ color: "#BBBBC5" }}>You have no messages with this person.</Text>
+                                    </View>
+                            )}
+                            ListHeaderComponent={(
+                                <View style={{ margin: 40 }} />
+                            )}
+                            ListFooterComponent={(
+                                <View style={{ margin: 50 }} />
+                            )}
+                            showsVerticalScrollIndicator={false}
+                            data={messages}
+                            renderItem={({ item }) => (
+                                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start' }}>
+                                    <View style={item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg}>
+                                        {item.img != null &&
+                                            item.img.map((i) => (
+                                                <ChatImage key={i.url} user={user} item={item} i={i} navigation={navigation} />
+                                            ))
+                                        }
+                                        {item.msgType === 'courseLink' &&
+                                            <CourseLinkImage key={item.id} user={user} messageData={item} userCourseData={globalVars.userData?.courseData} courseInfo={CourseData.find(course => course.UniqueCourseNumber === item.courseInfo.UniqueCourseNumber)} navigation={navigation} />
+                                        }
+                                        {item.msgType === 'statSummary' ?
+                                            <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>Good morning! This is your weekly check-in.{`\n\n`}{SevenDayAvg() === '-' ? `You did not send in any meal photos this week.` : `Your average meal score for the past week is ${SevenDayAvg()}.`}
+                                            {`\n`}<Text onPress={() => navigation.navigate('Main Menu', { screen: 'Your Stats'})} style={{ fontSize: 14, color: '#4D43BD', textDecorationLine: 'underline' }}>Click here</Text> to view more stats.
+                                            {`\n\n`}What are some of your victories you want to celebrate for the past week?</Text> :
+                                            <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>}
+                                    </View>
+                                    <Text style={[styles.msgTimeText, { alignSelf: item.userID === user.uid ? 'flex-end' : 'flex-start' }]}>
+                                        {item.timeSent == undefined ? moment(item.timeSent).calendar() : moment(item.timeSent.toDate()).calendar()}
+                                    </Text>
+                                </MotiView>
+                            )}
+                            keyExtractor={(item) => item.id}
+                        />
+                        <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 300 }} style={styles.sendMsgContainer}>
+                            <View style={styles.addImgContainer} onLayout={(event) => {
+                                const { x } = event.nativeEvent.layout
+                                setScrollButtonLeft(x)
+                            }}>
+                                <TouchableOpacity onPress={openChatCameraPicker}>
+                                    <Ionicons
+                                        name="camera"
+                                        size={30}
+                                        color='#BDB9DB'
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.msgInputContainer}>
+                                {images === [] ? null :
+                                    <FlatList
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={true}
+                                        overScrollMode={'never'}
+                                        data={images}
+                                        ListHeaderComponent={(
+                                            <View style={{ margin: 5 }} />
+                                        )}
+                                        ListFooterComponent={(
+                                            <View style={{ margin: 5 }} />
+                                        )}
+                                        renderItem={({ item }) => (
+                                            <View key={item.uri} style={{ paddingHorizontal: 10, paddingVertical: 20 }}>
+                                                <ImageBackground style={{ height: 200, width: 200 }} imageStyle={{ borderRadius: 10 }} source={{ uri: item.uri }}>
+                                                    {sendingMessage ? null :
+                                                        <TouchableOpacity style={styles.cancelImage} onPress={() => cancelImage(item)}>
+                                                            <Icon
+                                                                name='ios-close'
+                                                                size={20}
+                                                                color='black'
+                                                            />
+                                                        </TouchableOpacity>
+                                                    }
+                                                </ImageBackground>
+                                            </View>
+                                        )}
+                                        keyExtractor={(item) => item.uri}
+                                    />
+                                }
+                                <View style={styles.msgInputWrapper}>
+                                    <TextInput
+                                        placeholder='Write your message here...'
+                                        placeholderTextColor={'#E6E7FA'}
+                                        style={styles.msgInputText}
+                                        value={messageInput}
+                                        maxLength={1000}
+                                        onChangeText={(text) => setMessageInput(text)}
+                                        autoCapitalize="none"
+                                        blurOnSubmit={false}
+                                        numberOfLines={1}
+                                        onSubmitEditing={() => {
+                                            if (messageInput || images?.length > 0) {
+                                                setSendingMessage(true)
+                                                messages.length > 0 && scrollToLatest()
+                                                newMessage(messageInput)
+                                            }
+                                        }}
+                                    />
+                                    <AnimatePresence>
+                                        {sendingMessage ?
+                                            <MotiView key='loading' style={{ position: 'absolute', right: 15, top: 2 }} from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }}>
+                                                <ActivityIndicator size={25} color="#4D43BD" />
+                                            </MotiView> :
+                                            !messageInput && (images?.length === 0 || !images) ?
+                                                <MotiView key='weighin' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
+                                                    {showWeighInButton && globalVars.userData.userBioData && <TouchableOpacity onPress={() => navigation.navigate('WeighInModal')}>
+                                                        <MaterialCommunityIcons
+                                                            name="scale-bathroom"
+                                                            size={25}
+                                                            color='#BDB9DB'
+                                                        />
+                                                    </TouchableOpacity>}
+                                                </MotiView> :
+                                                <MotiView key='text' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
+                                                    <TouchableOpacity disabled={!messageInput && (images?.length === 0 || !images)} onPress={() => {
+                                                        setSendingMessage(true)
+                                                        messages.length > 0 && scrollToLatest()
+                                                        newMessage(messageInput)
+                                                    }}>
+                                                        <Ionicons
+                                                            name="send"
+                                                            size={25}
+                                                            color='#4D43BD'
                                                         />
                                                     </TouchableOpacity>
-                                                }
-                                            </ImageBackground>
-                                        </View>
-                                    )}
-                                    keyExtractor={(item) => item.uri}
-                                />
-                            }
-                            <View style={styles.msgInputWrapper}>
-                                <TextInput
-                                    placeholder='Write your message here...'
-                                    placeholderTextColor={'#E6E7FA'}
-                                    style={styles.msgInputText}
-                                    value={messageInput}
-                                    maxLength={1000}
-                                    onChangeText={(text) => setMessageInput(text)}
-                                    autoCapitalize="none"
-                                    blurOnSubmit={false}
-                                    numberOfLines={1}
-                                    onSubmitEditing={() => {
-                                        if (messageInput || images?.length > 0) {
-                                            setSendingMessage(true)
-                                            messages.length > 0 && scrollToLatest()
-                                            newMessage(messageInput)
+                                                </MotiView>
                                         }
-                                    }}
-                                />
-                                <AnimatePresence>
-                                    {sendingMessage ?
-                                        <MotiView key='loading' style={{ position: 'absolute', right: 15, top: 2 }} from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }}>
-                                            <ActivityIndicator size={25} color="#4D43BD" />
-                                        </MotiView> :
-                                        !messageInput && (images?.length === 0 || !images) ?
-                                            <MotiView key='emoji' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
-                                                {/* <TouchableOpacity onPress={() => {}}>
-                                            <Ionicons
-                                                name="happy"
-                                                size={25}
-                                                color='#BDB9DB'
-                                            />
-                                        </TouchableOpacity> */}
-                                            </MotiView> :
-                                            <MotiView key='text' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
-                                                <TouchableOpacity disabled={!messageInput && (images?.length === 0 || !images)} onPress={() => {
-                                                    setSendingMessage(true)
-                                                    messages.length > 0 && scrollToLatest()
-                                                    newMessage(messageInput)
-                                                }}>
-                                                    <Ionicons
-                                                        name="send"
-                                                        size={25}
-                                                        color='#4D43BD'
-                                                    />
-                                                </TouchableOpacity>
-                                            </MotiView>
-                                    }
-                                </AnimatePresence>
+                                    </AnimatePresence>
+                                </View>
                             </View>
+                        </MotiView>
+                        <AnimatePresence>
+                            {scrollToLatestButton && <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={[styles.scrollToLatestButton, { left: scrollButtonLeft + 5 }]}>
+                                <TouchableOpacity onPress={() => scrollToLatest()}>
+                                    <Ionicons
+                                        name="ios-chevron-down"
+                                        size={30}
+                                        color='#BDB9DB'
+                                    />
+                                </TouchableOpacity>
+                            </MotiView>}
+                        </AnimatePresence>
+                    </KeyboardAvoidingView>
+                    <MotiView from={{ height: 0 }} animate={{ height: 180 }} delay={850} transition={{ type: 'timing' }} style={styles.scrollViewMask} />
+                    <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} delay={500} style={styles.HUDWrapper}>
+                        <View style={styles.headerWrapper}>
+                            <TouchableOpacity style={{ position: 'absolute', top: 15, left: 15 }} onPress={globalVars.coachData ? () => navigation.navigate('Coach Profile') : null}>
+                                <ProfilePic size={50} source={{ uri: globalVars.coachData?.photoURL }} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={globalVars.coachData ? () => navigation.navigate('Coach Profile') : null}>
+                                <Text style={styles.displayName}>{globalVars.coachData?.displayName}</Text>
+                            </TouchableOpacity>
+                            {loading ? null :
+                                <View>
+                                    <Text style={styles.onlineStatus}>{online ? 'Online' : 'Offline'}</Text>
+                                    <View style={[styles.statusIcon, { backgroundColor: online ? '#3DA560' : '#747F8D' }]} />
+                                </View>
+                            }
+                            {!subscribed &&
+                                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} delay={1200} transition={{ duration: 350 }} style={{ alignSelf: 'flex-end', justifyContent: 'flex-end' }}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('Subscription', { trialReminder: 'none' })} style={styles.subBadgeContainer}>
+                                        <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} delay={1700} transition={{ translateY: { type: 'timing', duration: 400, easing: Easing.bezier(.56, -0.01, 0, .98) }, opacity: { type: 'timing', delay: 1850 } }} style={{ justifyContent: 'center', alignItems: 'center', width: 50, height: 50 }} >
+                                            <ImageBackground source={ribbon} style={{ width: 50, height: 50, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }} imageStyle={{ width: 50, height: 50, resizeMode: 'contain' }}>
+                                                <MotiView from={{ translateX: 250, translateY: 250, rotateZ: '-45deg' }} animate={{ translateX: -250, translateY: -250, rotateZ: '-45deg' }} delay={3000} transition={{ loop: true, repeatReverse: false, duration: 5000, type: 'timing' }} style={{ opacity: 0.5, backgroundColor: '#fff', width: 100, height: 20, transform: [{ rotateZ: '-45deg' }] }} />
+                                            </ImageBackground>
+                                        </MotiView>
+                                    </TouchableOpacity>
+                                </MotiView>}
                         </View>
                     </MotiView>
-                    <AnimatePresence>
-                        {scrollToLatestButton && <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={[styles.scrollToLatestButton, { left: scrollButtonLeft + 5 }]}>
-                            <TouchableOpacity onPress={() => scrollToLatest()}>
-                                <Ionicons
-                                    name="ios-chevron-down"
-                                    size={30}
-                                    color='#BDB9DB'
-                                />
+                    <Modal
+                        isVisible={attachingImage.visible}
+                        avoidKeyboard={true}
+                        onBackButtonPress={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}
+                        useNativeDriverForBackdrop
+                        onBackdropPress={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}
+                        onSwipeComplete={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}
+                        swipeDirection={['down']}
+                        swipeThreshold={50}
+                        animationInTiming={400}
+                        animationOutTiming={400}
+                    >
+                        <View style={styles.panel}>
+                            <View style={{ alignItems: 'center' }}>
+                                <Text style={styles.panelTitle}>Choose Photos</Text>
+                                <Text style={styles.panelSubtitle}>Take one photo, or choose up to five from camera roll.</Text>
+                            </View>
+                            <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
+                                <Text style={styles.panelButtonTitle}>Take Photo</Text>
                             </TouchableOpacity>
-                        </MotiView>}
-                    </AnimatePresence>
-                </KeyboardAvoidingView>
-                <MotiView from={{ height: 0 }} animate={{ height: 180 }} delay={850} transition={{ type: 'timing' }} style={styles.scrollViewMask} />
-                <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} delay={500} style={styles.HUDWrapper}>
-                    <View style={styles.headerWrapper}>
-                        <TouchableOpacity style={{ position: 'absolute', top: 15, left: 15 }} onPress={globalVars.coachData ? () => navigation.navigate('Coach Profile') : null}>
-                            <ProfilePic size={50} source={{ uri: globalVars.coachData?.photoURL }} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={globalVars.coachData ? () => navigation.navigate('Coach Profile') : null}>
-                            <Text style={styles.displayName}>{globalVars.coachData?.displayName}</Text>
-                        </TouchableOpacity>
-                        {loading ? null :
-                            <View>
-                                <Text style={styles.onlineStatus}>{online ? 'Online' : 'Offline'}</Text>
-                                <View style={[styles.statusIcon, { backgroundColor: online ? '#3DA560' : '#747F8D' }]} />
-                            </View>
-                        }
-                    </View>
-                </MotiView>
-                <Modal
-                    isVisible={attachingImage.visible}
-                    avoidKeyboard={true}
-                    onBackButtonPress={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}
-                    useNativeDriverForBackdrop
-                    onBackdropPress={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}
-                    onSwipeComplete={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}
-                    swipeDirection={['down']}
-                    swipeThreshold={50}
-                    animationInTiming={400}
-                    animationOutTiming={400}
-                >
-                    <View style={styles.panel}>
-                        <View style={{ alignItems: 'center' }}>
-                            <Text style={styles.panelTitle}>Choose Photos</Text>
-                            <Text style={styles.panelSubtitle}>Take one photo, or choose up to five from camera roll.</Text>
+                            <TouchableOpacity style={styles.panelButton} onPress={choosePhotosFromLibrary}>
+                                <Text style={styles.panelButtonTitle}>Choose Photos From Library</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.panelButton}
+                                onPress={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}>
+                                <Text style={styles.panelButtonTitle}>Cancel</Text>
+                            </TouchableOpacity>
+                            {attachingImage.loading ?
+                                <View style={styles.modalLoading}>
+                                    <ActivityIndicator size={35} color="#BDB9DB" />
+                                </View>
+                                : null}
                         </View>
-                        <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
-                            <Text style={styles.panelButtonTitle}>Take Photo</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.panelButton} onPress={choosePhotosFromLibrary}>
-                            <Text style={styles.panelButtonTitle}>Choose Photos From Library</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.panelButton}
-                            onPress={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}>
-                            <Text style={styles.panelButtonTitle}>Cancel</Text>
-                        </TouchableOpacity>
-                        {attachingImage.loading ?
-                            <View style={styles.modalLoading}>
-                                <ActivityIndicator size={35} color="#BDB9DB" />
-                            </View>
-                            : null}
-                    </View>
-                </Modal>
-            </View>
-        </SafeAreaView>
+                    </Modal>
+                </View>
+            </SafeAreaView>
+            <AnimatePresence>
+                {trialPeriodFinished &&
+                    <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute' }}>
+                        <BlurView
+                            style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute' }}
+                            blurType="dark"
+                            blurAmount={10}
+                            reducedTransparencyFallbackColor="white"
+                        />
+                        <View style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
+                            <Icon
+                                name='lock-closed'
+                                size={windowWidth * 0.4}
+                                color='#848299'
+                            />
+                            <Text style={{ fontSize: 18, color: '#fff', textAlign: 'center' }}>Your free trial has expired. Become a Subscriber to DietPeeps to enable the chat with your personal coach.</Text>
+                            {showExtraDaysButton && <TouchableOpacity onPress={giveExtraTrialDays} style={[styles.panelButton, { backgroundColor: '#4C44D4', marginTop: 20, width: windowWidth - 30, height: 50 },]}>
+                                <Text style={styles.panelButtonTitle}>{'Give me a few extra days'}</Text>
+                            </TouchableOpacity>}
+                        </View>
+                        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} delay={2000} transition={{ duration: 350 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 10 : 10, right: 20 }}>
+                            <TouchableOpacity onPress={() => navigation.navigate('Subscription', { trialReminder: 'none' })} style={styles.subBadgeContainer}>
+                                <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} delay={1700} transition={{ translateY: { type: 'timing', duration: 400, easing: Easing.bezier(.56, -0.01, 0, .98) }, opacity: { type: 'timing', delay: 1850 } }} style={{ justifyContent: 'center', alignItems: 'center', width: 50, height: 50 }} >
+                                    <ImageBackground source={ribbon} style={{ width: 50, height: 50, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }} imageStyle={{ width: 50, height: 50, resizeMode: 'contain' }}>
+                                        <MotiView from={{ translateX: 250, translateY: 250, rotateZ: '-45deg' }} animate={{ translateX: -250, translateY: -250, rotateZ: '-45deg' }} delay={3000} transition={{ loop: true, repeatReverse: false, duration: 5000, type: 'timing' }} style={{ opacity: 0.5, backgroundColor: '#fff', width: 100, height: 20, transform: [{ rotateZ: '-45deg' }] }} />
+                                    </ImageBackground>
+                                </MotiView>
+                            </TouchableOpacity>
+                        </MotiView>
+                    </MotiView>}
+            </AnimatePresence>
+        </>
     )
 }
 
@@ -1266,5 +1469,20 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 10 },
         shadowRadius: 5,
         shadowOpacity: 0.3,
-    }
+    },
+    subBadgeContainer: {
+        backgroundColor: '#fff',
+        elevation: 10,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 5 },
+        shadowRadius: 5,
+        shadowOpacity: 0.3,
+        width: 60,
+        height: 60,
+        borderRadius: 10,
+        top: 10,
+        right: 10,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
 })

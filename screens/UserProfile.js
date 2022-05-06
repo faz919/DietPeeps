@@ -14,10 +14,9 @@ import firestore from '@react-native-firebase/firestore'
 import { windowWidth } from '../utils/Dimensions.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import ProfilePic from '../components/ProfilePic.js'
-import analytics from '@react-native-firebase/analytics'
 
 const UserProfile = ({ navigation }) => {
-  const { user, updateInfo, emailVerification, changeEmail, forgotPassword, logout, deleteAccount, globalVars, setGlobalVars } = useContext(AuthContext)
+  const { user, updateInfo, emailVerification, changeEmail, forgotPassword, logout, deleteAccount, globalVars, setGlobalVars, authErrorText } = useContext(AuthContext)
 
   const [newInfo, setNewInfo] = useState({})
   const [attachingImage, setAttachingImage] = useState({})
@@ -35,6 +34,16 @@ const UserProfile = ({ navigation }) => {
   useEffect(() => {
     setUserInfo(globalVars.userData)
   }, [])
+
+  useEffect(() => {
+    if (authErrorText.code === 'auth/requires-recent-login') {
+      setGlobalVars(val => ({ ...val, loggingIn: false }))
+      Alert.alert(
+        'Unable to delete acccount:',
+        'This operation is sensitive and requires recent authentication. Log in again before trying this request.'
+      )
+    }
+  }, [authErrorText])
 
   const thirtyDays = 60 * 60 * 24 * 1000 * 30
 

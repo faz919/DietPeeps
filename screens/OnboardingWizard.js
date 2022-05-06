@@ -231,13 +231,13 @@ const OnboardingWizard = ({ navigation }) => {
                                         {formResponses.weightGoal === 'Not Weight Related' ? 'What are some of your goals?' : 'What other goals do you have?'}
                                     </Text>
                                 </View>
-                                <ScrollView showsVerticalScrollIndicator={false} style={{ height: windowHeight * 0.5, overflow: 'hidden', 
+                                <ScrollView showsVerticalScrollIndicator={false} style={{ height: windowHeight * 0.5, overflow: 'hidden'
                                 // if you want a border box
                                 //  backgroundColor: '#BDB9DB', borderRadius: 20,  paddingHorizontal: 10, paddingBottom: 10
                                  }}>
-                                    <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                    <View style={{ height: 'auto', width: '100%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
                                         {goals.map((goal, index) => 
-                                            <TouchableOpacity key={goal} onPress={() => toggleSelectGoal(goal)} style={{ flexDirection: 'row', alignItems: 'center', margin: 5, padding: 5, borderRadius: 10, backgroundColor: formResponses.goals.includes(goal) ? '#43CD3F' : '#fff', marginBottom: index + 1 === goals.length ? 10 : 0 }}>
+                                            <TouchableOpacity key={goal} onPress={() => toggleSelectGoal(goal)} style={{ flexDirection: 'row', alignItems: 'center', margin: 3, padding: 5, borderRadius: 10, backgroundColor: formResponses.goals.includes(goal) ? '#43CD3F' : '#fff' }}>
                                                 <Text style={{ fontSize: windowHeight * (18/844), textAlign: 'center', color: formResponses.goals.includes(goal) ? '#fff' : '#202060', marginRight: 5 }}>
                                                     {goal}
                                                 </Text>
@@ -339,8 +339,9 @@ const OnboardingWizard = ({ navigation }) => {
                                     </Text>
                                 </View>
                                 <View overflow={'hidden'} style={[styles.largeView, { flexDirection: 'row', padding: 20, justifyContent: 'space-between', alignItems: 'center' }]}>
-                                    <View style={{ justifyContent: 'center', width: imperial.height ? windowHeight / 11 : windowHeight / 10, height: windowHeight / 11, borderRadius: 10 }}>
-                                        <Picker style={{ margin: -(windowHeight / 50) }}
+                                    <View style={{ justifyContent: 'center', width: imperial.height ? windowHeight / 11 : Platform.OS === 'ios' ? windowHeight / 10 : windowHeight / 8, height: windowHeight / 11, borderRadius: 10 }}>
+                                        <Picker style={{ margin: -(windowHeight / 50), color: '#202060' }}
+                                            dropdownIconColor='#202060'
                                             itemStyle={styles.title1}
                                             selectedValue={imperial.height ? formResponses.height.ft : formResponses.height.cm}
                                             onValueChange={(value) => setFormResponses(val => ({
@@ -358,8 +359,9 @@ const OnboardingWizard = ({ navigation }) => {
                                         </Picker>
                                     </View>
                                     <Text style={[styles.title1, { height: windowHeight / 11, top: imperial.height ? 0 : windowHeight / 25 }]}>{imperial.height ? "'" : "."}</Text>
-                                    <View style={{ justifyContent: 'center', width: windowHeight / 11, height: windowHeight / 11, borderRadius: 10 }}>
-                                        <Picker style={{ margin: -(windowHeight / 50) }}
+                                    <View style={{ justifyContent: 'center', width: Platform.OS === 'ios' ? windowHeight / 11 : windowHeight / 9, height: windowHeight / 11, borderRadius: 10 }}>
+                                        <Picker style={{ margin: -(windowHeight / 50), color: '#202060' }}
+                                            dropdownIconColor='#202060'
                                             itemStyle={styles.title1}
                                             selectedValue={imperial.height ? formResponses.height.in : formResponses.height.mm}
                                             onValueChange={(value) => setFormResponses(val => ({
@@ -393,8 +395,9 @@ const OnboardingWizard = ({ navigation }) => {
                                 </View>
                                 <View overflow={'hidden'} style={[styles.largeView, { flexDirection: 'row', padding: 20, justifyContent: 'space-between', alignItems: 'center' }]}>
                                     <View style={{ flex: 1, alignItems: 'center', marginRight: 20 }}>
-                                        <View style={{ justifyContent: 'center', width: windowHeight / 8, height: windowHeight / 11, borderRadius: 10 }}>
-                                            <Picker style={{ margin: -(windowHeight / 50) }}
+                                        <View style={{ justifyContent: 'center', width: Platform.OS === 'ios' ? windowHeight / 8 : windowHeight / 7, height: windowHeight / 11, borderRadius: 10 }}>
+                                            <Picker style={{ margin: -(windowHeight / 50), color: '#202060' }}
+                                                dropdownIconColor='#202060'
                                                 itemStyle={styles.title1}
                                                 selectedValue={imperial.weight ? formResponses.weight?.lbs : formResponses.weight?.kgs}
                                                 onValueChange={(value) => setFormResponses(val => ({
@@ -441,7 +444,8 @@ const OnboardingWizard = ({ navigation }) => {
                                 <View overflow={'hidden'} style={[styles.largeView, { flexDirection: 'row', padding: 20, justifyContent: 'space-between', alignItems: 'center' }]}>
                                     <View style={{ flex: 1, alignItems: 'center', marginRight: 20 }}>
                                         <View style={{ justifyContent: 'center', width: windowHeight / 8, height: windowHeight / 11, borderRadius: 10 }}>
-                                            <Picker style={{ margin: -(windowHeight / 50) }}
+                                            <Picker style={{ margin: -(windowHeight / 50), color: '#202060' }}
+                                                dropdownIconColor='#202060'
                                                 itemStyle={styles.title1}
                                                 selectedValue={imperial.weight ? formResponses.targetWeight?.lbs : formResponses.targetWeight?.kgs}
                                                 onValueChange={(value) => setFormResponses(val => ({
@@ -487,8 +491,9 @@ const OnboardingWizard = ({ navigation }) => {
                                 </View>
                                 <View style={{ alignItems: 'center', marginVertical: 40 }}>
                                     <View style={[styles.largeView, { backgroundColor: 'transparent', width: windowWidth / 5, padding: 20, justifyContent: 'center', alignItems: 'center' }]}>
-                                        <View style={{ justifyContent: 'center', width: windowWidth / 6 }}>
-                                            <Picker style={{ margin: -(windowHeight / 100) }}
+                                        <View style={{ justifyContent: 'center', width: Platform.select({ ios: windowWidth / 6, android: windowWidth / 4 }) }}>
+                                            <Picker style={{ margin: -(windowHeight / 100), color: '#202060' }}
+                                                dropdownIconColor='#202060'
                                                 itemStyle={styles.title1}
                                                 selectedValue={formResponses.mealCount}
                                                 onValueChange={(value) => setFormResponses(val => ({ ...val, mealCount: value }))}>

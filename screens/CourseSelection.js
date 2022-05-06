@@ -45,54 +45,59 @@ const CourseSelection = ({ navigation, route }) => {
   }, [courseInfo, courseCompleted])
 
   useEffect(() => {
-    const unsub = firestore()
-      .collection('user-info')
-      .doc(user.uid)
-      .onSnapshot((doc) => {
-        const c = doc.data().courseData
-        let localDayStart = new Date()
-        localDayStart.setHours(0)
-        localDayStart.setMinutes(0)
-        localDayStart.setSeconds(0)
-        localDayStart.setMilliseconds(0)
-        if (c.courseDayCompleted) {
-          if (localDayStart > c.courseCompletedAt?.toDate()) {
-            setUserCourseData({
-              latestCourseCompleted: c.latestCourseCompleted,
-              courseCompletedAt: c.courseCompletedAt,
-              courseDay: c.courseDay + 1,
-              courseDayCompleted: false
-            })
-            updateInfo({
-              courseData: {
-                latestCourseCompleted: c.latestCourseCompleted,
-                courseCompletedAt: c.courseCompletedAt,
-                courseDay: c.courseDay + 1,
-                courseDayCompleted: false
-              }
-            })
-            stopLoading()
-            return null
-          } else {
-            setUserCourseData(c)
-            stopLoading()
-            return null
-          }
-        } else {
-          setUserCourseData({
-            latestCourseCompleted: c.latestCourseCompleted ? c.latestCourseCompleted : 0,
-            courseCompletedAt: c.courseCompletedAt ? c.courseCompletedAt : new Date(),
-            courseDay: c.courseDay ? c.courseDay : 1,
-            courseDayCompleted: false
-          })
-        }
-        stopLoading()
-        return null
-      }, (e) => {
-        console.error('error while updating course data: ', e)
-      })
-    return () => unsub()
-  }, [])
+    const c = globalVars.userData.courseData
+    setUserCourseData(c)
+  }, [globalVars.userData])
+
+  // useEffect(() => {
+  //   const unsub = firestore()
+  //     .collection('user-info')
+  //     .doc(user.uid)
+  //     .onSnapshot((doc) => {
+  //       let localDayStart = new Date()
+  //       localDayStart.setHours(0)
+  //       localDayStart.setMinutes(0)
+  //       localDayStart.setSeconds(0)
+  //       localDayStart.setMilliseconds(0)
+  //       const c = doc.data().courseData
+  //       if (c.courseDayCompleted) {
+  //         if (localDayStart > c.courseCompletedAt?.toDate()) {
+  //           setUserCourseData({
+  //             latestCourseCompleted: c.latestCourseCompleted,
+  //             courseCompletedAt: c.courseCompletedAt,
+  //             courseDay: c.courseDay + 1,
+  //             courseDayCompleted: false
+  //           })
+  //           updateInfo({
+  //             courseData: {
+  //               latestCourseCompleted: c.latestCourseCompleted,
+  //               courseCompletedAt: c.courseCompletedAt,
+  //               courseDay: c.courseDay + 1,
+  //               courseDayCompleted: false
+  //             }
+  //           })
+  //           stopLoading()
+  //           return null
+  //         } else {
+  //           setUserCourseData(c)
+  //           stopLoading()
+  //           return null
+  //         }
+  //       } else {
+  //         setUserCourseData({
+  //           latestCourseCompleted: c.latestCourseCompleted ? c.latestCourseCompleted : 0,
+  //           courseCompletedAt: c.courseCompletedAt ? c.courseCompletedAt : new Date(),
+  //           courseDay: c.courseDay ? c.courseDay : 1,
+  //           courseDayCompleted: false
+  //         })
+  //       }
+  //       stopLoading()
+  //       return null
+  //     }, (e) => {
+  //       console.error('error while updating course data: ', e)
+  //     })
+  //   return () => unsub()
+  // }, [])
 
   useEffect(() => {
     const getStarredCourses = async () => {
