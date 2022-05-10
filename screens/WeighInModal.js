@@ -10,7 +10,7 @@ import analytics from '@react-native-firebase/analytics'
 
 const WeighInModal = ({ navigation }) => {
 
-    const { user, globalVars, updateInfo } = useContext(AuthContext)
+    const { user, globalVars, updateInfo, setGlobalVars } = useContext(AuthContext)
 
     const [visible, setVisible] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -37,8 +37,8 @@ const WeighInModal = ({ navigation }) => {
             })
         }
         updateInfo({
-            weightHistory: firestore.FieldValue.arrayUnion({ weight: { kgs: weight.kgs, lbs: weight.lbs }, time: firestore.Timestamp.fromDate(new Date()) }),
-            lastWeighIn: firestore.Timestamp.fromDate(new Date()),
+            weightHistory: firestore.FieldValue.arrayUnion({ weight: { kgs: weight.kgs, lbs: weight.lbs }, time: firestore.Timestamp.now() }),
+            lastWeighIn: firestore.Timestamp.now(),
             userBioData: {
                 weight: {
                     kgs: weight.kgs,
@@ -50,7 +50,7 @@ const WeighInModal = ({ navigation }) => {
         await analytics().logEvent('message', {
             msg: imperial ? `Hey coach! Today I weighed in at ${weight.lbs} lbs (${weight.kgs} kgs).` : `Hey coach! Today I weighed in at ${weight.kgs} kgs (${weight.lbs} lbs).`,
             img: null,
-            timeSent: firestore.Timestamp.fromDate(new Date()),
+            timeSent: firestore.Timestamp.now(),
             userID: user.uid
         }).catch((e) => {
             console.error('error while uploading message data to analytics: ', e)
@@ -62,7 +62,7 @@ const WeighInModal = ({ navigation }) => {
             .add({
                 msg: imperial ? `Hey coach! Today I weighed in at ${weight.lbs} lbs (${weight.kgs} kgs).` : `Hey coach! Today I weighed in at ${weight.kgs} kgs (${weight.lbs} lbs).`,
                 img: null,
-                timeSent: firestore.Timestamp.fromDate(new Date()),
+                timeSent: firestore.Timestamp.now(),
                 userID: user.uid,
             })
             .catch((e) => {
@@ -72,7 +72,7 @@ const WeighInModal = ({ navigation }) => {
             .collection('chat-rooms')
             .doc(globalVars.chatID)
             .set({
-                latestMessageTime: firestore.Timestamp.fromDate(new Date()),
+                latestMessageTime: firestore.Timestamp.now(),
                 latestMessage: imperial ? `Hey coach! Today I weighed in at ${weight.lbs} lbs (${weight.kgs} kgs).` : `Hey coach! Today I weighed in at ${weight.kgs} kgs (${weight.lbs} lbs).`,
                 unreadCount: firestore.FieldValue.increment(1),
                 latestMessageSender: user.uid,
@@ -98,6 +98,7 @@ const WeighInModal = ({ navigation }) => {
             animationOutTiming={400}
             onModalHide={() => {
                 setLoading(false)
+                setGlobalVars(val => ({ ...val, hasWeighedIn: true }))
                 navigation.goBack()
             }}
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center', }}

@@ -57,7 +57,7 @@ const MainMenu = () => {
       tabBarInactiveTintColor: "#BDB9DB",
       tabBarActiveTintColor: "#4D43BD",
     })}>
-      <Tab.Screen name="Coach" component={Chat} initialParams={{ imageInfo: null, hasSubscribed: null }} />
+      <Tab.Screen name="Coach" component={Chat} initialParams={{ imageInfo: null, hasSubscribed: null, hasWeighedIn: null }} />
       <Tab.Screen name="Gallery" component={PhotoGallery} initialParams={{ imageInfo: null }} />
       <Tab.Screen name="Camera" component={CameraModal}
         listeners={(params) => ({

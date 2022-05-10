@@ -62,6 +62,7 @@ const Chat = ({ navigation, route }) => {
     const [trialPeriodFinished, setTrialPeriodFinished] = useState(false)
     const [showExtraDaysButton, setShowExtraDaysButton] = useState(false)
     const [showWeighInButton, setShowWeighIn] = useState(false)
+    const [redirected, setRedirected] = useState(false)
 
     useEffect(() => {
         if (subscribed) {
@@ -74,6 +75,15 @@ const Chat = ({ navigation, route }) => {
             navigation.navigate('Congrats', { congratsType: 'subscribed' })
         }
     }, [hasSubscribed])
+
+    useEffect(() => {
+        if (globalVars.hasWeighedIn) {
+            setTimeout(() => {
+                setGlobalVars(val => ({ ...val, hasWeighedIn: false }))
+                navigation.navigate('Congrats', { congratsType: 'weighedIn' })
+            }, 500)
+        }
+    }, [globalVars.hasWeighedIn])
 
     const messagesList = useRef()
 
@@ -252,7 +262,7 @@ const Chat = ({ navigation, route }) => {
                         if (!yesterday(usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.streakUpdated?.toDate())) {
                             updateInfo({
                                 streak: 0,
-                                streakUpdated: firestore.Timestamp.fromDate(new Date())
+                                streakUpdated: firestore.Timestamp.now()
                             })
                         }
                         // check last weigh in
@@ -296,10 +306,13 @@ const Chat = ({ navigation, route }) => {
                                     setShowExtraDaysButton(true)
                                 }
                                 daysSinceJoin >= 14 && !extraTrialDays && setTrialPeriodFinished(true)
-                                if (daysReminded == null || !daysReminded?.includes(daysSinceJoin)) {
-                                    daysSinceJoin >= 14 ? navigation.navigate('Subscription') :
-                                        daysSinceJoin === 12 ? navigation.navigate('Subscription', { trialReminder: 14 - daysSinceJoin }) :
-                                            daysSinceJoin === 7 && navigation.navigate('Subscription', { trialReminder: 14 - daysSinceJoin })
+                                if (!redirected && usr.userBioData != null) {
+                                    if (daysReminded == null || !daysReminded?.includes(daysSinceJoin)) {
+                                        daysSinceJoin === 14 ? navigation.navigate('Subscription') :
+                                            daysSinceJoin === 12 ? navigation.navigate('Subscription', { trialReminder: daysSinceJoin }) :
+                                                daysSinceJoin === 7 && navigation.navigate('Subscription', { trialReminder: daysSinceJoin })
+                                    }
+                                    setRedirected(true)
                                 }
                             }
                         } catch (e) {
@@ -377,13 +390,13 @@ const Chat = ({ navigation, route }) => {
             } else if (imageInfo.length > 0) {
                 tempLastImageSent = globalVars.userData.lastImageSent?.toDate()
                 updateInfo({
-                    lastImageSent: firestore.Timestamp.fromDate(new Date()),
+                    lastImageSent: firestore.Timestamp.now(),
                     totalImageCount: firestore.FieldValue.increment(imageInfo.length)
                 })
                 for (let image of imageInfo) {
                     await analytics().logEvent('image', {
                         img: image,
-                        timeSent: firestore.Timestamp.fromDate(new Date()),
+                        timeSent: firestore.Timestamp.now(),
                         userID: user.uid,
                     }).catch((e) => {
                         console.error('error while uploading image data to analytics: ', e)
@@ -397,7 +410,7 @@ const Chat = ({ navigation, route }) => {
         await analytics().logEvent('message', {
             msg: message,
             img: imageInfo,
-            timeSent: firestore.Timestamp.fromDate(new Date()),
+            timeSent: firestore.Timestamp.now(),
             userID: user.uid
         }).catch((e) => {
             console.error('error while uploading message data to analytics: ', e)
@@ -410,7 +423,7 @@ const Chat = ({ navigation, route }) => {
             .add({
                 msg: message,
                 img: imageInfo,
-                timeSent: firestore.Timestamp.fromDate(new Date()),
+                timeSent: firestore.Timestamp.now(),
                 userID: user.uid,
             })
             .catch((e) => {
@@ -421,7 +434,7 @@ const Chat = ({ navigation, route }) => {
             .collection('chat-rooms')
             .doc(globalVars.chatID)
             .set({
-                latestMessageTime: firestore.Timestamp.fromDate(new Date()),
+                latestMessageTime: firestore.Timestamp.now(),
                 latestMessage: message === '' ? '[Image]' : message,
                 unreadCount: firestore.FieldValue.increment(1),
                 latestMessageSender: user.uid,
@@ -450,7 +463,7 @@ const Chat = ({ navigation, route }) => {
                     .add({
                         msg: `Congratulations! You've just extended your streak to ${globalVars.userData.streak === 0 ? `1 day!` : `${globalVars.userData.streak + 1} days!`}`,
                         img: null,
-                        timeSent: firestore.Timestamp.fromDate(new Date()),
+                        timeSent: firestore.Timestamp.now(),
                         userID: globalVars.coachID,
                         msgType: 'streakCongrats'
                     })
@@ -462,7 +475,7 @@ const Chat = ({ navigation, route }) => {
                     .collection('chat-rooms')
                     .doc(globalVars.chatID)
                     .set({
-                        latestMessageTime: firestore.Timestamp.fromDate(new Date()),
+                        latestMessageTime: firestore.Timestamp.now(),
                         latestMessage: `Congratulations! You've just extended your streak to ${globalVars.userData.streak === 0 ? `1 day!` : `${globalVars.userData.streak + 1} days!`}`,
                         latestMessageSender: globalVars.coachID,
                     }, { merge: true })
@@ -471,7 +484,7 @@ const Chat = ({ navigation, route }) => {
                     })
                 updateInfo({
                     streak: firestore.FieldValue.increment(1),
-                    streakUpdated: firestore.Timestamp.fromDate(new Date())
+                    streakUpdated: firestore.Timestamp.now()
                 })
             }
         }
@@ -524,7 +537,7 @@ const Chat = ({ navigation, route }) => {
                         url: url,
                         thumbnail: thumbnailName,
                         graded: false,
-                        uploadedAt: firestore.Timestamp.fromDate(new Date())
+                        uploadedAt: firestore.Timestamp.now()
                     })
                 } catch (e) {
                     console.log('error while uploading images to firebase cloud storage: ', e)
@@ -697,7 +710,7 @@ const Chat = ({ navigation, route }) => {
                     img: null,
                     msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
                     userID: globalVars.coachID,
-                    timeSent: firestore.Timestamp.fromDate(new Date())
+                    timeSent: firestore.Timestamp.now()
                 })
             setTimeout(() => {
                 firestore()
@@ -708,7 +721,7 @@ const Chat = ({ navigation, route }) => {
                         img: null,
                         msg: `My name is ${globalVars.coachData?.displayName}, and I'll be your personal coach. My goal is to help you succeed by making small steps every single day.`,
                         userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.fromDate(new Date())
+                        timeSent: firestore.Timestamp.now()
                     })
             }, 3000)
             setTimeout(() => {
@@ -720,7 +733,7 @@ const Chat = ({ navigation, route }) => {
                         img: null,
                         msg: `To do this, you'll need to send me a photo of every meal that you eat.`,
                         userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.fromDate(new Date())
+                        timeSent: firestore.Timestamp.now()
                     })
             }, 8000)
             setTimeout(() => {
@@ -732,7 +745,7 @@ const Chat = ({ navigation, route }) => {
                         img: null,
                         msg: `My job as coach is to look at these photos and score them based on how healthy they are.`,
                         userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.fromDate(new Date())
+                        timeSent: firestore.Timestamp.now()
                     })
             }, 13000)
             setTimeout(() => {
@@ -744,7 +757,7 @@ const Chat = ({ navigation, route }) => {
                         img: null,
                         msg: `First, a couple of questions for you: `,
                         userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.fromDate(new Date())
+                        timeSent: firestore.Timestamp.now()
                     })
             }, 17000)
             setTimeout(() => {
@@ -756,7 +769,7 @@ const Chat = ({ navigation, route }) => {
                         img: null,
                         msg: `1) Do you have a nickname that you prefer?`,
                         userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.fromDate(new Date())
+                        timeSent: firestore.Timestamp.now()
                     })
             }, 20000)
             setTimeout(() => {
@@ -769,7 +782,7 @@ const Chat = ({ navigation, route }) => {
                         img: null,
                         msg: `2) Any questions for me so far?`,
                         userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.fromDate(new Date())
+                        timeSent: firestore.Timestamp.now()
                     })
             }, 23000)
         }
@@ -800,7 +813,7 @@ const Chat = ({ navigation, route }) => {
     //                     img: null,
     //                     msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
     //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                     timeSent: firestore.Timestamp.now()
     //                 })
     //             firestore()
     //                 .collection('chat-rooms')
@@ -810,7 +823,7 @@ const Chat = ({ navigation, route }) => {
     //                     img: null,
     //                     msg: `My name is ${globalVars.coachData?.displayName}, and I'll be your personal coach. My goal is to help you succeed by making small steps every single day.`,
     //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                     timeSent: firestore.Timestamp.now()
     //                 })
     //             firestore()
     //                 .collection('chat-rooms')
@@ -820,7 +833,7 @@ const Chat = ({ navigation, route }) => {
     //                     img: null,
     //                     msg: `To do this, you'll need to send me a photo of every meal that you eat.`,
     //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                     timeSent: firestore.Timestamp.now()
     //                 })
     //             firestore()
     //                 .collection('chat-rooms')
@@ -830,7 +843,7 @@ const Chat = ({ navigation, route }) => {
     //                     img: null,
     //                     msg: `My job as coach is to look at these photos and score them based on how healthy they are.`,
     //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                     timeSent: firestore.Timestamp.now()
     //                 })
     //             firestore()
     //                 .collection('chat-rooms')
@@ -840,7 +853,7 @@ const Chat = ({ navigation, route }) => {
     //                     img: null,
     //                     msg: `First, a couple of questions for you: `,
     //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                     timeSent: firestore.Timestamp.now()
     //                 })
     //             firestore()
     //                 .collection('chat-rooms')
@@ -850,7 +863,7 @@ const Chat = ({ navigation, route }) => {
     //                     img: null,
     //                     msg: `1) Do you have a nickname that you prefer?`,
     //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                     timeSent: firestore.Timestamp.now()
     //                 })
     //             firestore()
     //                 .collection('chat-rooms')
@@ -860,7 +873,7 @@ const Chat = ({ navigation, route }) => {
     //                     img: null,
     //                     msg: `2) Any questions for me so far?`,
     //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.fromDate(new Date())
+    //                     timeSent: firestore.Timestamp.now()
     //                 })
     //             AsyncStorage.setItem('@tutorial_finished', 'true')
     //         }
@@ -1405,7 +1418,8 @@ const styles = StyleSheet.create({
     panelTitle: {
         fontSize: 27,
         height: 35,
-        color: '#202060'
+        color: '#202060',
+        width: '100%'
     },
     panelSubtitle: {
         fontSize: 14,

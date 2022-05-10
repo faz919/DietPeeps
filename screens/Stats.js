@@ -104,7 +104,7 @@ const Stats = ({ navigation }) => {
 
     const SevenDayAvg = () => {
         const mealGrades = globalVars.images?.filter(val => sevenDays(val.timeSent?.toDate(), new Date()) && val.graded)
-        if (mealGrades.length === 0) {
+        if (mealGrades == null || mealGrades.length === 0) {
             return '-'
         }
         let totals = { red: 0, yellow: 0, green: 0 }
@@ -118,7 +118,7 @@ const Stats = ({ navigation }) => {
 
     const SevenDayWeightAvg = () => {
         const sevenDayWeightHistory = globalVars.userData.weightHistory?.filter(val => sevenDays(val.time?.toDate(), new Date()))
-        if (sevenDayWeightHistory.length === 0) {
+        if (sevenDayWeightHistory == null || sevenDayWeightHistory.length === 0) {
             return '-'
         }
         let weightSum = 0
@@ -131,7 +131,7 @@ const Stats = ({ navigation }) => {
     const DailyScoresGraph = () => {
         if (graphDays.length === 0 || globalVars.images?.length === 0 || globalVars.images == null || graphDays == null || globalVars.images?.filter(val => val.graded)?.length === 0) {
             return (
-                <View style={{ height: windowHeight * 0.35, width: windowWidth, paddingHorizontal: 30, position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ height: windowHeight * 0.35, width: windowWidth, paddingHorizontal: 30, justifyContent: 'center', alignItems: 'center' }}>
                     <View style={{ opacity: 0.3 }} pointerEvents='none'>
                         <Chart
                             style={{ height: windowHeight * 0.35, width: windowWidth }}
@@ -185,7 +185,7 @@ const Stats = ({ navigation }) => {
         }
         return (
             <Chart
-                style={{ height: windowHeight * 0.35, width: windowWidth, alignSelf: 'center', position: 'absolute' }}
+                style={{ height: windowHeight * 0.35, width: windowWidth, alignSelf: 'center' }}
                 data={graphDays.reverse().map((day, index) => {
                     const mealGrades = globalVars.images?.filter(val => sameDay(val.timeSent?.toDate(), day?.toDate()) && val.graded)
                     let totals = { red: 0, yellow: 0, green: 0 }
@@ -199,7 +199,7 @@ const Stats = ({ navigation }) => {
                 padding={{ left: 30, bottom: 30, right: 30, top: 40 }}
                 xDomain={{ min: 1, max: graphDays.length <= 1 ? 2 : graphDays.length }}
                 yDomain={{ min: 0, max: 100 }}
-                viewport={{ size: { width: graphDays.length >= 6 ? 5 : graphDays.length <= 1 ? 1 : graphDays.length - 1 } }}
+                viewport={{ initialOrigin: { x: graphDays.length >= 6 ? graphDays.length - 5 : 0, y: 0 }, size: { width: graphDays.length >= 6 ? 5 : graphDays.length <= 1 ? 1 : graphDays.length - 1 } }}
             >
                 <VerticalAxis tickCount={11} />
                 <HorizontalAxis tickCount={graphDays.length <= 1 ? 2 : graphDays.length} />
@@ -228,7 +228,7 @@ const Stats = ({ navigation }) => {
     const WeightHistoryGraph = () => {
         if (globalVars.userData.weightHistory == null || globalVars.userData.weightHistory.length === 0) {
             return (
-                <View style={{ height: windowHeight * 0.35, width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30, position: 'absolute' }}>
+                <View style={{ height: windowHeight * 0.35, width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
                     <View style={{ opacity: 0.3 }} pointerEvents='none'>
                         <Chart
                             style={{ height: windowHeight * 0.35, width: windowWidth }}
@@ -282,18 +282,20 @@ const Stats = ({ navigation }) => {
         }
         const chartMin = Math.min(...globalVars.userData.weightHistory.map(weighIn => globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs))
         const chartMax = Math.max(...globalVars.userData.weightHistory.map(weighIn => globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs))
+        const rangeMin = globalVars.userData.usesImperial ? 20 * Math.floor(chartMin / 20) : 10 * Math.floor(chartMin / 10)
+        const rangeMax = globalVars.userData.usesImperial ? 20 * Math.ceil(chartMax / 20) : 10 * Math.ceil(chartMax / 10)
         return (
             <Chart
-                style={{ height: windowHeight * 0.35, width: windowWidth, alignSelf: 'center', position: 'absolute' }}
+                style={{ height: windowHeight * 0.35, width: windowWidth, alignSelf: 'center' }}
                 data={globalVars.userData.weightHistory.map((weighIn, index) => {
                     return { y: globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs, x: index + 1 }
                 })}
                 padding={{ left: 30, bottom: 30, right: 30, top: 40 }}
                 xDomain={{ min: 1, max: globalVars.userData.weightHistory.length <= 1 ? 2 : globalVars.userData.weightHistory.length }}
-                yDomain={{ min: 20 * Math.floor(chartMin / 20), max: 20 * Math.ceil(chartMax / 20) }}
-                viewport={{ size: { width: globalVars.userData.weightHistory.length >= 6 ? 5 : globalVars.userData.weightHistory.length <= 1 ? 1 : globalVars.userData.weightHistory.length - 1 } }}
+                yDomain={{ min: rangeMin, max: rangeMax }}
+                viewport={{ initialOrigin: { x: globalVars.userData.weightHistory.length >= 6 ? globalVars.userData.weightHistory.length - 5 : 0 }, size: { width: globalVars.userData.weightHistory.length >= 6 ? 5 : globalVars.userData.weightHistory.length <= 1 ? 1 : globalVars.userData.weightHistory.length - 1 } }}
             >
-                <VerticalAxis tickCount={Math.floor((20 * Math.ceil(chartMax / 20) - (20 * Math.floor(chartMin / 20))) / 5) + 1} />
+                <VerticalAxis tickCount={Math.floor((rangeMax - rangeMin) / 5) + 1} />
                 <HorizontalAxis tickCount={globalVars.userData.weightHistory.length <= 1 ? 2 : globalVars.userData.weightHistory.length} />
                 <Area smoothing='cubic-spline'
                     tension={0.3}
@@ -319,25 +321,25 @@ const Stats = ({ navigation }) => {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#E6E7FA' }}>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ top: 80 }}>
+            <ScrollView showsVerticalScrollIndicator={false}  contentContainerStyle={{ top: 80, minHeight: calendarInfoIcon ? calendarInfoIcon + windowHeight * (450/844) + 80 : windowHeight }}>
                 {loading ?
                     <View style={{ flex: 1, width: windowWidth, height: windowHeight, backgroundColor: '#E6E7FA' }}>
                         <ActivityIndicator style={{ alignSelf: 'center', top: 100 }} size={35} color="#202060" />
                     </View> :
                     <View>
-                        <View style={{ backgroundColor: '#fff', borderRadius: 20, width: windowWidth - 30, height: windowHeight / 8, marginTop: 20, alignSelf: 'center', alignItems: 'center', justifyContent: 'space-around', flexDirection: 'row' }}>
-                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 8, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ backgroundColor: '#fff', borderRadius: 20, width: windowWidth - 30, minHeight: windowHeight / 8, marginTop: 20, alignSelf: 'center', alignItems: 'center', justifyContent: 'space-evenly', flexDirection: 'row', paddingVertical: (windowHeight / 8 - windowHeight / 10) / 2 }}>
+                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowWidth / 4, minHeight: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
                                 <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{globalVars.userData?.streak}</Text>
                                 <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>Streak</Text>
                             </View>
-                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 8, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
+                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowWidth / 4, minHeight: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
                                 <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayAvg()}</Text>
                                 <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Meal Score Avg</Text>
                             </View>
-                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowHeight / 8, height: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
+                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowWidth / 4, minHeight: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
                                 <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
                                     <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayWeightAvg()}</Text>
-                                    <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060' }}>{globalVars.userData.usesImperial ? 'lbs' : 'kgs'}</Text>
+                                    <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060' }}>{SevenDayWeightAvg() !== '-' ? globalVars.userData.usesImperial ? 'lbs' : 'kgs' : ''}</Text>
                                 </View>
                                 <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Weight Avg</Text>
                             </View>
@@ -367,20 +369,26 @@ const Stats = ({ navigation }) => {
                                 <MotiView 
                                     from={{ translateX: -(windowWidth / 2), opacity: 0 }} animate={{ translateX: 0, opacity: 1 }} exit={{ translateX: -(windowWidth / 2), opacity: 0 }} 
                                     transition={{ type: 'timing', easing: Easing.bezier(.8,-0.01,.1,.99), translateX: { duration: 350 }, opacity: { duration: 200 } }} key='dailyScoresText' 
-                                    style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', width: windowWidth, flexDirection: 'row' }} pointerEvents='box-none'
+                                    style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', width: windowWidth, flexDirection: 'column' }} pointerEvents='box-none'
                                 >
                                     <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
                                         Daily Scores
                                     </Text>
+                                    {graphDays.length >= 6 && <Text style={{ fontSize: 12, color: '#202060', fontWeight: '500', alignSelf: 'center', textAlign: 'center' }}>
+                                        Swipe to view older data!
+                                    </Text>}
                                 </MotiView> :
                                 <MotiView 
                                     from={{ translateX: (windowWidth / 2), opacity: 0 }} animate={{ translateX: 0, opacity: 1 }} exit={{ translateX: (windowWidth / 2), opacity: 0 }} 
                                     transition={{ type: 'timing', easing: Easing.bezier(.8,-0.01,.1,.99), translateX: { duration: 350 }, opacity: { duration: 200 } }} key='weightHistoryText' 
-                                    style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', width: windowWidth, flexDirection: 'row' }} pointerEvents='box-none'
+                                    style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', width: windowWidth, flexDirection: 'column' }} pointerEvents='box-none'
                                 >
                                     <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
                                         Weight History
                                     </Text>
+                                    {globalVars.userData.weightHistory.length >= 6 && <Text style={{ fontSize: 12, color: '#202060', fontWeight: '500', alignSelf: 'center', textAlign: 'center' }}>
+                                        Swipe to view older data!
+                                    </Text>}
                                 </MotiView>
                                 }
                             </AnimatePresence>
@@ -406,17 +414,19 @@ const Stats = ({ navigation }) => {
                             </AnimatePresence>
                         </View>
                         <AnimatePresence>
-                            {selectedGraph === 'dailyScores' ?
-                                <MotiView key='dailyScores' from={{ translateX: -windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: -windowWidth }} pointerEvents='box-none'>
-                                    <DailyScoresGraph />
-                                </MotiView>
-                                :
-                                <MotiView key='weightHistory' from={{ translateX: windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: windowWidth }} pointerEvents='box-none'>
-                                    <WeightHistoryGraph />
-                                </MotiView>
-                            }
+                            <View style={{ flex: 1, flexDirection: 'row', width: windowWidth * 2, height: windowHeight * 0.35 }}>
+                                {selectedGraph === 'dailyScores' ?
+                                    <MotiView key='dailyScores' from={{ translateX: -windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: -windowWidth }} pointerEvents='box-none'>
+                                        <DailyScoresGraph />
+                                    </MotiView>
+                                    :
+                                    <MotiView key='weightHistory' from={{ translateX: windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: windowWidth }} pointerEvents='box-none'>
+                                        <WeightHistoryGraph />
+                                    </MotiView>
+                                }
+                            </View>
                         </AnimatePresence>
-                        <Text onLayout={(event) => { const { y } = event.nativeEvent.layout; setCalendarInfoIcon(y) }} style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', top: windowHeight * 0.35 }}>
+                        <Text onLayout={(event) => { const { y } = event.nativeEvent.layout; setCalendarInfoIcon(y) }} style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center' }}>
                             Meal Photo Calendar
                         </Text>
                         <Calendar
@@ -427,7 +437,7 @@ const Stats = ({ navigation }) => {
                             style={{
                                 backgroundColor: 'transparent',
                                 height: windowHeight * (450 / 844),
-                                top: windowHeight * 0.35
+                                
                             }}
                             markingType={'period'}
                             markedDates={streakCalendarDays}

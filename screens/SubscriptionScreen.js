@@ -23,7 +23,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
                             AsyncStorage.setItem('days_reminded', '[]')
                         } else {
                             const days = JSON.parse(value)
-                            days.push(14 - trialReminder)
+                            days.push(trialReminder)
                             AsyncStorage.setItem('days_reminded', JSON.stringify(days))
                         }
                     })
@@ -118,7 +118,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
                         <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>/month</Text>
                     </View>
                     <View style={styles.ViewsW}>
-                        {trialReminder && trialReminder !== 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Hey there! You have {trialReminder} days remaining in your free trial. Become a DietPeeps Subscriber to receive:</Text>
+                        {trialReminder && trialReminder !== 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Hey there! You have {14 - trialReminder} days remaining in your free trial. Become a DietPeeps Subscriber to receive:</Text>
                         :
                         trialReminder === 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Enjoying DietPeeps? Become a Subscriber today to receive:</Text>
                         :

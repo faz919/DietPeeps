@@ -63,8 +63,8 @@ export const AuthProvider = ({ children }) => {
                 firestore()
                     .collection('chat-rooms')
                     .add({
-                        timeCreated: firestore.Timestamp.fromDate(new Date()),
-                        latestMessageTime: firestore.Timestamp.fromDate(new Date()),
+                        timeCreated: firestore.Timestamp.now(),
+                        latestMessageTime: firestore.Timestamp.now(),
                         latestMessage: "",
                         userIDs: [_user.uid, userCoach],
                         unreadCount: 0,
@@ -85,8 +85,8 @@ export const AuthProvider = ({ children }) => {
                                 displayName: _user.displayName,
                                 photoURL: _user.photoURL,
                                 type: 'client',
-                                lastImageSent: firestore.Timestamp.fromDate(new Date()),
-                                streakUpdated: firestore.Timestamp.fromDate(new Date()),
+                                lastImageSent: firestore.Timestamp.now(),
+                                streakUpdated: firestore.Timestamp.now(),
                                 totalImageCount: 0,
                                 streak: 0,
                                 dateJoined: _user.metadata.creationTime,
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
                                     latestCourseCompleted: 0
                                 },
                                 lastLoggedIn: _user.metadata.lastSignInTime,
-                                lastWeighIn: firestore.Timestamp.fromDate(new Date()),
+                                lastWeighIn: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
                                 usesImperial: true,
                                 photoURLLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
                                 emailLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
@@ -386,7 +386,7 @@ export const AuthProvider = ({ children }) => {
                             .doc(auth().currentUser.uid)
                             .set({
                                 deleted: true,
-                                dateDeleted: firestore.Timestamp.fromDate(new Date())
+                                dateDeleted: firestore.Timestamp.now()
                             }, { merge: true })
                         await auth().currentUser.delete().then(() => {
                             Alert.alert(

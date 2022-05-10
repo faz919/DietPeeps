@@ -52,7 +52,7 @@ const UserProfile = ({ navigation }) => {
     if (newInfo.displayName || newInfo.email) {
       if (newInfo.displayName?.length >= 4) {
         if(now - userInfo.displayNameLastUpdated?.toDate() >= thirtyDays || userInfo.type === 'coach' || userInfo.type === 'admin'){
-          updateInfo({ displayName: newInfo.displayName, displayNameLastUpdated: firestore.Timestamp.fromDate(new Date()) })
+          updateInfo({ displayName: newInfo.displayName, displayNameLastUpdated: firestore.Timestamp.now() })
           setNewInfo(val => ({ ...val, displayName: '' }))
           Alert.alert('Display name updated!',
           'Your display name was successfully updated.')
@@ -64,7 +64,7 @@ const UserProfile = ({ navigation }) => {
       if (newInfo.email?.includes("@") && newInfo.email?.includes(".")) {
         if(now - userInfo.emailLastUpdated?.toDate() >= thirtyDays || userInfo.type === 'coach' || userInfo.type === 'admin'){
           changeEmail(newInfo.email)
-          updateInfo({ emailLastUpdated: firestore.Timestamp.fromDate(new Date()) })
+          updateInfo({ emailLastUpdated: firestore.Timestamp.now() })
           setNewInfo(val => ({ ...val, email: '' }))
           Alert.alert('Email updated!',
           'Your email was successfully updated.')
@@ -113,7 +113,7 @@ const UserProfile = ({ navigation }) => {
   const uploadImage = async (image) => {
     const imageURL = await imageUploader(image)
 
-    updateInfo({ photoURL: imageURL, photoURLLastUpdated: firestore.Timestamp.fromDate(new Date()) })
+    updateInfo({ photoURL: imageURL, photoURLLastUpdated: firestore.Timestamp.now() })
 
     Alert.alert(
       'Profile photo updated!',
@@ -210,7 +210,7 @@ const UserProfile = ({ navigation }) => {
   const checkPasswordReset = () => {
     let now = new Date()
     if(now - userInfo.passwordLastUpdated?.toDate() >= thirtyDays || userInfo.type === 'coach' || userInfo.type === 'admin'){
-      updateInfo({ passwordLastUpdated: firestore.Timestamp.fromDate(new Date()) })
+      updateInfo({ passwordLastUpdated: firestore.Timestamp.now() })
       forgotPassword(user.email)
       logout()
       Alert.alert('Password reset email sent!',
@@ -317,18 +317,18 @@ const UserProfile = ({ navigation }) => {
                 />
                 <Text style={{ marginLeft: 5, color: '#202060' }}>Email formatting is valid</Text>
               </View> : null}
-            <TouchableOpacity style={styles.panelButton} onPress={() => runChecks()}>
+            <TouchableOpacity disabled={!newInfo.displayName && !newInfo.email} style={[styles.panelButton, { opacity: !newInfo.displayName && !newInfo.email ? 0.5 : 1, width: 'auto' }]} onPress={runChecks}>
               <Text style={styles.panelButtonTitle}>Update</Text>
             </TouchableOpacity>
             {user.emailVerified ? null : 
-            <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', marginTop: windowHeight / 80, marginBottom: windowHeight / 360 }} onPress={() => verifyEmail()}>
+            <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center', marginTop: windowHeight / 80, marginBottom: windowHeight / 360 }} onPress={verifyEmail}>
               <Text style={{fontSize: 18, fontWeight: '500', color: '#4D43BD', lineHeight: 20 }}>{'Verify Email'}</Text>
             </TouchableOpacity>
             }
-            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginTop: windowHeight / 60, marginBottom: windowHeight / 120}} onPress={() => checkPasswordReset()}>
+            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginTop: windowHeight / 60, marginBottom: windowHeight / 120}} onPress={checkPasswordReset}>
               <Text style={{fontSize: 18, fontWeight: '500', color: '#4D43BD', lineHeight: 20 }}>Reset Password</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginTop: windowHeight / 90, marginBottom: windowHeight / 120}} onPress={() => deleteAccountForm()}>
+            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', marginTop: windowHeight / 90, marginBottom: windowHeight / 120}} onPress={deleteAccountForm}>
               <Text style={{fontSize: 18, fontWeight: '500', color: '#DA302C', lineHeight: 20 }}>Delete Account</Text>
             </TouchableOpacity>
           </View>
@@ -348,7 +348,7 @@ const UserProfile = ({ navigation }) => {
         animationOutTiming={400}
       >
         <View style={styles.panel}>
-          <View style={{ alignItems: 'center' }}>
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={styles.panelTitle}>Choose Profile Photo</Text>
             <Text style={styles.panelSubtitle}></Text>
           </View>
@@ -409,7 +409,8 @@ const styles = StyleSheet.create({
     marginTop: 30
   },
   panelButton: {
-    height: windowHeight / 15,
+    height: windowHeight / 17,
+    width: '100%',
     justifyContent: 'center',
     borderRadius: 10,
     backgroundColor: '#4C44D4',
@@ -445,7 +446,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: -20,
     bottom: 0,
-    height: 320
+    height: windowHeight * (320/844),
+    alignItems: 'center'
   },
   panelTitle: {
     fontSize: 27,
