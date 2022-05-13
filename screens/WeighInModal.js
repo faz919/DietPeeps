@@ -19,6 +19,7 @@ const WeighInModal = ({ navigation }) => {
         lbs: globalVars.userData.userBioData.weight.lbs
     })
     const [imperial, useImperial] = useState(globalVars.userData.usesImperial || true)
+    const [weighedIn, setWeighedIn] = useState(false)
 
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
@@ -80,6 +81,7 @@ const WeighInModal = ({ navigation }) => {
             .catch((e) => {
                 console.error("error while updating chat room info: ", e)
             })
+        setWeighedIn(true)
         exitFunctions()
     }
 
@@ -98,7 +100,7 @@ const WeighInModal = ({ navigation }) => {
             animationOutTiming={400}
             onModalHide={() => {
                 setLoading(false)
-                setGlobalVars(val => ({ ...val, hasWeighedIn: true }))
+                setGlobalVars(val => ({ ...val, hasWeighedIn: weighedIn }))
                 navigation.goBack()
             }}
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center', }}

@@ -3,17 +3,12 @@ import { NavigationContainer, useNavigationContainerRef, validatePathConfig } fr
 import auth from '@react-native-firebase/auth'
 import { AuthContext } from './AuthProvider'
 import analytics from '@react-native-firebase/analytics'
-import { Mixpanel } from 'mixpanel-react-native'
-import { MIXPANEL_TOKEN } from '../constants/constants'
 
 import AuthStack from './AuthStack'
 import AppStack from './AppStack'
 
-const mixpanel = new Mixpanel(MIXPANEL_TOKEN)
-mixpanel.init()
-
 const Routes = () => {
-  const { user, setUser } = useContext(AuthContext)
+  const { user, setUser, mixpanel } = useContext(AuthContext)
   const [initializing, setInitializing] = useState(true)
 
   const navigationRef = useNavigationContainerRef()

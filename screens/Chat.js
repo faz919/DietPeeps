@@ -43,7 +43,7 @@ const Chat = ({ navigation, route }) => {
         return unsubscribe
     }, [navigation])
 
-    const { user, updateInfo, globalVars, setGlobalVars, requestPermission } = useContext(AuthContext)
+    const { user, updateInfo, globalVars, setGlobalVars, requestPermission, mixpanel } = useContext(AuthContext)
 
     const [online, setOnline] = useState(true)
     const [messageInput, setMessageInput] = useState('')
@@ -223,6 +223,9 @@ const Chat = ({ navigation, route }) => {
     useEffect(() => {
         if (user) {
             requestPermission()
+            mixpanel.identify(user.uid)
+            mixpanel.getPeople().set('Display Name', user.displayName)
+            mixpanel.getPeople().set('Email', user.email)
             firestore()
                 .collection('user-info')
                 .doc(user.uid)
@@ -230,19 +233,34 @@ const Chat = ({ navigation, route }) => {
                     if (userData.exists) {
                         setGlobalVars(val => ({ ...val, userData: userData.data() }))
                         const usr = userData.data()
+                        // check if user has completed onboarding
+                        if (usr.userBioData == null && globalVars.userBioData == null) {
+                            // console.log('what is this bug')
+                            // setWizardRedirected(true)
+                            return navigation.replace('Onboarding Wizard')
+                        } 
+                        if (usr.userBioData != null) {
+                            const subscribedToMealTimes = await AsyncStorage.getItem('subscribed_user_meal_times')
+                            // subscribe user to messaging topic
+                            for(let mealTime of usr.userBioData.mealTimes && subscribedToMealTimes == null) {
+                                const globalHour = new Date(mealTime).getUTCHours()
+                                messaging().subscribeToTopic(`MealReminderAt${globalHour}`).then(() => {
+                                    console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
+                                }).catch((e) => {
+                                    console.error('error while subscribing user to meal reminder: ', e)
+                                })
+                            }
+                            messaging().subscribeToTopic('subscribed')
+                            AsyncStorage.setItem('subscribed_user_meal_times', 'true')
+                        }
                         const deviceInfo = {
                             deviceOS: Platform.OS,
                             deviceModel: DeviceInfo.getModel(),
                             deviceID: DeviceInfo.getUniqueId()
                         }
                         const appInfo = {
-                            versionName: '1.030',
-                            versionCode: 13
-                        }
-                        // check if user has completed onboarding
-                        if (usr.userBioData == null && globalVars.userBioData == null && !wizardRedirected) {
-                            navigation.replace('Onboarding Wizard')
-                            setWizardRedirected(true)
+                            versionName: '1.031',
+                            versionCode: 14
                         }
                         // check if user has null display name, photo url, or email
                         usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })
@@ -301,27 +319,37 @@ const Chat = ({ navigation, route }) => {
                                 const daysReminded = JSON.parse(await AsyncStorage.getItem('days_reminded'))
                                 const extraTrialDays = JSON.parse(await AsyncStorage.getItem('extra_days'))
                                 if (extraTrialDays != null && extraTrialDays instanceof Number) {
-                                    daysSinceJoin >= extraTrialDays + 3 && setTrialPeriodFinished(true)
+                                    daysSinceJoin >= extraTrialDays + 3 && !usr.manuallyExtendedTrialPeriod && setTrialPeriodFinished(true)
                                 } else {
                                     setShowExtraDaysButton(true)
                                 }
-                                daysSinceJoin >= 14 && !extraTrialDays && setTrialPeriodFinished(true)
+                                console.log(daysSinceJoin)
+                                daysSinceJoin >= 14 && !extraTrialDays && !usr.manuallyExtendedTrialPeriod && setTrialPeriodFinished(true)
                                 if (!redirected && usr.userBioData != null) {
                                     if (daysReminded == null || !daysReminded?.includes(daysSinceJoin)) {
-                                        daysSinceJoin === 14 ? navigation.navigate('Subscription') :
+                                        setRedirected(true)
+                                        daysSinceJoin === 14 ? navigation.navigate('Subscription', { trialReminder: daysSinceJoin }) :
                                             daysSinceJoin === 12 ? navigation.navigate('Subscription', { trialReminder: daysSinceJoin }) :
                                                 daysSinceJoin === 7 && navigation.navigate('Subscription', { trialReminder: daysSinceJoin })
                                     }
-                                    setRedirected(true)
                                 }
                             }
                         } catch (e) {
-                            console.log(e)
+                            console.error(e)
                         }
                     }
                 })
         }
     }, [user])
+
+    useEffect(() => {
+        if (trialPeriodFinished != null && globalVars.userData != null && globalVars.userData.trialPeriod !== !trialPeriodFinished) {
+            updateInfo({
+                trialPeriod: !trialPeriodFinished
+            })
+        }
+        mixpanel.getPeople().set('Trial Period Finished', trialPeriodFinished)
+    }, [trialPeriodFinished, globalVars.userData])
 
     const checkUserMembership = async (usr) => {
         try {
@@ -675,7 +703,7 @@ const Chat = ({ navigation, route }) => {
                 })
             })
         return () => unsub()
-    }, [])
+    }, [globalVars.userData?.coachID])
 
     const [isFirstLogin, setIsFirstLogin] = useState(false)
 
@@ -700,121 +728,19 @@ const Chat = ({ navigation, route }) => {
         }
     }, [globalVars.userData])
 
-    useEffect(() => {
-        if (globalVars.newUser && globalVars.coachID && globalVars.chatID) {
-            firestore()
-                .collection('chat-rooms')
-                .doc(globalVars.chatID)
-                .collection('chat-messages')
-                .add({
-                    img: null,
-                    msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
-                    userID: globalVars.coachID,
-                    timeSent: firestore.Timestamp.now()
-                })
-            setTimeout(() => {
-                firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .collection('chat-messages')
-                    .add({
-                        img: null,
-                        msg: `My name is ${globalVars.coachData?.displayName}, and I'll be your personal coach. My goal is to help you succeed by making small steps every single day.`,
-                        userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.now()
-                    })
-            }, 3000)
-            setTimeout(() => {
-                firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .collection('chat-messages')
-                    .add({
-                        img: null,
-                        msg: `To do this, you'll need to send me a photo of every meal that you eat.`,
-                        userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.now()
-                    })
-            }, 8000)
-            setTimeout(() => {
-                firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .collection('chat-messages')
-                    .add({
-                        img: null,
-                        msg: `My job as coach is to look at these photos and score them based on how healthy they are.`,
-                        userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.now()
-                    })
-            }, 13000)
-            setTimeout(() => {
-                firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .collection('chat-messages')
-                    .add({
-                        img: null,
-                        msg: `First, a couple of questions for you: `,
-                        userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.now()
-                    })
-            }, 17000)
-            setTimeout(() => {
-                firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .collection('chat-messages')
-                    .add({
-                        img: null,
-                        msg: `1) Do you have a nickname that you prefer?`,
-                        userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.now()
-                    })
-            }, 20000)
-            setTimeout(() => {
-                AsyncStorage.setItem('@tutorial_finished', 'true')
-                firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .collection('chat-messages')
-                    .add({
-                        img: null,
-                        msg: `2) Any questions for me so far?`,
-                        userID: globalVars.coachID,
-                        timeSent: firestore.Timestamp.now()
-                    })
-            }, 23000)
-        }
-    }, [globalVars.newUser, globalVars.coachID, globalVars.chatID])
-
     // useEffect(() => {
-    //     const checkTutorial = async () => {
-    //         let started = await AsyncStorage.getItem('@tutorial_started')
-    //         let finished = await AsyncStorage.getItem('@tutorial_finished')
-    //         if (JSON.parse(started) && !JSON.parse(finished) && globalVars.chatID != null && globalVars.coachID != null) {
-    //             await firestore()
-    //                 .collection('chat-rooms')
-    //                 .doc(globalVars.chatID)
-    //                 .collection('chat-messages')
-    //                 .get()
-    //                 .then((querySnapshot) => {
-    //                     const batch = firestore().batch()
-    //                     querySnapshot.forEach((doc) => {
-    //                         batch.delete(doc.ref)
-    //                     })
-    //                     batch.commit()
-    //                 })
-    //             firestore()
-    //                 .collection('chat-rooms')
-    //                 .doc(globalVars.chatID)
-    //                 .collection('chat-messages')
-    //                 .add({
-    //                     img: null,
-    //                     msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
-    //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.now()
-    //                 })
+    //     if (globalVars.newUser && globalVars.coachID && globalVars.chatID) {
+    //         firestore()
+    //             .collection('chat-rooms')
+    //             .doc(globalVars.chatID)
+    //             .collection('chat-messages')
+    //             .add({
+    //                 img: null,
+    //                 msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
+    //                 userID: globalVars.coachID,
+    //                 timeSent: firestore.Timestamp.now()
+    //             })
+    //         setTimeout(() => {
     //             firestore()
     //                 .collection('chat-rooms')
     //                 .doc(globalVars.chatID)
@@ -825,6 +751,8 @@ const Chat = ({ navigation, route }) => {
     //                     userID: globalVars.coachID,
     //                     timeSent: firestore.Timestamp.now()
     //                 })
+    //         }, 3000)
+    //         setTimeout(() => {
     //             firestore()
     //                 .collection('chat-rooms')
     //                 .doc(globalVars.chatID)
@@ -835,6 +763,8 @@ const Chat = ({ navigation, route }) => {
     //                     userID: globalVars.coachID,
     //                     timeSent: firestore.Timestamp.now()
     //                 })
+    //         }, 8000)
+    //         setTimeout(() => {
     //             firestore()
     //                 .collection('chat-rooms')
     //                 .doc(globalVars.chatID)
@@ -845,6 +775,8 @@ const Chat = ({ navigation, route }) => {
     //                     userID: globalVars.coachID,
     //                     timeSent: firestore.Timestamp.now()
     //                 })
+    //         }, 13000)
+    //         setTimeout(() => {
     //             firestore()
     //                 .collection('chat-rooms')
     //                 .doc(globalVars.chatID)
@@ -855,6 +787,8 @@ const Chat = ({ navigation, route }) => {
     //                     userID: globalVars.coachID,
     //                     timeSent: firestore.Timestamp.now()
     //                 })
+    //         }, 17000)
+    //         setTimeout(() => {
     //             firestore()
     //                 .collection('chat-rooms')
     //                 .doc(globalVars.chatID)
@@ -865,6 +799,9 @@ const Chat = ({ navigation, route }) => {
     //                     userID: globalVars.coachID,
     //                     timeSent: firestore.Timestamp.now()
     //                 })
+    //         }, 20000)
+    //         setTimeout(() => {
+    //             AsyncStorage.setItem('@tutorial_finished', 'true')
     //             firestore()
     //                 .collection('chat-rooms')
     //                 .doc(globalVars.chatID)
@@ -875,12 +812,9 @@ const Chat = ({ navigation, route }) => {
     //                     userID: globalVars.coachID,
     //                     timeSent: firestore.Timestamp.now()
     //                 })
-    //             AsyncStorage.setItem('@tutorial_finished', 'true')
-    //         }
+    //         }, 23000)
     //     }
-
-    //     return () => checkTutorial()
-    // }, [globalVars.chatID])
+    // }, [globalVars.newUser, globalVars.coachID, globalVars.chatID])
 
     useEffect(() => {
         AsyncStorage.getItem('@notifs_enabled').then((value) => {
@@ -915,6 +849,12 @@ const Chat = ({ navigation, route }) => {
             screen_name: 'CameraModalChatButton',
             screen_class: 'CameraModalChatButton'
         })
+        mixpanel.track('Screen View', { 'Screen': 'CameraModalChatButton' })
+    }
+
+    const handleStatSummaryPress = () => {
+        mixpanel.track('Button Press', { 'Button': 'GalleryImage' })
+        navigation.navigate('Main Menu', { screen: 'Your Stats'})
     }
 
     return (
@@ -953,6 +893,7 @@ const Chat = ({ navigation, route }) => {
                             ListFooterComponent={(
                                 <View style={{ margin: 50 }} />
                             )}
+                            contentContainerStyle={{ minHeight: '100%' }}
                             showsVerticalScrollIndicator={false}
                             data={messages}
                             renderItem={({ item }) => (
@@ -968,7 +909,7 @@ const Chat = ({ navigation, route }) => {
                                         }
                                         {item.msgType === 'statSummary' ?
                                             <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>Good morning! This is your weekly check-in.{`\n\n`}{SevenDayAvg() === '-' ? `You did not send in any meal photos this week.` : `Your average meal score for the past week is ${SevenDayAvg()}.`}
-                                            {`\n`}<Text onPress={() => navigation.navigate('Main Menu', { screen: 'Your Stats'})} style={{ fontSize: 14, color: '#4D43BD', textDecorationLine: 'underline' }}>Click here</Text> to view more stats.
+                                            {`\n`}<Text onPress={handleStatSummaryPress} style={{ fontSize: 14, color: '#4D43BD', textDecorationLine: 'underline' }}>Click here</Text> to view more stats.
                                             {`\n\n`}What are some of your victories you want to celebrate for the past week?</Text> :
                                             <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>}
                                     </View>
@@ -1025,7 +966,7 @@ const Chat = ({ navigation, route }) => {
                                 }
                                 <View style={styles.msgInputWrapper}>
                                     <TextInput
-                                        placeholder='Write your message here...'
+                                        placeholder={!sendingMessage ? 'Write your message here...' : ''}
                                         placeholderTextColor={'#E6E7FA'}
                                         style={styles.msgInputText}
                                         value={messageInput}
@@ -1041,6 +982,7 @@ const Chat = ({ navigation, route }) => {
                                                 newMessage(messageInput)
                                             }
                                         }}
+                                        editable={!sendingMessage}
                                     />
                                     <AnimatePresence>
                                         {sendingMessage ?

@@ -10,8 +10,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import crashlytics from '@react-native-firebase/crashlytics'
 import analytics from '@react-native-firebase/analytics'
 import requestUserPermission from '../utils/notificationServices'
+import { Mixpanel } from 'mixpanel-react-native'
+import { MIXPANEL_TOKEN } from '../constants/constants'
 
 export const AuthContext = createContext()
+
+const mixpanel = new Mixpanel(MIXPANEL_TOKEN)
+mixpanel.init()
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
@@ -23,14 +28,6 @@ export const AuthProvider = ({ children }) => {
     const [infoUpdated, setInfoUpdated] = useState(false)
     const [emailUpdated, setEmailUpdated] = useState(false)
     const [globalVars, setGlobalVars] = useState({})
-    
-    // const recaptcha = useRef()
-    // const openCaptcha = useCallback(() => {
-    //     recaptcha.current.open()
-    // }, [])
-    // const closeCaptcha = useCallback(() => {
-    //     recaptcha.current.close()
-    // }, [])
 
     const logLoginEvent = async () => {
         const _user = auth().currentUser
@@ -98,6 +95,7 @@ export const AuthProvider = ({ children }) => {
                                 lastLoggedIn: _user.metadata.lastSignInTime,
                                 lastWeighIn: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
                                 usesImperial: true,
+                                trialPeriod: true,
                                 photoURLLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
                                 emailLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
                                 displayNameLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
@@ -133,10 +131,12 @@ export const AuthProvider = ({ children }) => {
 
         if(globalVars.userBioData == null) {
             if (userBioData != null) {
-                for(let mealTime of JSON.parse(userBioData.mealTimes)) {
+                for(let mealTime of JSON.parse(userBioData).mealTimes) {
                     const globalHour = new Date(mealTime).getUTCHours()
                     messaging().subscribeToTopic(`MealReminderAt${globalHour}`).then(() => {
                         console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
+                    }).catch((e) => {
+                        console.error('error while subscribing user to meal reminder: ', e)
                     })
                 }
                 messaging().subscribeToTopic('subscribed')
@@ -192,6 +192,7 @@ export const AuthProvider = ({ children }) => {
             value={{
                 user,
                 setUser,
+                mixpanel,
                 login: async (email, password) => {
                     try {
                         await auth().signInWithEmailAndPassword(email, password).then(() => {
@@ -200,10 +201,10 @@ export const AuthProvider = ({ children }) => {
                             messaging()
                                 .getToken()
                                 .then(token => {
-                                    return setUserMessagingInfo(token);
+                                    return setUserMessagingInfo(token)
                                 })
                                 .catch((e) => {
-                                    console.log('error while retrieving messaging token: ', e)
+                                    console.error('error while retrieving messaging token (login): ', e)
                                     crashlytics().recordError(e)
                                 })
                         })
@@ -228,7 +229,7 @@ export const AuthProvider = ({ children }) => {
                                     setUserMessagingInfo(token)
                                 })
                                 .catch((e) => {
-                                    console.log('error while retrieving messaging token: ', e)
+                                    console.log('error while retrieving messaging token (google login): ', e)
                                     crashlytics().recordError(e)
                                 })
                             if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
@@ -299,7 +300,7 @@ export const AuthProvider = ({ children }) => {
                                     setUserMessagingInfo(token)
                                 })
                                 .catch((e) => {
-                                    console.log('error while retrieving messaging token: ', e)
+                                    console.log('error while retrieving messaging token (apple login): ', e)
                                     crashlytics().recordError(e)
                                 })
                                 if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
@@ -344,7 +345,7 @@ export const AuthProvider = ({ children }) => {
                                         setUserMessagingInfo(token)
                                     })
                                     .catch((e) => {
-                                        console.log('error while retrieving messaging token: ', e)
+                                        console.log('error while retrieving messaging token (register): ', e)
                                         crashlytics().recordError(e)
                                     })
                                 makeNewUserChat()
@@ -399,6 +400,24 @@ export const AuthProvider = ({ children }) => {
                         setAuthErrorText(e)
                         console.log(e)
                         crashlytics().recordError(e)
+                        await firestore()
+                            .collection('deleted-users')
+                            .doc('id-list')
+                            .update({
+                                // remove deleted user's uid
+                                uids: firestore.FieldValue.arrayRemove(auth().currentUser.uid)
+                            })
+                            .catch((e) => {
+                                console.log("Error while deleting user: ", e)
+                                crashlytics().recordError(e)
+                            })
+                        await firestore()
+                            .collection('user-info')
+                            .doc(auth().currentUser.uid)
+                            .set({
+                                deleted: false,
+                                dateDeleted: null
+                            }, { merge: true })
                     }
                 },
                 logout: async () => {
@@ -446,6 +465,7 @@ export const AuthProvider = ({ children }) => {
                                 console.log('error while logging profile update event: ', e)
                                 crashlytics().recordError(e)
                             })
+                            mixpanel.track('Profile Update', {...rest})
                             setInfoUpdated(true)
                         })
                     } catch (e) {
@@ -534,6 +554,9 @@ export const AuthProvider = ({ children }) => {
                                 })
                         }
                     }
+                },
+                disableNotifications: async () => {
+                    
                 },
                 infoUpdated, setInfoUpdated,
                 emailUpdated, setEmailUpdated,

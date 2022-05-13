@@ -15,12 +15,16 @@ import { Easing } from 'react-native-reanimated'
 
 const Stats = ({ navigation }) => {
 
-    const { updateInfo, user, globalVars, setGlobalVars } = useContext(AuthContext)
+    const { user, globalVars } = useContext(AuthContext)
 
     const [loading, setLoading] = useState(false)
     const [calendarInfoIcon, setCalendarInfoIcon] = useState()
     const [calendarInfoModal, setShowCalendarInfo] = useState(false)
-    const [selectedGraph, setSelectedGraph] = useState('dailyScores')
+    // const [selectedGraph, setSelectedGraph] = useState('dailyScores')
+
+    const [lastXDays, setLastXDays] = useState(7)
+    const [graphPage, setGraphPage] = useState(1)
+    const [lastXDaysModal, showLastXDaysModal] = useState(false)
 
     const insets = useSafeAreaInsets()
 
@@ -77,6 +81,10 @@ const Stats = ({ navigation }) => {
     //     return Math.abs(d1 - d2) <= 60 * 60 * 24 * 1000 * 30
     // }
 
+    function inDateRange(date, min, max) {
+        return date >= min && date <= max
+    }
+
     let streakCalendarDays = {}
     let graphDays = []
 
@@ -129,12 +137,13 @@ const Stats = ({ navigation }) => {
     }
 
     const DailyScoresGraph = () => {
-        if (graphDays.length === 0 || globalVars.images?.length === 0 || globalVars.images == null || graphDays == null || globalVars.images?.filter(val => val.graded)?.length === 0) {
+        const data = graphDays?.filter(val => inDateRange(val.toDate(), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * graphPage), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * (graphPage - 1)))).reverse()
+        if (graphDays.length === 0 || data.length === 0 || globalVars.images?.length === 0 || globalVars.images == null || graphDays == null || globalVars.images?.filter(val => val.graded)?.length === 0) {
             return (
-                <View style={{ height: windowHeight * 0.35, width: windowWidth, paddingHorizontal: 30, justifyContent: 'center', alignItems: 'center' }}>
+                <View style={{ height: windowHeight * 0.3, width: windowWidth, paddingHorizontal: 30, justifyContent: 'center', alignItems: 'center' }}>
                     <View style={{ opacity: 0.3 }} pointerEvents='none'>
                         <Chart
-                            style={{ height: windowHeight * 0.35, width: windowWidth }}
+                            style={{ height: windowHeight * 0.3, width: windowWidth }}
                             data={[{ x: -2, y: 15 },
                             { x: -1, y: 10 },
                             { x: 0, y: 12 },
@@ -148,7 +157,7 @@ const Stats = ({ navigation }) => {
                             { x: 8, y: 12 },
                             { x: 9, y: 13.5 },
                             { x: 10, y: 18 },]}
-                            padding={{ left: 25, bottom: 20, right: 15, top: 20 }}
+                            padding={{ left: 30, bottom: 30, right: 30, top: 30 }}
                             xDomain={{ min: 0, max: 10 }}
                             yDomain={{ min: 0, max: 20 }}
                         >
@@ -178,15 +187,15 @@ const Stats = ({ navigation }) => {
                         {'No graded photo data'}
                     </Text>
                     <Text style={{ position: 'absolute', fontSize: 18, alignSelf: 'center', top: windowHeight * 0.14 + 30, color: '#202060', textAlign: 'center' }}>
-                        {'Send in your first photo today!'}
+                        {graphPage === 1 && 'Send in your first photo today!'}
                     </Text>
                 </View>
             )
         }
         return (
             <Chart
-                style={{ height: windowHeight * 0.35, width: windowWidth, alignSelf: 'center' }}
-                data={graphDays.reverse().map((day, index) => {
+                style={{ height: windowHeight * 0.3, width: windowWidth, alignSelf: 'center' }}
+                data={data.map((day, index) => {
                     const mealGrades = globalVars.images?.filter(val => sameDay(val.timeSent?.toDate(), day?.toDate()) && val.graded)
                     let totals = { red: 0, yellow: 0, green: 0 }
                     mealGrades.forEach((meal, index) => {
@@ -196,13 +205,16 @@ const Stats = ({ navigation }) => {
                     })
                     return { y: Math.round((((totals.green - totals.red) / (totals.green + totals.yellow + totals.red)) + 1) * 50), x: index + 1 }
                 })}
-                padding={{ left: 30, bottom: 30, right: 30, top: 40 }}
-                xDomain={{ min: 1, max: graphDays.length <= 1 ? 2 : graphDays.length }}
+                padding={{ left: 30, bottom: 30, right: 30, top: 30 }}
+                // xDomain={{ min: 1, max: graphDays.length <= 1 ? 2 : graphDays.length }}
+                xDomain={{ min: 1, max: data.length < lastXDays ? data.length < 2 ? 2 : data.length : lastXDays }}
                 yDomain={{ min: 0, max: 100 }}
-                viewport={{ initialOrigin: { x: graphDays.length >= 6 ? graphDays.length - 5 : 0, y: 0 }, size: { width: graphDays.length >= 6 ? 5 : graphDays.length <= 1 ? 1 : graphDays.length - 1 } }}
+                // viewport={{ initialOrigin: { x: graphDays.length >= 6 ? graphDays.length - 5 : 0, y: 0 }, size: { width: graphDays.length >= 6 ? 5 : graphDays.length <= 1 ? 1 : graphDays.length - 1 } }}
+                disableGestures
             >
                 <VerticalAxis tickCount={11} />
-                <HorizontalAxis tickCount={graphDays.length <= 1 ? 2 : graphDays.length} />
+                <HorizontalAxis tickCount={lastXDays === 30 ? null : data.length < lastXDays ? data.length < 2 ? 2 : data.length : lastXDays} />
+                {/* <HorizontalAxis tickCount={graphDays.length <= 1 ? 2 : graphDays.length} /> */}
                 <Area smoothing='cubic-spline'
                     tension={0.3}
                     theme={{
@@ -226,12 +238,13 @@ const Stats = ({ navigation }) => {
     }
 
     const WeightHistoryGraph = () => {
-        if (globalVars.userData.weightHistory == null || globalVars.userData.weightHistory.length === 0) {
+        const data = globalVars.userData.weightHistory?.filter(data => inDateRange(data.time.toDate(), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * graphPage), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * (graphPage - 1))))
+        if (globalVars.userData.weightHistory == null || globalVars.userData.weightHistory.length === 0 || data.length === 0) {
             return (
-                <View style={{ height: windowHeight * 0.35, width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
+                <View style={{ height: windowHeight * 0.3, width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
                     <View style={{ opacity: 0.3 }} pointerEvents='none'>
                         <Chart
-                            style={{ height: windowHeight * 0.35, width: windowWidth }}
+                            style={{ height: windowHeight * 0.3, width: windowWidth }}
                             data={[{ x: -2, y: 15 },
                             { x: -1, y: 10 },
                             { x: 0, y: 12 },
@@ -245,7 +258,7 @@ const Stats = ({ navigation }) => {
                             { x: 8, y: 12 },
                             { x: 9, y: 13.5 },
                             { x: 10, y: 18 },]}
-                            padding={{ left: 25, bottom: 20, right: 15, top: 20 }}
+                            padding={{ left: 30, bottom: 30, right: 30, top: 30 }}
                             xDomain={{ min: 0, max: 10 }}
                             yDomain={{ min: 0, max: 20 }}
                         >
@@ -275,7 +288,7 @@ const Stats = ({ navigation }) => {
                         {'No weight history'}
                     </Text>
                     <Text style={{ position: 'absolute', fontSize: 18, alignSelf: 'center', top: windowHeight * 0.14 + 30, color: '#202060', textAlign: 'center' }}>
-                        {'Tap the scale icon in the chat box to weigh yourself today!'}
+                        {graphPage === 1 && 'Tap the scale icon in the chat box to weigh yourself today!'}
                     </Text>
                 </View>
             )
@@ -286,17 +299,20 @@ const Stats = ({ navigation }) => {
         const rangeMax = globalVars.userData.usesImperial ? 20 * Math.ceil(chartMax / 20) : 10 * Math.ceil(chartMax / 10)
         return (
             <Chart
-                style={{ height: windowHeight * 0.35, width: windowWidth, alignSelf: 'center' }}
-                data={globalVars.userData.weightHistory.map((weighIn, index) => {
+                style={{ height: windowHeight * 0.3, width: windowWidth, alignSelf: 'center' }}
+                data={data.map((weighIn, index) => {
                     return { y: globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs, x: index + 1 }
                 })}
-                padding={{ left: 30, bottom: 30, right: 30, top: 40 }}
-                xDomain={{ min: 1, max: globalVars.userData.weightHistory.length <= 1 ? 2 : globalVars.userData.weightHistory.length }}
+                padding={{ left: 30, bottom: 30, right: 30, top: 30 }}
+                xDomain={{ min: 1, max: data.length < lastXDays ? data.length < 2 ? 2 : data.length : lastXDays }}
+                // xDomain={{ min: 1, max: globalVars.userData.weightHistory.length <= 1 ? 2 : globalVars.userData.weightHistory.length }}
                 yDomain={{ min: rangeMin, max: rangeMax }}
-                viewport={{ initialOrigin: { x: globalVars.userData.weightHistory.length >= 6 ? globalVars.userData.weightHistory.length - 5 : 0 }, size: { width: globalVars.userData.weightHistory.length >= 6 ? 5 : globalVars.userData.weightHistory.length <= 1 ? 1 : globalVars.userData.weightHistory.length - 1 } }}
+                // viewport={{ initialOrigin: { x: globalVars.userData.weightHistory.length >= 6 ? globalVars.userData.weightHistory.length - 5 : 0 }, size: { width: globalVars.userData.weightHistory.length >= 6 ? 5 : globalVars.userData.weightHistory.length <= 1 ? 1 : globalVars.userData.weightHistory.length - 1 } }}
+                disableGestures
             >
                 <VerticalAxis tickCount={Math.floor((rangeMax - rangeMin) / 5) + 1} />
-                <HorizontalAxis tickCount={globalVars.userData.weightHistory.length <= 1 ? 2 : globalVars.userData.weightHistory.length} />
+                <HorizontalAxis tickCount={lastXDays === 30 ? null : data.length < lastXDays ? data.length < 2 ? 2 : data.length : lastXDays} />
+                {/* <HorizontalAxis tickCount={globalVars.userData.weightHistory.length <= 1 ? 2 : globalVars.userData.weightHistory.length} /> */}
                 <Area smoothing='cubic-spline'
                     tension={0.3}
                     theme={{
@@ -319,9 +335,14 @@ const Stats = ({ navigation }) => {
         )
     }
 
+    const handleLastXModalSelection = (numDays) => {
+        setLastXDays(numDays)
+        showLastXDaysModal(false)
+    }
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#E6E7FA' }}>
-            <ScrollView showsVerticalScrollIndicator={false}  contentContainerStyle={{ top: 80, minHeight: calendarInfoIcon ? calendarInfoIcon + windowHeight * (450/844) + 80 : windowHeight }}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ top: 80 }}>
                 {loading ?
                     <View style={{ flex: 1, width: windowWidth, height: windowHeight, backgroundColor: '#E6E7FA' }}>
                         <ActivityIndicator style={{ alignSelf: 'center', top: 100 }} size={35} color="#202060" />
@@ -344,7 +365,7 @@ const Stats = ({ navigation }) => {
                                 <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Weight Avg</Text>
                             </View>
                         </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, marginTop: 20 }}>
+                        {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, marginTop: 20 }}>
                             <AnimatePresence exitBeforeEnter>
                                 {selectedGraph === 'weightHistory' ?
                                     <MotiView key='weightHistoryChevron' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -414,7 +435,7 @@ const Stats = ({ navigation }) => {
                             </AnimatePresence>
                         </View>
                         <AnimatePresence>
-                            <View style={{ flex: 1, flexDirection: 'row', width: windowWidth * 2, height: windowHeight * 0.35 }}>
+                            <View style={{ flex: 1, flexDirection: 'row', width: windowWidth * 2, height: windowHeight * 0.3 }}>
                                 {selectedGraph === 'dailyScores' ?
                                     <MotiView key='dailyScores' from={{ translateX: -windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: -windowWidth }} pointerEvents='box-none'>
                                         <DailyScoresGraph />
@@ -425,7 +446,75 @@ const Stats = ({ navigation }) => {
                                     </MotiView>
                                 }
                             </View>
-                        </AnimatePresence>
+                        </AnimatePresence> */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, marginTop: 20, zIndex: 1 }}>
+                            <TouchableOpacity onPress={() => setGraphPage(val => val + 1)}>
+                                <MaterialCommunityIcons
+                                    name="chevron-left"
+                                    size={28}
+                                    color="#202060"
+                                />
+                            </TouchableOpacity>
+                            {graphPage !== 1 ?
+                            <View style={{ height: 45, padding: 5, justifyContent: 'center', alignItems: 'center' }}>
+                                <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                                    {moment(new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * graphPage)).format('l')} - {moment(new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * (graphPage - 1))).format('l')}
+                                </Text>
+                            </View>
+                            : 
+                            <View>
+                                <AnimatePresence>
+                                    {lastXDaysModal &&
+                                        <MotiView key='yo' from={{ translateY: 0, borderTopLeftRadius: 10, borderTopRightRadius: 10 }} animate={{ translateY: 45, borderTopLeftRadius: 0, borderTopRightRadius: 0 }} exit={{ translateY: 0, borderTopLeftRadius: 10, borderTopRightRadius: 10 }} transition={{ type: 'timing', duration: 300 }} style={styles.lastXDaysModal}>
+                                            <TouchableOpacity onPress={() => lastXDays === 7 ? handleLastXModalSelection(30) : handleLastXModalSelection(7)} style={{ width: windowWidth * 0.6 }}>
+                                                <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                                                    Last {lastXDays === 7 ? '30' : '7'} Days
+                                                </Text>
+                                            </TouchableOpacity>
+                                        </MotiView>
+                                    }
+                                </AnimatePresence>
+                                <MotiView from={{ borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} animate={{ borderBottomLeftRadius: lastXDaysModal ? 0 : 10, borderBottomRightRadius: lastXDaysModal ? 0 : 10 }} transition={{ type: 'timing', duration: 100 }} style={{ width: windowWidth * 0.6, minHeight: 45, padding: 5, backgroundColor: '#fff', borderRadius: 10, justifyContent: 'center' }} >
+                                    <TouchableOpacity style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly' }} onPress={() => lastXDaysModal ? showLastXDaysModal(false) : showLastXDaysModal(true)}>
+                                        <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                                            Last {lastXDays} Days
+                                        </Text>
+                                        <View>
+                                            <Ionicons
+                                                name='caret-down'
+                                                size={15}
+                                                color='#202060'
+                                            />
+                                        </View>
+                                    </TouchableOpacity>
+                                </MotiView>
+                            </View>}
+                                {graphPage > 1 ?
+                                    <MotiView key='rightChevron'>
+                                        <TouchableOpacity onPress={() => graphPage > 1 && setGraphPage(val => val - 1)}>
+                                            <MaterialCommunityIcons
+                                                name="chevron-right"
+                                                size={28}
+                                                color="#202060"
+                                            />
+                                        </TouchableOpacity>
+                                    </MotiView> :
+                                    <MotiView key='rightChevronPlaceholder' style={{ opacity: 0 }}>
+                                        <MaterialCommunityIcons
+                                            name="chevron-right"
+                                            size={28}
+                                            color="#202060"
+                                        />
+                                    </MotiView>}
+                        </View>
+                        <Text style={{ marginTop: 20, fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center', zIndex: 0 }}>
+                            Meal Scores
+                        </Text>
+                        <DailyScoresGraph />
+                        <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                            Weight History
+                        </Text>
+                        <WeightHistoryGraph />
                         <Text onLayout={(event) => { const { y } = event.nativeEvent.layout; setCalendarInfoIcon(y) }} style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center' }}>
                             Meal Photo Calendar
                         </Text>
@@ -437,7 +526,7 @@ const Stats = ({ navigation }) => {
                             style={{
                                 backgroundColor: 'transparent',
                                 height: windowHeight * (450 / 844),
-                                
+
                             }}
                             markingType={'period'}
                             markedDates={streakCalendarDays}
@@ -475,7 +564,7 @@ const Stats = ({ navigation }) => {
                                         style={styles.explanationModal}
                                     >
                                         <TouchableOpacity activeOpacity={1} onPress={() => setShowCalendarInfo(false)}>
-                                            {/* <TouchableOpacity style={styles.cancelImage} onPress={() => setShowCalendarInfo(false)}>
+                                            {/* <TouchableOpacity style={styles.hideInfoModal} onPress={() => setShowCalendarInfo(false)}>
                                             <Ionicons
                                                 name='ios-close'
                                                 size={20}
@@ -511,10 +600,10 @@ const Stats = ({ navigation }) => {
             </ScrollView>
             <View style={[styles.HUDWrapper, { top: Platform.OS === 'ios' ? insets.top : 0 }]}>
                 <View style={styles.headerWrapper}>
-                    <TouchableOpacity style={{ left: 15 }} onPress={() => navigation.navigate('User Profile')}>
+                    <TouchableOpacity style={{ left: 15, flex: 1, flexDirection: 'row', alignItems: 'center' }} onPress={() => navigation.navigate('User Profile')}>
                         <ProfilePic size={50} source={{ uri: user.photoURL == null ? tempPfp() : user.photoURL }} />
+                        <Text style={styles.displayName}>{user.displayName}</Text>
                     </TouchableOpacity>
-                    <Text style={styles.displayName}>{user.displayName}</Text>
                     <TouchableOpacity onPress={() => { navigation.navigate('Settings') }} style={[styles.headerIconWrapperAlt, { top: 20, right: 15 }]}>
                         <Ionicons
                             name='ios-settings-outline'
@@ -564,7 +653,7 @@ const styles = StyleSheet.create({
         // shadowOpacity: 0.3,
     },
     displayName: {
-        left: 25,
+        left: 15,
         fontSize: 22,
         fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: '#202060',
@@ -624,7 +713,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         padding: 10
     },
-    cancelImage: {
+    hideInfoModal: {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(180,180,180,0.7)',
@@ -635,6 +724,18 @@ const styles = StyleSheet.create({
         height: 25,
         borderRadius: 12.5
     },
+    lastXDaysModal: {
+        position: 'absolute',
+        width: windowWidth * 0.6,
+        minHeight: 45, 
+        padding: 5,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        borderColor: '#202060',
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly'
+    }
 })
 
 export default Stats 

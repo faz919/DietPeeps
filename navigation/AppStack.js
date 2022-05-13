@@ -21,6 +21,7 @@ import OnboardingWizard from "../screens/OnboardingWizard.js"
 import CongratsPopup from "../screens/CongratsPopup.js"
 import SubscriptionScreen from "../screens/SubscriptionScreen.js"
 import WeighInModal from "../screens/WeighInModal.js"
+import NotificationSettings from "../screens/NotificationSettings.js"
 
 const AppStack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -117,6 +118,12 @@ const App = () => {
         gestureDirection: "horizontal"
       }} />
       <AppStack.Screen name="Settings" component={Settings} options={{
+        headerShown: false,
+        ...TransitionPresets.SlideFromRightIOS,
+        gestureEnabled: true,
+        gestureDirection: "horizontal"
+      }} />
+      <AppStack.Screen name="Notification Settings" component={NotificationSettings} options={{
         headerShown: false,
         ...TransitionPresets.SlideFromRightIOS,
         gestureEnabled: true,

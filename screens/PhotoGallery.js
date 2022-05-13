@@ -19,7 +19,7 @@ import { Easing } from 'react-native-reanimated'
 import ProfilePic from '../components/ProfilePic'
 
 const PhotoGallery = ({ navigation, route }) => {
-    const { user, updateInfo, globalVars, setGlobalVars } = useContext(AuthContext)
+    const { user, updateInfo, globalVars, setGlobalVars, mixpanel } = useContext(AuthContext)
 
     const { imageInfo } = route.params
 
@@ -86,9 +86,18 @@ const PhotoGallery = ({ navigation, route }) => {
 
     useEffect(() => {
         if (imageInfo != null) {
-            getImageDetail(imageInfo)
+            handleImagePress(imageInfo)
         }
     }, [imageInfo])
+
+    const handleImagePress = async (item) => {
+        await analytics().logScreenView({
+            screen_name: 'GalleryImage',
+            screen_class: 'GalleryImage'
+        })
+        mixpanel.track('Screen View', { 'Screen': 'GalleryImage' })
+        getImageDetail(item)
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -101,11 +110,12 @@ const PhotoGallery = ({ navigation, route }) => {
                     </SkeletonPlaceholder>) : (
                     <View>
                         <FlatList
+                            bounces={globalVars.images?.length !== 0}
                             ListEmptyComponent={(
                                 <View style={{ flex: 1, alignItems: 'center', height: windowHeight * 0.5, padding: 15 }}>
                                     <Image style={{ width: '70%', height: windowHeight * 0.22, resizeMode: 'contain', borderRadius: 20, marginBottom: 20, top: windowHeight * 0.39 }} source={require('../assets/onboarding-img1.png')} />
                                     <Text style={{ color: '#202060', textAlign: 'center', fontSize: 24 }}>You haven't sent in any meal photos yet...</Text>
-                                    <Text style={{ color: '#202060', textAlign: 'center', fontSize: 18, marginTop: 10 }}>Add your first image today!</Text>
+                                    <Text style={{ color: '#202060', textAlign: 'center', fontSize: 18, marginTop: 10 }}>Send your first image today!</Text>
                                 </View>
                             )}
                             ListFooterComponent={(
@@ -116,7 +126,7 @@ const PhotoGallery = ({ navigation, route }) => {
                             initialNumToRender={18}
                             renderItem={({ item, index }) => (
                                 <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: index * 20 }}>
-                                    <GalleryImage item={item} index={index} onPress={() => getImageDetail(item)} />
+                                    <GalleryImage item={item} index={index} onPress={() => handleImagePress(item)} />
                                 </MotiView>
                             )}
                             keyExtractor={(item) => item.url}

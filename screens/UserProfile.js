@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import ProfilePic from '../components/ProfilePic.js'
 
 const UserProfile = ({ navigation }) => {
-  const { user, updateInfo, emailVerification, changeEmail, forgotPassword, logout, deleteAccount, globalVars, setGlobalVars, authErrorText } = useContext(AuthContext)
+  const { user, updateInfo, emailVerification, changeEmail, forgotPassword, logout, deleteAccount, globalVars, setGlobalVars, authErrorText, mixpanel } = useContext(AuthContext)
 
   const [newInfo, setNewInfo] = useState({})
   const [attachingImage, setAttachingImage] = useState({})
@@ -194,6 +194,7 @@ const UserProfile = ({ navigation }) => {
   }
 
   const verifyEmail = () => {
+    mixpanel.track('Button Press', { 'Button': 'VerifyEmail' })
     AsyncStorage.getItem('@email_verification_sent').then((value) => {
       if(value == null){
         AsyncStorage.setItem('@email_verification_sent', 'true')
@@ -208,6 +209,7 @@ const UserProfile = ({ navigation }) => {
   }
 
   const checkPasswordReset = () => {
+    mixpanel.track('Button Press', { 'Button': 'PasswordReset' })
     let now = new Date()
     if(now - userInfo.passwordLastUpdated?.toDate() >= thirtyDays || userInfo.type === 'coach' || userInfo.type === 'admin'){
       updateInfo({ passwordLastUpdated: firestore.Timestamp.now() })
@@ -222,6 +224,7 @@ const UserProfile = ({ navigation }) => {
   }
 
   const deleteAccountForm = () => {
+    mixpanel.track('Button Press', { 'Button': 'DeleteAccount' })
     Alert.alert(
       'Delete Account',
       'Are you sure you want to delete your account?',

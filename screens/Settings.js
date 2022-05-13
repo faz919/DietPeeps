@@ -49,7 +49,7 @@ const Settings = ({ navigation }) => {
                         style={styles.Divider}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => Linking.openSettings('app-settings://notifications')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Notification Settings')}>
                     <View style={styles.Viewcp} >
                         <View style={styles.Viewg4}>
                             <FontAwesome

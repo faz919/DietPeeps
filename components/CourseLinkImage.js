@@ -1,16 +1,24 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { TouchableOpacity, ImageBackground, View, Text, StyleSheet } from 'react-native'
 import { windowWidth } from '../utils/Dimensions'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 import { MotiText, MotiView } from 'moti'
 import Icon from 'react-native-vector-icons/Ionicons'
+import { AuthContext } from '../navigation/AuthProvider'
 
 const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, navigation }) => {
 
+    const { mixpanel } = useContext(AuthContext)
+
     const [loading, setLoading] = useState(true)
 
+    const handlePress = () => {
+        mixpanel.track('Button Press', { 'Button': 'CourseLinkImage' }) 
+        navigation.navigate('Main Menu', { screen: 'Courses', params: { courseInfo: courseInfo, courseCompleted: userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber } })
+    }
+
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('Main Menu', { screen: 'Courses', params: { courseInfo: courseInfo, courseCompleted: userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber } })}>
+        <TouchableOpacity onPress={handlePress}>
             <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber ? 0.4 : 1 }} style={styles.textImage} source={{ uri: courseInfo.CoverLink }}>
                 {!loading ?
                     <View style={{
