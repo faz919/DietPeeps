@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import Ionicons from 'react-native-vector-icons/Ionicons'
-import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, Linking, Switch, ActivityIndicator, Alert, AppState } from 'react-native'
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, Linking, Switch, ActivityIndicator, Alert, AppState, Platform } from 'react-native'
 import { AuthContext } from '../navigation/AuthProvider'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import BackButton from '../components/BackButton.js'
@@ -43,7 +43,10 @@ const NotificationSettings = ({ navigation }) => {
             [
                 {
                     text: 'Cancel',
-                    onPress: () => setToggling(false),
+                    onPress: () => {
+                        setToggling(false)
+                        setNotificationsEnabled(!enabled)
+                    },
                     style: 'cancel'
                 },
                 {
@@ -121,6 +124,7 @@ const NotificationSettings = ({ navigation }) => {
                         <View style={styles.optionSwitch}>
                             <Switch
                                 trackColor={{ false: '#BDB9DB', true: '#4C44D4' }}
+                                thumbColor='#fff'
                                 ios_backgroundColor={'#BDB9DB'}
                                 value={notificationsEnabled}
                                 onValueChange={(e) => toggleNotifications(e)}
@@ -133,8 +137,8 @@ const NotificationSettings = ({ navigation }) => {
                     />
                 </View>
                 {notifTypes.map((notifType, index) => 
-                    <View key={index} onPress={() => toggleSelectType(notifType.value)}>
-                        <View style={styles.optionRow} >
+                    <View key={index}>
+                        <View style={[styles.optionRow, { opacity: Platform.OS === 'ios' ? 1 : notificationsEnabled ? 1 : 0.5 }]} >
                             <View style={styles.optionSwitch}>
                                 <Ionicons
                                     size={24}
@@ -154,6 +158,7 @@ const NotificationSettings = ({ navigation }) => {
                             <View style={styles.optionSwitch}>
                                 <Switch
                                     trackColor={{ false: '#BDB9DB', true: '#4C44D4' }}
+                                    thumbColor='#fff'
                                     ios_backgroundColor={'#BDB9DB'}
                                     value={selectedTypes.includes(notifType.value)}
                                     onValueChange={(e) => toggleSelectType(e, notifType.value)}

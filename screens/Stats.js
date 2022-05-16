@@ -140,10 +140,10 @@ const Stats = ({ navigation }) => {
         const data = graphDays?.filter(val => inDateRange(val.toDate(), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * graphPage), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * (graphPage - 1)))).reverse()
         if (graphDays.length === 0 || data.length === 0 || globalVars.images?.length === 0 || globalVars.images == null || graphDays == null || globalVars.images?.filter(val => val.graded)?.length === 0) {
             return (
-                <View style={{ height: windowHeight * 0.3, width: windowWidth, paddingHorizontal: 30, justifyContent: 'center', alignItems: 'center' }}>
-                    <View style={{ opacity: 0.3 }} pointerEvents='none'>
+                <View style={{ height: 260, width: windowWidth, paddingHorizontal: 30, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ opacity: 0.3, position: 'absolute' }} pointerEvents='none'>
                         <Chart
-                            style={{ height: windowHeight * 0.3, width: windowWidth }}
+                            style={{ height: 260, width: windowWidth }}
                             data={[{ x: -2, y: 15 },
                             { x: -1, y: 10 },
                             { x: 0, y: 12 },
@@ -183,10 +183,10 @@ const Stats = ({ navigation }) => {
                                 tooltipComponent={<Tooltip />} />
                         </Chart>
                     </View>
-                    <Text style={{ position: 'absolute', fontSize: 26, alignSelf: 'center', top: windowHeight * 0.14, color: '#202060', textAlign: 'center' }}>
+                    <Text style={{ fontSize: 26, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
                         {'No graded photo data'}
                     </Text>
-                    <Text style={{ position: 'absolute', fontSize: 18, alignSelf: 'center', top: windowHeight * 0.14 + 30, color: '#202060', textAlign: 'center' }}>
+                    <Text style={{ fontSize: 18, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
                         {graphPage === 1 && 'Send in your first photo today!'}
                     </Text>
                 </View>
@@ -194,7 +194,7 @@ const Stats = ({ navigation }) => {
         }
         return (
             <Chart
-                style={{ height: windowHeight * 0.3, width: windowWidth, alignSelf: 'center' }}
+                style={{ height: 260, width: windowWidth, alignSelf: 'center' }}
                 data={data.map((day, index) => {
                     const mealGrades = globalVars.images?.filter(val => sameDay(val.timeSent?.toDate(), day?.toDate()) && val.graded)
                     let totals = { red: 0, yellow: 0, green: 0 }
@@ -241,10 +241,10 @@ const Stats = ({ navigation }) => {
         const data = globalVars.userData.weightHistory?.filter(data => inDateRange(data.time.toDate(), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * graphPage), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * (graphPage - 1))))
         if (globalVars.userData.weightHistory == null || globalVars.userData.weightHistory.length === 0 || data.length === 0) {
             return (
-                <View style={{ height: windowHeight * 0.3, width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
-                    <View style={{ opacity: 0.3 }} pointerEvents='none'>
+                <View style={{ height: 260, width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
+                    <View style={{ opacity: 0.3, position: 'absolute' }} pointerEvents='none'>
                         <Chart
-                            style={{ height: windowHeight * 0.3, width: windowWidth }}
+                            style={{ height: 260, width: windowWidth }}
                             data={[{ x: -2, y: 15 },
                             { x: -1, y: 10 },
                             { x: 0, y: 12 },
@@ -284,10 +284,10 @@ const Stats = ({ navigation }) => {
                                 tooltipComponent={<Tooltip />} />
                         </Chart>
                     </View>
-                    <Text style={{ position: 'absolute', fontSize: 26, alignSelf: 'center', top: windowHeight * 0.14, color: '#202060', textAlign: 'center' }}>
+                    <Text style={{ fontSize: 26, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
                         {'No weight history'}
                     </Text>
-                    <Text style={{ position: 'absolute', fontSize: 18, alignSelf: 'center', top: windowHeight * 0.14 + 30, color: '#202060', textAlign: 'center' }}>
+                    <Text style={{ fontSize: 18, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
                         {graphPage === 1 && 'Tap the scale icon in the chat box to weigh yourself today!'}
                     </Text>
                 </View>
@@ -299,7 +299,7 @@ const Stats = ({ navigation }) => {
         const rangeMax = globalVars.userData.usesImperial ? 20 * Math.ceil(chartMax / 20) : 10 * Math.ceil(chartMax / 10)
         return (
             <Chart
-                style={{ height: windowHeight * 0.3, width: windowWidth, alignSelf: 'center' }}
+                style={{ height: 260, width: windowWidth, alignSelf: 'center' }}
                 data={data.map((weighIn, index) => {
                     return { y: globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs, x: index + 1 }
                 })}
@@ -435,7 +435,7 @@ const Stats = ({ navigation }) => {
                             </AnimatePresence>
                         </View>
                         <AnimatePresence>
-                            <View style={{ flex: 1, flexDirection: 'row', width: windowWidth * 2, height: windowHeight * 0.3 }}>
+                            <View style={{ flex: 1, flexDirection: 'row', width: windowWidth * 2, height: 260 }}>
                                 {selectedGraph === 'dailyScores' ?
                                     <MotiView key='dailyScores' from={{ translateX: -windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: -windowWidth }} pointerEvents='box-none'>
                                         <DailyScoresGraph />
@@ -525,8 +525,7 @@ const Stats = ({ navigation }) => {
                             showSixWeeks={false}
                             style={{
                                 backgroundColor: 'transparent',
-                                height: windowHeight * (450 / 844),
-
+                                height: 450,
                             }}
                             markingType={'period'}
                             markedDates={streakCalendarDays}

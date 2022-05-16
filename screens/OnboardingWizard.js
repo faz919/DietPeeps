@@ -127,7 +127,7 @@ const OnboardingWizard = ({ navigation }) => {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
             {formPage < formLength + 1 &&
-                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, flexDirection: 'row' }}>
+                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, marginTop: Platform.OS === 'ios' ? 0 : 10, flexDirection: 'row' }}>
                     {Array.apply(null, { length: formLength }).map((i, index) =>
                         <AnimatePresence exitBeforeEnter key={index}>
                             {formPage > index ?

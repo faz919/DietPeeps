@@ -29,6 +29,7 @@ import { ENTITLEMENT_ID } from '../constants/constants'
 import { Easing } from 'react-native-reanimated'
 import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import StreakGif from '../components/StreakGif'
 
 const Chat = ({ navigation, route }) => {
 
@@ -233,25 +234,25 @@ const Chat = ({ navigation, route }) => {
                     if (userData.exists) {
                         setGlobalVars(val => ({ ...val, userData: userData.data() }))
                         const usr = userData.data()
-                        // check if user has completed onboarding
-                        if (usr.userBioData == null && globalVars.userBioData == null) {
-                            // console.log('what is this bug')
-                            // setWizardRedirected(true)
-                            return navigation.replace('Onboarding Wizard')
-                        } 
                         if (usr.userBioData != null) {
-                            const subscribedToMealTimes = await AsyncStorage.getItem('subscribed_user_meal_times')
-                            // subscribe user to messaging topic
-                            for(let mealTime of usr.userBioData.mealTimes && subscribedToMealTimes == null) {
-                                const globalHour = new Date(mealTime).getUTCHours()
-                                messaging().subscribeToTopic(`MealReminderAt${globalHour}`).then(() => {
-                                    console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
-                                }).catch((e) => {
-                                    console.error('error while subscribing user to meal reminder: ', e)
-                                })
+                            try {   
+                                const subscribedToMealTimes = await AsyncStorage.getItem('subscribed_user_meal_times')
+                                // subscribe user to messaging topic
+                                if (subscribedToMealTimes == null) {
+                                    for(let mealTime of usr.userBioData.mealTimes) {
+                                        const globalHour = new Date(mealTime.toDate()).getUTCHours()
+                                        messaging().subscribeToTopic(`MealReminderAt${globalHour}`).then(() => {
+                                            console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
+                                        }).catch((e) => {
+                                            console.error('error while subscribing user to meal reminder: ', e)
+                                        })
+                                    }
+                                    messaging().subscribeToTopic('subscribed')
+                                    AsyncStorage.setItem('subscribed_user_meal_times', 'true')
+                                }
+                            } catch (e) {
+                                console.error(e)
                             }
-                            messaging().subscribeToTopic('subscribed')
-                            AsyncStorage.setItem('subscribed_user_meal_times', 'true')
                         }
                         const deviceInfo = {
                             deviceOS: Platform.OS,
@@ -323,7 +324,7 @@ const Chat = ({ navigation, route }) => {
                                 } else {
                                     setShowExtraDaysButton(true)
                                 }
-                                console.log(daysSinceJoin)
+                                // console.log('days since user joined: ', daysSinceJoin)
                                 daysSinceJoin >= 14 && !extraTrialDays && !usr.manuallyExtendedTrialPeriod && setTrialPeriodFinished(true)
                                 if (!redirected && usr.userBioData != null) {
                                     if (daysReminded == null || !daysReminded?.includes(daysSinceJoin)) {
@@ -341,6 +342,14 @@ const Chat = ({ navigation, route }) => {
                 })
         }
     }, [user])
+
+    useEffect(() => {
+        // check if user has completed onboarding
+        if (globalVars.userData != null && globalVars.userData?.userBioData == null && globalVars.userBioData == null && value == null) {
+            // setWizardRedirected(true)
+            return navigation.replace('Onboarding Wizard')
+        }
+    }, [globalVars.userData])
 
     useEffect(() => {
         if (trialPeriodFinished != null && globalVars.userData != null && globalVars.userData.trialPeriod !== !trialPeriodFinished) {
@@ -493,7 +502,8 @@ const Chat = ({ navigation, route }) => {
                         img: null,
                         timeSent: firestore.Timestamp.now(),
                         userID: globalVars.coachID,
-                        msgType: 'streakCongrats'
+                        msgType: 'streakCongrats',
+                        streakDay: globalVars.userData.streak + 1
                     })
                     .catch((e) => {
                         console.error("error while adding chat message: ", e)
@@ -568,7 +578,7 @@ const Chat = ({ navigation, route }) => {
                         uploadedAt: firestore.Timestamp.now()
                     })
                 } catch (e) {
-                    console.log('error while uploading images to firebase cloud storage: ', e)
+                    console.error('error while uploading images to firebase cloud storage: ', e)
                     return null
                 }
             }
@@ -608,7 +618,7 @@ const Chat = ({ navigation, route }) => {
                     setMessagesEndReached(true)
                 }
             }, (e) => {
-                console.log('error while fetching messages: ', e)
+                console.error('error while fetching messages: ', e)
             })
         return () => unsub()
     }, [globalVars.chatID, messageBatches])
@@ -906,6 +916,9 @@ const Chat = ({ navigation, route }) => {
                                         }
                                         {item.msgType === 'courseLink' &&
                                             <CourseLinkImage key={item.id} user={user} messageData={item} userCourseData={globalVars.userData?.courseData} courseInfo={CourseData.find(course => course.UniqueCourseNumber === item.courseInfo.UniqueCourseNumber)} navigation={navigation} />
+                                        }
+                                        {item.msgType === 'streakCongrats' &&
+                                            <StreakGif item={item} />
                                         }
                                         {item.msgType === 'statSummary' ?
                                             <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>Good morning! This is your weekly check-in.{`\n\n`}{SevenDayAvg() === '-' ? `You did not send in any meal photos this week.` : `Your average meal score for the past week is ${SevenDayAvg()}.`}
@@ -1360,8 +1373,7 @@ const styles = StyleSheet.create({
     panelTitle: {
         fontSize: 27,
         height: 35,
-        color: '#202060',
-        width: '100%'
+        color: '#202060'
     },
     panelSubtitle: {
         fontSize: 14,
