@@ -9,7 +9,7 @@ import messaging from '@react-native-firebase/messaging'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import crashlytics from '@react-native-firebase/crashlytics'
 import analytics from '@react-native-firebase/analytics'
-import requestUserPermission from '../utils/notificationServices'
+import { requestUserPermission, checkUserPermission } from '../utils/notificationServices'
 import { Mixpanel } from 'mixpanel-react-native'
 import { MIXPANEL_TOKEN } from '../constants/constants'
 
@@ -555,8 +555,47 @@ export const AuthProvider = ({ children }) => {
                         }
                     }
                 },
-                disableNotifications: async () => {
-                    
+                checkHasPermission: async () => {
+                    const _user = auth().currentUser
+                    const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
+                    if (alreadyEnabled == null) {
+                        const result = await checkUserPermission()
+                        if (result) {
+                            firestore()
+                                .collection('user-info')
+                                .doc(_user.uid)
+                                .set({ notificationsEnabled: true }, { merge: true })
+                            await AsyncStorage.setItem('@notifs_enabled', 'true')
+                            setGlobalVars(val => ({ ...val, notificationsEnabled: true }))
+                            messaging()
+                                .getToken()
+                                .then(token => {
+                                    setUserMessagingInfo(token)
+                                })
+                        } else if (!result) {
+                            firestore()
+                                .collection('user-info')
+                                .doc(_user.uid)
+                                .set({ notificationsEnabled: false }, { merge: true })
+                            await AsyncStorage.setItem('@notifs_enabled', 'false')
+                            setGlobalVars(val => ({ ...val, notificationsEnabled: false }))
+                        }
+                    } else {
+                        const result = await checkUserPermission()
+                        if (result !== JSON.parse(alreadyEnabled)) {
+                            firestore()
+                                .collection('user-info')
+                                .doc(_user.uid)
+                                .set({ notificationsEnabled: result }, { merge: true })
+                            await AsyncStorage.setItem('@notifs_enabled', JSON.stringify(result))
+                            setGlobalVars(val => ({ ...val, notificationsEnabled: result }))
+                            messaging()
+                                .getToken()
+                                .then(token => {
+                                    setUserMessagingInfo(token)
+                                })
+                        }
+                    }
                 },
                 infoUpdated, setInfoUpdated,
                 emailUpdated, setEmailUpdated,

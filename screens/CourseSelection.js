@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react'
-import { ActivityIndicator, FlatList, ImageBackground, StyleSheet, Text, View, SafeAreaView, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, FlatList, ImageBackground, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Image } from 'react-native'
 import CourseData from '../courses/CourseData.json'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import { AuthContext } from '../navigation/AuthProvider'
@@ -9,10 +9,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import ToggleButtonRow from '../components/ToggleButtonRow'
 import CourseImage from '../components/CourseImage'
 import { MotiView } from 'moti'
+import balloons from '../assets/balloons.png'
 
 const CourseSelection = ({ navigation, route }) => {
 
-  const { courseInfo, courseCompleted, courseDayCompleted } = route.params 
+  const { courseInfo, courseCompleted, courseDayCompleted } = route.params
 
   const { globalVars } = useContext(AuthContext)
   const [userCourseData, setUserCourseData] = useState(3)
@@ -38,7 +39,7 @@ const CourseSelection = ({ navigation, route }) => {
   useEffect(() => {
     if (courseInfo != null) {
       navigation.navigate('Course', { courseData: courseInfo, courseCompleted: courseCompleted })
-    } 
+    }
     else if (courseInfo == null && courseCompleted && courseDayCompleted) {
       navigation.navigate('Congrats', { congratsType: 'courseDayCompletion' })
     }
@@ -122,6 +123,7 @@ const CourseSelection = ({ navigation, route }) => {
   const relevantCourses = CourseData.filter(course => course.Courseday <= userCourseData.courseDay)
   let coursesSort
   let listEmptyText
+  let listEmptyImage
   switch (sortBy) {
     case 'Completed':
       coursesSort = relevantCourses.filter(course => userCourseData.latestCourseCompleted >= course.UniqueCourseNumber)
@@ -130,6 +132,7 @@ const CourseSelection = ({ navigation, route }) => {
     case 'To Do':
       coursesSort = relevantCourses.filter(course => userCourseData.latestCourseCompleted < course.UniqueCourseNumber)
       listEmptyText = 'No more courses for today! \n Check back tomorrow for new courses.'
+      listEmptyImage = balloons
       break
     case 'Starred':
       coursesSort = relevantCourses.filter(course => starred[course.UniqueCourseNumber] === true)
@@ -152,26 +155,22 @@ const CourseSelection = ({ navigation, route }) => {
               initialNumToRender={6}
               contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 55, paddingBottom: 50, backgroundColor: '#E6E7FA' }}
               ListEmptyComponent={(
-                <View style={{alignItems: 'center', margin: 20}}>
-                  <Text style={{color: '#BDB9DB', textAlign: 'center'}}>{listEmptyText}</Text>
+                <View style={{ alignItems: 'center', margin: 20 }}>
+                  <Text style={{ color: '#BDB9DB', textAlign: 'center' }}>{listEmptyText}</Text>
+                  {listEmptyImage && <Image source={listEmptyImage} style={{ height: windowHeight * 0.3, resizeMode: 'contain', marginTop: windowHeight / 8 }} />}
                 </View>
               )}
               inverted
+              scrollEnabled={!coursesSort}
               renderItem={({ item, index }) => {
                 return (
                   <MotiView
-                    from={{
-                      opacity: 0
-                    }}
-                    animate={{
-                      opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1
-                    }}
-                    transition={{
-                      duration: 450
-                    }}
+                    from={{ opacity: 0 }}
+                    animate={{ opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }}
+                    transition={{ duration: 450 }}
                     key={index}
                     style={[styles.Viewe6, { borderRadius: 6, opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }]}>
-                    <CourseImage item={item} userCourseData={userCourseData} navigation={navigation} /> 
+                    <CourseImage item={item} userCourseData={userCourseData} navigation={navigation} />
                     <View style={styles.View_92}>
                       <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
                         <View>
@@ -200,8 +199,8 @@ const CourseSelection = ({ navigation, route }) => {
               }}
               keyExtractor={(item) => item.CoverLink}
             />
-            <View style={{position: 'absolute', width: windowWidth - 20, alignSelf: 'center', backgroundColor: '#e6e7fa', height: 45}} />
-            <View style={{position: 'absolute', width: windowWidth, top: 45}}>
+            <View style={{ position: 'absolute', width: windowWidth - 20, alignSelf: 'center', backgroundColor: '#e6e7fa', height: 45 }} />
+            <View style={{ position: 'absolute', width: windowWidth, top: 45 }}>
               <ToggleButtonRow
                 highlightBackgroundColor={'#4D43BD'}
                 highlightTextColor={'white'}

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { windowWidth } from '../utils/Dimensions.js'
-import requestUserPermission from '../utils/notificationServices.js'
+import { requestUserPermission } from '../utils/notificationServices.js'
 import { AuthContext } from '../navigation/AuthProvider.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import messaging from '@react-native-firebase/messaging'
@@ -13,7 +13,7 @@ const EnableNotifsScreen = ({ navigation }) => {
 
   const requestPermission = async () => {
     const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
-    if(alreadyEnabled == null) {
+    // if(alreadyEnabled == null) {
       const result = await requestUserPermission()
       if(result){
         updateInfo({ notificationsEnabled: true })
@@ -27,9 +27,9 @@ const EnableNotifsScreen = ({ navigation }) => {
         setGlobalVars(val => ({...val, notificationsEnabled: false}))
         navigation.navigate('Main Menu')
       }
-    } else {
-      navigation.navigate('Main Menu')
-    }
+    // } else {
+    //   navigation.navigate('Main Menu')
+    // }
   }
 
   function updateUserToken(token) {
@@ -147,7 +147,7 @@ const EnableNotifsScreen = ({ navigation }) => {
 
           <View style={styles.View_4v}>
             <TouchableOpacity 
-              onPress={() => requestPermission()}
+              onPress={requestPermission}
               style={[
                 styles.ButtonSolidQB,
                 { backgroundColor: '#4C44D4' },

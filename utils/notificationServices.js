@@ -13,17 +13,17 @@ async function requestUserPermission() {
   }
 }
 
-// async function checkUserPermission() {
-//   const authStatus = await messaging().hasPermission()
-//   const enabled =
-//     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-//     authStatus === messaging.AuthorizationStatus.PROVISIONAL
+async function checkUserPermission() {
+  const authStatus = await messaging().hasPermission()
+  const enabled =
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL
 
-//   if (enabled) {
-//     return true
-//   } else {
-//     return false
-//   }
-// }
+  if (enabled) {
+    return true
+  } else {
+    return false
+  }
+}
 
-export default requestUserPermission
+export { requestUserPermission, checkUserPermission }

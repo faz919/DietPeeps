@@ -44,7 +44,7 @@ const Chat = ({ navigation, route }) => {
         return unsubscribe
     }, [navigation])
 
-    const { user, updateInfo, globalVars, setGlobalVars, requestPermission, mixpanel } = useContext(AuthContext)
+    const { user, updateInfo, globalVars, setGlobalVars, requestPermission, checkHasPermission, mixpanel } = useContext(AuthContext)
 
     const [online, setOnline] = useState(true)
     const [messageInput, setMessageInput] = useState('')
@@ -223,7 +223,7 @@ const Chat = ({ navigation, route }) => {
 
     useEffect(() => {
         if (user) {
-            requestPermission()
+            checkHasPermission()
             mixpanel.identify(user.uid)
             mixpanel.getPeople().set('Display Name', user.displayName)
             mixpanel.getPeople().set('Email', user.email)
@@ -345,7 +345,7 @@ const Chat = ({ navigation, route }) => {
 
     useEffect(() => {
         // check if user has completed onboarding
-        if (globalVars.userData != null && globalVars.userData?.userBioData == null && globalVars.userBioData == null && value == null) {
+        if (globalVars.userData != null && globalVars.userData?.userBioData == null && globalVars.userBioData == null) {
             // setWizardRedirected(true)
             return navigation.replace('Onboarding Wizard')
         }
@@ -917,7 +917,7 @@ const Chat = ({ navigation, route }) => {
                                         {item.msgType === 'courseLink' &&
                                             <CourseLinkImage key={item.id} user={user} messageData={item} userCourseData={globalVars.userData?.courseData} courseInfo={CourseData.find(course => course.UniqueCourseNumber === item.courseInfo.UniqueCourseNumber)} navigation={navigation} />
                                         }
-                                        {item.msgType === 'streakCongrats' &&
+                                        {item.msgType === 'streakCongrats' && item.streakDay <= 30 &&
                                             <StreakGif item={item} />
                                         }
                                         {item.msgType === 'statSummary' ?
