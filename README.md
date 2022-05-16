@@ -13,7 +13,7 @@ Clone this project and name it accordingly:
 
 ### Prerequisites
 
-[iOS only] If you plan to deploy the app to an iOS device, you must first install [CocoaPods](https://cocoapods.org/)
+[iOS only] If you plan to deploy the app to an iOS device, you must first install [CocoaPods](https://cocoapods.org/).
 
 ### Extra Files
 
@@ -29,7 +29,7 @@ Clone this project and name it accordingly:
 
 ## Android Deployment (MacOS and Windows)
 
-1. [Enable USB debugging on your Android device.](https://www.microfocus.com/documentation/silk-test/210/en/silktestworkbench-help-en/GUID-BE1EA2BA-EFF2-4B2D-8F09-4BEE0947DFB2.html)
+1. [Enable USB debugging on your Android device](https://www.microfocus.com/documentation/silk-test/210/en/silktestworkbench-help-en/GUID-BE1EA2BA-EFF2-4B2D-8F09-4BEE0947DFB2.html).
 2. Connect the device to your computer. 
 3. In the project root terminal, run ``npx react-native run-android``. The build and deploy should complete within 5-10 minutes.
 
@@ -40,7 +40,7 @@ Clone this project and name it accordingly:
 
 ## iOS Deployment (MacOS)
 
-1. Install Node and Watchman using [Homebrew](https://brew.sh/) via ``brew install node && brew install watchman``
+1. Install Node and Watchman using [Homebrew](https://brew.sh/) via ``brew install node && brew install watchman``.
 2. Install Xcode via the Mac App Store.
 3. Install the Xcode Command Line Tools. Open Xcode, then choose "Preferences..." from the Xcode menu. Go to the Locations panel and install the tools by selecting the most recent version in the Command Line Tools dropdown.
 
