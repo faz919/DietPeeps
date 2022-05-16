@@ -33,6 +33,11 @@ Clone this project and name it accordingly:
 2. Connect the device to your computer. 
 3. In the project root terminal, run ``npx react-native run-android``. The build and deploy should complete within 5-10 minutes.
 
+### (Optional) Google Login
+
+1. Ask an admin for a copy of the ``google-services.json`` file.
+2. Place the file inside of the ``android/app/`` folder.
+
 ## iOS Deployment (MacOS)
 
 1. Install Node and Watchman using [Homebrew](https://brew.sh/) via ``brew install node && brew install watchman``
@@ -47,6 +52,11 @@ Clone this project and name it accordingly:
 ### Physical Device
 
 Follow [this guide](https://reactnative.dev/docs/running-on-device) for iOS deployment on a physical device.
+
+### (Optional) Third Party Login
+
+1. Ask an admin for a copy of the ``GoogleService-Info.plist`` file.
+2. Place the file inside of the ``ios/`` folder.
 
 # Updates & App Info
 
