@@ -36,7 +36,7 @@ const AuthStack = () => {
   if (isFirstLaunch === null) {
     return null 
   } else if (isFirstLaunch == true) {
-    routeName = 'Intro Video'
+    routeName = 'Onboarding'
   } else {
     routeName = 'Login'
   }
@@ -48,11 +48,11 @@ const AuthStack = () => {
         component={LoginScreen}
         options={{header: () => null}}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Intro Video"
         component={IntroVideo}
         options={{header: () => null}}
-      />
+      /> */}
       <Stack.Screen
         name="Onboarding"
         component={OnboardingWizard}
