@@ -46,7 +46,7 @@ Clone this project and name it accordingly:
 
 ### Physical Device
 
-Follow [this guide](https://reactnative.dev/docs/running-on-device) for i0S deployment on a physical device.
+Follow [this guide](https://reactnative.dev/docs/running-on-device) for iOS deployment on a physical device.
 
 # Updates & App Info
 
