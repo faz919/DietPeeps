@@ -51,7 +51,8 @@ Clone this project and name it accordingly:
 
 ### Physical Device
 
-Follow [this guide](https://reactnative.dev/docs/running-on-device) for iOS deployment on a physical device.
+1. Follow [this guide](https://reactnative.dev/docs/running-on-device) for iOS deployment on a physical device.
+2. To run using the React Native CLI, instead of via Xcode, simply run ``npx react-native run-ios --device 'YOUR_DEVICE_NAME'`` in your project root terminal.
 
 ### (Optional) Third Party Login
 
