@@ -260,8 +260,8 @@ const Chat = ({ navigation, route }) => {
                             deviceID: DeviceInfo.getUniqueId()
                         }
                         const appInfo = {
-                            versionName: '1.031',
-                            versionCode: 14
+                            versionName: '1.032',
+                            versionCode: 15
                         }
                         // check if user has null display name, photo url, or email
                         usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })
@@ -462,24 +462,25 @@ const Chat = ({ navigation, route }) => {
                 img: imageInfo,
                 timeSent: firestore.Timestamp.now(),
                 userID: user.uid,
+                senderType: 'client'
             })
             .catch((e) => {
                 console.error("error while adding chat message: ", e)
             })
 
-        await firestore()
-            .collection('chat-rooms')
-            .doc(globalVars.chatID)
-            .set({
-                latestMessageTime: firestore.Timestamp.now(),
-                latestMessage: message === '' ? '[Image]' : message,
-                unreadCount: firestore.FieldValue.increment(1),
-                latestMessageSender: user.uid,
-                ungradedImageCount: imageInfo != null && imageInfo.length > 0 ? firestore.FieldValue.increment(1) : firestore.FieldValue.increment(0)
-            }, { merge: true })
-            .catch((e) => {
-                console.error("error while updating chat room info: ", e)
-            })
+        // await firestore()
+        //     .collection('chat-rooms')
+        //     .doc(globalVars.chatID)
+        //     .set({
+        //         latestMessageTime: firestore.Timestamp.now(),
+        //         latestMessage: message === '' ? '[Image]' : message,
+        //         unreadCount: firestore.FieldValue.increment(1),
+        //         latestMessageSender: user.uid,
+        //         ungradedImageCount: imageInfo != null && imageInfo.length > 0 ? firestore.FieldValue.increment(imageInfo.length) : firestore.FieldValue.increment(0)
+        //     }, { merge: true })
+        //     .catch((e) => {
+        //         console.error("error while updating chat room info: ", e)
+        //     })
 
         setImages(null)
         setMessageInput('')
@@ -503,23 +504,24 @@ const Chat = ({ navigation, route }) => {
                         timeSent: firestore.Timestamp.now(),
                         userID: globalVars.coachID,
                         msgType: 'streakCongrats',
-                        streakDay: globalVars.userData.streak + 1
+                        streakDay: globalVars.userData.streak + 1,
+                        senderType: 'non-client'
                     })
                     .catch((e) => {
                         console.error("error while adding chat message: ", e)
                     })
 
-                await firestore()
-                    .collection('chat-rooms')
-                    .doc(globalVars.chatID)
-                    .set({
-                        latestMessageTime: firestore.Timestamp.now(),
-                        latestMessage: `Congratulations! You've just extended your streak to ${globalVars.userData.streak === 0 ? `1 day!` : `${globalVars.userData.streak + 1} days!`}`,
-                        latestMessageSender: globalVars.coachID,
-                    }, { merge: true })
-                    .catch((e) => {
-                        console.error("error while updating chat room info: ", e)
-                    })
+                // await firestore()
+                //     .collection('chat-rooms')
+                //     .doc(globalVars.chatID)
+                //     .set({
+                //         latestMessageTime: firestore.Timestamp.now(),
+                //         latestMessage: `Congratulations! You've just extended your streak to ${globalVars.userData.streak === 0 ? `1 day!` : `${globalVars.userData.streak + 1} days!`}`,
+                //         latestMessageSender: globalVars.coachID,
+                //     }, { merge: true })
+                //     .catch((e) => {
+                //         console.error("error while updating chat room info: ", e)
+                //     })
                 updateInfo({
                     streak: firestore.FieldValue.increment(1),
                     streakUpdated: firestore.Timestamp.now()

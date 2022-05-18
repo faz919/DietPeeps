@@ -65,22 +65,23 @@ const WeighInModal = ({ navigation }) => {
                 img: null,
                 timeSent: firestore.Timestamp.now(),
                 userID: user.uid,
+                senderType: 'client'
             })
             .catch((e) => {
                 console.error("error while adding chat message: ", e)
             })
-        await firestore()
-            .collection('chat-rooms')
-            .doc(globalVars.chatID)
-            .set({
-                latestMessageTime: firestore.Timestamp.now(),
-                latestMessage: imperial ? `Hey coach! Today I weighed in at ${weight.lbs} lbs (${weight.kgs} kgs).` : `Hey coach! Today I weighed in at ${weight.kgs} kgs (${weight.lbs} lbs).`,
-                unreadCount: firestore.FieldValue.increment(1),
-                latestMessageSender: user.uid,
-            }, { merge: true })
-            .catch((e) => {
-                console.error("error while updating chat room info: ", e)
-            })
+        // await firestore()
+        //     .collection('chat-rooms')
+        //     .doc(globalVars.chatID)
+        //     .set({
+        //         latestMessageTime: firestore.Timestamp.now(),
+        //         latestMessage: imperial ? `Hey coach! Today I weighed in at ${weight.lbs} lbs (${weight.kgs} kgs).` : `Hey coach! Today I weighed in at ${weight.kgs} kgs (${weight.lbs} lbs).`,
+        //         unreadCount: firestore.FieldValue.increment(1),
+        //         latestMessageSender: user.uid,
+        //     }, { merge: true })
+        //     .catch((e) => {
+        //         console.error("error while updating chat room info: ", e)
+        //     })
         setWeighedIn(true)
         exitFunctions()
     }

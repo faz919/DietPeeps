@@ -161,7 +161,7 @@ const CourseSelection = ({ navigation, route }) => {
                 </View>
               )}
               inverted
-              scrollEnabled={!coursesSort}
+              scrollEnabled={!(coursesSort.length === 0)}
               renderItem={({ item, index }) => {
                 return (
                   <MotiView

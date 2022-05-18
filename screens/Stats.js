@@ -457,11 +457,11 @@ const Stats = ({ navigation }) => {
                             </TouchableOpacity>
                             {graphPage !== 1 ?
                             <View style={{ height: 45, padding: 5, justifyContent: 'center', alignItems: 'center' }}>
-                                <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                                <Text adjustsFontSizeToFit={true} numberOfLines={1} style={{ maxWidth: windowWidth - 120, fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
                                     {moment(new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * graphPage)).format('l')} - {moment(new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * (graphPage - 1))).format('l')}
                                 </Text>
                             </View>
-                            : 
+                            :
                             <View>
                                 <AnimatePresence>
                                     {lastXDaysModal &&

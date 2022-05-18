@@ -61,7 +61,7 @@ Clone this project and name it accordingly:
 
 # Updates & App Info
 
-As of May 16th, 2022, version 1.031 has been put up for closed beta testing.
+As of May 18th, 2022, version 1.032 has been pushed to the app store.
 
 # Credits & Special Thanks
 
