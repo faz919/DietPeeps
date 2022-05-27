@@ -151,10 +151,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
                         <TouchableOpacity
                             disabled={loading}
                             onPress={() => buySubscription(subscription.availablePackages[0])}
-                            style={[
-                                styles.ButtonSolidQB,
-                                { backgroundColor: 'transparent', opacity: loading ? 0.7 : 1 }
-                            ]}
+                            style={[styles.ButtonSolidQB, { backgroundColor: 'transparent', opacity: loading ? 0.7 : 1 }]}
                         >
                             <LinearGradient start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} colors={['#f9cd86', '#F7B852']} style={{ width: '100%', height: '100%', borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}>
                                 {loading ?

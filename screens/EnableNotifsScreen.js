@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity, Linking } from 'react-native'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { windowWidth } from '../utils/Dimensions.js'
 import { requestUserPermission } from '../utils/notificationServices.js'
@@ -11,8 +11,23 @@ const EnableNotifsScreen = ({ navigation }) => {
 
   const { setGlobalVars, updateInfo } = useContext(AuthContext)
 
+  const [alreadyRequested, setAlreadyRequested] = useState(null)
+
+  useEffect(() => {
+    const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
+    if (alreadyEnabled != null) {
+      setAlreadyRequested(true)
+    } else {
+      setAlreadyRequested(false)
+    }
+  }, [])
+
   const requestPermission = async () => {
     const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
+    if (alreadyEnabled != null || alreadyRequested) {
+      Linking.openSettings('app-settings://notifications')
+      navigation.replace('Main Menu')
+    }
     // if(alreadyEnabled == null) {
       const result = await requestUserPermission()
       if(result){
@@ -44,6 +59,13 @@ const EnableNotifsScreen = ({ navigation }) => {
           })
   }
 
+  const handleNotNowPress = () => {
+    updateInfo({ notificationsEnabled: false })
+    AsyncStorage.setItem('@notifs_enabled', 'false')
+    setGlobalVars(val => ({...val, notificationsEnabled: false}))
+    navigation.replace('Main Menu')
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
       <ScrollView contentContainerStyle={styles.ScrollViewUJContent}>
@@ -60,7 +82,7 @@ const EnableNotifsScreen = ({ navigation }) => {
                 { color: '#202060' },
               ]}
             >
-              {'Welcome to DietPeeps'}
+              {alreadyRequested ? 'Enable Notifications' : 'Welcome to DietPeeps'}
             </Text>
           </View>
 
@@ -156,7 +178,7 @@ const EnableNotifsScreen = ({ navigation }) => {
               <Text style={styles.panelButtonText}>{'Enable Notifications'}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => { updateInfo({ notificationsEnabled: false }); AsyncStorage.setItem('@notifs_enabled', 'false'); setGlobalVars(val => ({...val, notificationsEnabled: false})); navigation.replace('Main Menu') }}
+              onPress={handleNotNowPress}
               style={styles.Buttonu5}
             >
               <Text style={[styles.panelButtonText, { marginTop: 13, color: '#4D43BD' }]}>{'Not Now'}</Text>

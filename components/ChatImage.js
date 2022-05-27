@@ -19,9 +19,7 @@ const ChatImage = ({ user, item, i, navigation }) => {
     }
 
     return (
-        <TouchableOpacity key={i.url} onPress={handlePress} 
-        // onLongPress={() => Share.share({ message: item.msg, url: i.url })}
-        >
+        <TouchableOpacity key={i.url} onPress={handlePress}>
             <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: i.graded ? item.userID !== user.uid ? 0.4 : 1 : 1 }} style={styles.textImage} source={{ uri: i.url }}>
                 {!loading && i.graded && item.userID != user.uid &&
                     <View style={{

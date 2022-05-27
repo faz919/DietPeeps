@@ -14,12 +14,12 @@ const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, naviga
 
     const handlePress = () => {
         mixpanel.track('Button Press', { 'Button': 'CourseLinkImage' }) 
-        navigation.navigate('Main Menu', { screen: 'Courses', params: { courseInfo: courseInfo, courseCompleted: userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber } })
+        navigation.navigate('Main Menu', { screen: 'Courses', params: { courseInfo: courseInfo, courseCompleted: userCourseData?.latestCourseCompleted >= courseInfo?.UniqueCourseNumber } })
     }
 
     return (
         <TouchableOpacity onPress={handlePress}>
-            <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber ? 0.4 : 1 }} style={styles.textImage} source={{ uri: courseInfo.CoverLink }}>
+            <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: userCourseData?.latestCourseCompleted >= courseInfo?.UniqueCourseNumber ? 0.4 : 1 }} style={styles.textImage} source={{ uri: courseInfo?.CoverLink }}>
                 {!loading ?
                     <View style={{
                         justifyContent: 'flex-end', alignItems: 'flex-start', height: windowWidth * 0.65, padding: 10, 
@@ -29,7 +29,7 @@ const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, naviga
                         shadowRadius: 10,
                         shadowOpacity: 0.4,
                     }}>
-                        {userCourseData?.latestCourseCompleted >= courseInfo.UniqueCourseNumber &&
+                        {userCourseData?.latestCourseCompleted >= courseInfo?.UniqueCourseNumber &&
                         <MotiView from={{ opacity: 0, rotate: '180deg' }} animate={{ opacity: 1, rotate: '0deg' }} style={{ position: 'absolute', top: (windowWidth * 0.65) / 6, left: (windowWidth * 0.65) / 4 }}>
                             <Icon
                                 name='checkmark-circle-outline'
@@ -38,8 +38,8 @@ const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, naviga
                                 style={styles.checkmarkStyle}
                             />
                         </MotiView>}
-                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ color: '#fff', fontSize: 25, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal' }}>{courseInfo.Title}</MotiText>
-                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ marginBottom: -5, color: '#fff', fontSize: 20, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal' }}>{courseInfo.Subtitle}</MotiText>
+                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ color: '#fff', fontSize: 25, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal' }}>{courseInfo?.Title}</MotiText>
+                        <MotiText from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing' }} style={{ marginBottom: -5, color: '#fff', fontSize: 20, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal' }}>{courseInfo?.Subtitle}</MotiText>
                     </View>
                 :
                 <SkeletonPlaceholder backgroundColor='#e6e7fa' highlightColor='#fff' speed={1000}>

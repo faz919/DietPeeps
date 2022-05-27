@@ -15,7 +15,7 @@ import { Easing } from 'react-native-reanimated'
 
 const Stats = ({ navigation }) => {
 
-    const { user, globalVars } = useContext(AuthContext)
+    const { user, globalVars, updateInfo } = useContext(AuthContext)
 
     const [loading, setLoading] = useState(false)
     const [calendarInfoIcon, setCalendarInfoIcon] = useState()
@@ -103,7 +103,7 @@ const Stats = ({ navigation }) => {
         }
         streakCalendarDays[moment(v.timeSent?.toDate()).format('YYYY[-]MM[-]DD')] = { startingDay: true, endingDay: true, color: dayColor }
 
-        if (graphDays.length === 0 || graphDays.filter(val => sameDay(val?.toDate(), globalVars.images[index]?.timeSent?.toDate())).length === 0) {
+        if (graphDays.length === 0 || !graphDays.some(val => sameDay(val?.toDate(), globalVars.images[index]?.timeSent?.toDate()))) {
             if (v.graded) {
                 graphDays.push(v.timeSent)
             }
@@ -156,7 +156,7 @@ const Stats = ({ navigation }) => {
                             { x: 7, y: 14 },
                             { x: 8, y: 12 },
                             { x: 9, y: 13.5 },
-                            { x: 10, y: 18 },]}
+                            { x: 10, y: 18 }]}
                             padding={{ left: 30, bottom: 30, right: 30, top: 30 }}
                             xDomain={{ min: 0, max: 10 }}
                             yDomain={{ min: 0, max: 20 }}

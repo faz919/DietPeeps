@@ -124,6 +124,10 @@ const OnboardingWizard = ({ navigation }) => {
 
     const meals = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'last']
 
+    useEffect(() => {
+        console.log('rerender')
+    }, [])
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
             {formPage < formLength + 1 &&

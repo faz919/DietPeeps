@@ -41,7 +41,7 @@ const PhotoGallery = ({ navigation, route }) => {
     const bottomBarHeight = useBottomTabBarHeight()
 
     useEffect(() => {
-        if (globalVars.images >= 10) {
+        if (globalVars.images?.length >= 30) {
             AsyncStorage.getItem('@reviewed_app').then((value) => {
                 if (InAppReview.isAvailable() && value == null) {
                     InAppReview.RequestInAppReview().then((result) => {
@@ -52,7 +52,10 @@ const PhotoGallery = ({ navigation, route }) => {
                             userID: user.uid,
                             result: result
                         })
-                        AsyncStorage.mergeItem('@reviewed_app', 'true')
+                        updateInfo({
+                            appReview: JSON.parse(result)
+                        })
+                        AsyncStorage.setItem('@reviewed_app', result)
                     })
                 }
             })

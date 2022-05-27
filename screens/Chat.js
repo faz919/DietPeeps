@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react'
-import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard, Linking } from 'react-native'
+import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard, Linking, Pressable, Share } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -30,6 +30,8 @@ import { Easing } from 'react-native-reanimated'
 import { BlurView } from "@react-native-community/blur"
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import StreakGif from '../components/StreakGif'
+import TrialPeriodFinishedScreen from './TrialPeriodFinishedScreen'
+import UserFlaggedScreen from './UserFlaggedScreen'
 
 const Chat = ({ navigation, route }) => {
 
@@ -64,6 +66,8 @@ const Chat = ({ navigation, route }) => {
     const [showExtraDaysButton, setShowExtraDaysButton] = useState(false)
     const [showWeighInButton, setShowWeighIn] = useState(false)
     const [redirected, setRedirected] = useState(false)
+    const [userFlagged, setUserFlagged] = useState(false)
+    const [msgInputHeight, setMsgInputHeight] = useState(0)
 
     useEffect(() => {
         if (subscribed) {
@@ -221,6 +225,11 @@ const Chat = ({ navigation, route }) => {
         })
     }
 
+    function age (birthDate) {
+        var ageInMilliseconds = new Date() - new Date(birthDate);
+        return Math.floor(ageInMilliseconds/(1000 * 60 * 60 * 24 * 365));
+    }
+
     useEffect(() => {
         if (user) {
             checkHasPermission()
@@ -235,12 +244,19 @@ const Chat = ({ navigation, route }) => {
                         setGlobalVars(val => ({ ...val, userData: userData.data() }))
                         const usr = userData.data()
                         if (usr.userBioData != null) {
+                            const dob = new Date(usr.userBioData.dob instanceof firestore.Timestamp ? usr.userBioData.dob.toDate() : usr.userBioData.dob)
+                            if (age(dob) < 18) {
+                                setUserFlagged(true)
+                                // set globalvar of userflagged to true
+                                setGlobalVars(val => ({ ...val, userFlagged: true }))
+                            }
                             try {   
                                 const subscribedToMealTimes = await AsyncStorage.getItem('subscribed_user_meal_times')
                                 // subscribe user to messaging topic
                                 if (subscribedToMealTimes == null) {
                                     for(let mealTime of usr.userBioData.mealTimes) {
-                                        const globalHour = new Date(mealTime.toDate()).getUTCHours()
+                                        console.log(mealTime)
+                                        const globalHour = new Date(mealTime instanceof firestore.Timestamp ? mealTime.toDate() : mealTime).getUTCHours()
                                         messaging().subscribeToTopic(`MealReminderAt${globalHour}`).then(() => {
                                             console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
                                         }).catch((e) => {
@@ -443,6 +459,10 @@ const Chat = ({ navigation, route }) => {
         }
 
         setSendingMessage(true)
+
+        updateInfo({
+            lastMessageSent: firestore.Timestamp.now()
+        })
 
         await analytics().logEvent('message', {
             msg: message,
@@ -869,6 +889,11 @@ const Chat = ({ navigation, route }) => {
         navigation.navigate('Main Menu', { screen: 'Your Stats'})
     }
 
+    const handleLongPress = (item) => {
+        Share.share({ message: item.msg })
+        mixpanel.track('Button Press', { 'Button': 'LongPressChatMessage' })
+    }
+
     return (
         <>
             <SafeAreaView style={styles.container}>
@@ -910,24 +935,24 @@ const Chat = ({ navigation, route }) => {
                             data={messages}
                             renderItem={({ item }) => (
                                 <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start' }}>
-                                    <View style={item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg}>
+                                    <Pressable onLongPress={() => handleLongPress(item)} style={item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg}>
                                         {item.img != null &&
                                             item.img.map((i) => (
                                                 <ChatImage key={i.url} user={user} item={item} i={i} navigation={navigation} />
                                             ))
                                         }
                                         {item.msgType === 'courseLink' &&
-                                            <CourseLinkImage key={item.id} user={user} messageData={item} userCourseData={globalVars.userData?.courseData} courseInfo={CourseData.find(course => course.UniqueCourseNumber === item.courseInfo.UniqueCourseNumber)} navigation={navigation} />
+                                            <CourseLinkImage key={item.id} user={user} messageData={item} userCourseData={globalVars.userData?.courseData} courseInfo={CourseData.find(course => item.courseInfo?.UniqueCourseNumber === NaN || item.courseInfo?.UniqueCourseNumber == null ? globalVars.userData?.courseData?.latestCourseCompleted == null ? course.UniqueCourseNumber === 1 : course.UniqueCourseNumber === globalVars.userData?.courseData?.latestCourseCompleted + 1 : course.UniqueCourseNumber === item.courseInfo?.UniqueCourseNumber)} navigation={navigation} />
                                         }
                                         {item.msgType === 'streakCongrats' && item.streakDay <= 30 &&
                                             <StreakGif item={item} />
                                         }
                                         {item.msgType === 'statSummary' ?
-                                            <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>Good morning! This is your weekly check-in.{`\n\n`}{SevenDayAvg() === '-' ? `You did not send in any meal photos this week.` : `Your average meal score for the past week is ${SevenDayAvg()}.`}
+                                            <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>Good morning! This is your weekly check-in.{`\n\n`}{SevenDayAvg() === '-' ? `You did not send in any meal photos this week.` : `Your average meal score for the past week is ${SevenDayAvg()}.`}
                                             {`\n`}<Text onPress={handleStatSummaryPress} style={{ fontSize: 14, color: '#4D43BD', textDecorationLine: 'underline' }}>Click here</Text> to view more stats.
                                             {`\n\n`}What are some of your victories you want to celebrate for the past week?</Text> :
-                                            <Text selectable style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>}
-                                    </View>
+                                            <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>}
+                                    </Pressable>
                                     <Text style={[styles.msgTimeText, { alignSelf: item.userID === user.uid ? 'flex-end' : 'flex-start' }]}>
                                         {item.timeSent == undefined ? moment(item.timeSent).calendar() : moment(item.timeSent.toDate()).calendar()}
                                     </Text>
@@ -949,7 +974,7 @@ const Chat = ({ navigation, route }) => {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.msgInputContainer}>
-                                {images === [] ? null :
+                                {images?.length > 0 &&
                                     <FlatList
                                         horizontal={true}
                                         showsHorizontalScrollIndicator={true}
@@ -964,7 +989,7 @@ const Chat = ({ navigation, route }) => {
                                         renderItem={({ item }) => (
                                             <View key={item.uri} style={{ paddingHorizontal: 10, paddingVertical: 20 }}>
                                                 <ImageBackground style={{ height: 200, width: 200 }} imageStyle={{ borderRadius: 10 }} source={{ uri: item.uri }}>
-                                                    {sendingMessage ? null :
+                                                    {!sendingMessage &&
                                                         <TouchableOpacity style={styles.cancelImage} onPress={() => cancelImage(item)}>
                                                             <Icon
                                                                 name='ios-close'
@@ -985,7 +1010,8 @@ const Chat = ({ navigation, route }) => {
                                         placeholderTextColor={'#E6E7FA'}
                                         style={styles.msgInputText}
                                         value={messageInput}
-                                        maxLength={1000}
+                                        multiline={true}
+                                        maxLength={2000}
                                         onChangeText={(text) => setMessageInput(text)}
                                         autoCapitalize="none"
                                         blurOnSubmit={false}
@@ -1001,11 +1027,11 @@ const Chat = ({ navigation, route }) => {
                                     />
                                     <AnimatePresence>
                                         {sendingMessage ?
-                                            <MotiView key='loading' style={{ position: 'absolute', right: 15, top: 2 }} from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }}>
+                                            <MotiView key='loading' style={{ position: 'absolute', right: 15, bottom: 11.5 }} from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }}>
                                                 <ActivityIndicator size={25} color="#4D43BD" />
                                             </MotiView> :
                                             !messageInput && (images?.length === 0 || !images) ?
-                                                <MotiView key='weighin' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
+                                                <MotiView key='weighin' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, bottom: 12.5 }}>
                                                     {showWeighInButton && globalVars.userData.userBioData && <TouchableOpacity onPress={() => navigation.navigate('WeighInModal')}>
                                                         <MaterialCommunityIcons
                                                             name="scale-bathroom"
@@ -1014,7 +1040,7 @@ const Chat = ({ navigation, route }) => {
                                                         />
                                                     </TouchableOpacity>}
                                                 </MotiView> :
-                                                <MotiView key='text' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, top: 2 }}>
+                                                <MotiView key='text' from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }} style={{ position: 'absolute', right: 15, bottom: 11.5 }}>
                                                     <TouchableOpacity disabled={!messageInput && (images?.length === 0 || !images)} onPress={() => {
                                                         setSendingMessage(true)
                                                         messages.length > 0 && scrollToLatest()
@@ -1109,35 +1135,11 @@ const Chat = ({ navigation, route }) => {
                 </View>
             </SafeAreaView>
             <AnimatePresence>
-                {trialPeriodFinished &&
-                    <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute' }}>
-                        <BlurView
-                            style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute' }}
-                            blurType="dark"
-                            blurAmount={10}
-                            reducedTransparencyFallbackColor="white"
-                        />
-                        <View style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', justifyContent: 'center', alignItems: 'center', padding: 15 }}>
-                            <Icon
-                                name='lock-closed'
-                                size={windowWidth * 0.4}
-                                color='#848299'
-                            />
-                            <Text style={{ fontSize: 18, color: '#fff', textAlign: 'center' }}>Your free trial has expired. Become a Subscriber to DietPeeps to enable the chat with your personal coach.</Text>
-                            {showExtraDaysButton && <TouchableOpacity onPress={giveExtraTrialDays} style={[styles.panelButton, { backgroundColor: '#4C44D4', marginTop: 20, width: windowWidth - 30, height: 50 },]}>
-                                <Text style={styles.panelButtonTitle}>{'Give me a few extra days'}</Text>
-                            </TouchableOpacity>}
-                        </View>
-                        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} delay={2000} transition={{ duration: 350 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 10 : 10, right: 20 }}>
-                            <TouchableOpacity onPress={() => navigation.navigate('Subscription', { trialReminder: 'none' })} style={styles.subBadgeContainer}>
-                                <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} delay={1700} transition={{ translateY: { type: 'timing', duration: 400, easing: Easing.bezier(.56, -0.01, 0, .98) }, opacity: { type: 'timing', delay: 1850 } }} style={{ justifyContent: 'center', alignItems: 'center', width: 50, height: 50 }} >
-                                    <ImageBackground source={ribbon} style={{ width: 50, height: 50, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }} imageStyle={{ width: 50, height: 50, resizeMode: 'contain' }}>
-                                        <MotiView from={{ translateX: 250, translateY: 250, rotateZ: '-45deg' }} animate={{ translateX: -250, translateY: -250, rotateZ: '-45deg' }} delay={3000} transition={{ loop: true, repeatReverse: false, duration: 5000, type: 'timing' }} style={{ opacity: 0.5, backgroundColor: '#fff', width: 100, height: 20, transform: [{ rotateZ: '-45deg' }] }} />
-                                    </ImageBackground>
-                                </MotiView>
-                            </TouchableOpacity>
-                        </MotiView>
-                    </MotiView>}
+                {userFlagged || globalVars.userFlagged ? 
+                    <UserFlaggedScreen navigation={navigation} />
+                : trialPeriodFinished &&
+                    <TrialPeriodFinishedScreen navigation={navigation} showExtraDaysButton={showExtraDaysButton} giveExtraTrialDays={giveExtraTrialDays} />
+                }
             </AnimatePresence>
         </>
     )
@@ -1223,20 +1225,21 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
     },
     msgInputWrapper: {
-        padding: 20,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        minHeight: 50,
+        paddingVertical: 10
     },
     msgInputText: {
-        position: 'absolute',
+        // position: 'absolute',
         color: '#686286',
         borderRadius: 10,
-        minHeight: 50,
+        // minHeight: 50,
         width: windowWidth * 0.56,
         paddingLeft: 20,
         borderWidth: 0,
         marginRight: 25,
-        bottom: 0
+        paddingTop: 0
     },
     msgTimeText: {
         fontSize: 12,
