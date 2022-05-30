@@ -27,6 +27,7 @@ const EnableNotifsScreen = ({ navigation }) => {
     if (alreadyEnabled != null || alreadyRequested) {
       Linking.openSettings('app-settings://notifications')
       navigation.replace('Main Menu')
+      return null
     }
     // if(alreadyEnabled == null) {
       const result = await requestUserPermission()

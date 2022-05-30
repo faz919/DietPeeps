@@ -14,6 +14,9 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A14F364E703D6817272D4F7B /* libPods-DietPeeps-DietPeepsTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */; };
 		D56A6AB227CF67A0002A7CF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D56A6AB127CF67A0002A7CF7 /* GoogleService-Info.plist */; };
+		D5A316A42844A09800831565 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D5A316A22844A09800831565 /* MainInterface.storyboard */; };
+		D5A316A82844A09800831565 /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D5A3169E2844A09800831565 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D5A316AE2844A15C00831565 /* ShareExtension in Resources */ = {isa = PBXBuildFile; fileRef = D5A316AD2844A15C00831565 /* ShareExtension */; };
 		D5FBF3282806D56300C7E8CF /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5FBF3272806D56300C7E8CF /* StoreKit.framework */; };
 		E270F422FCE46730C639B702 /* libPods-DietPeeps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E08BD998306182F0AED6417 /* libPods-DietPeeps.a */; };
 /* End PBXBuildFile section */
@@ -26,7 +29,28 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = DietPeeps;
 		};
+		D5A316A62844A09800831565 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D5A3169D2844A09800831565;
+			remoteInfo = ShareExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D5A316A92844A09800831565 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D5A316A82844A09800831565 /* ShareExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		00E356EE1AD99517003FC87E /* DietPeepsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DietPeepsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -47,6 +71,10 @@
 		BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DietPeeps-DietPeepsTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D53B2D3227BA15CA00F7B5BF /* DietPeeps.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = DietPeeps.entitlements; path = DietPeeps/DietPeeps.entitlements; sourceTree = "<group>"; };
 		D56A6AB127CF67A0002A7CF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D5A3169E2844A09800831565 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5A316A32844A09800831565 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		D5A316A52844A09800831565 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D5A316AD2844A15C00831565 /* ShareExtension */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ShareExtension; sourceTree = "<group>"; };
 		D5FBF3272806D56300C7E8CF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -66,6 +94,13 @@
 			files = (
 				E270F422FCE46730C639B702 /* libPods-DietPeeps.a in Frameworks */,
 				D5FBF3282806D56300C7E8CF /* StoreKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D5A3169B2844A09800831565 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,6 +174,7 @@
 				13B07FAE1A68108700A75B9A /* DietPeeps */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* DietPeepsTests */,
+				D5A3169F2844A09800831565 /* ShareExtension */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				5F4B99525DEE53D15AFC9578 /* Pods */,
@@ -153,8 +189,19 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* DietPeeps.app */,
 				00E356EE1AD99517003FC87E /* DietPeepsTests.xctest */,
+				D5A3169E2844A09800831565 /* ShareExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D5A3169F2844A09800831565 /* ShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				D5A316AD2844A15C00831565 /* ShareExtension */,
+				D5A316A22844A09800831565 /* MainInterface.storyboard */,
+				D5A316A52844A09800831565 /* Info.plist */,
+			);
+			path = ShareExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -195,15 +242,34 @@
 				9AC573AAB88956647F08583C /* [CP] Copy Pods Resources */,
 				916EA7E616EBFFA465399068 /* [CP-User] [RNFB] Core Configuration */,
 				860333F1A7EEB2DB630B7AAB /* [CP-User] [RNFB] Crashlytics Configuration */,
+				D5A316A92844A09800831565 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D5A316A72844A09800831565 /* PBXTargetDependency */,
 			);
 			name = DietPeeps;
 			productName = DietPeeps;
 			productReference = 13B07F961A680F5B00A75B9A /* DietPeeps.app */;
 			productType = "com.apple.product-type.application";
+		};
+		D5A3169D2844A09800831565 /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D5A316AC2844A09800831565 /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				D5A3169A2844A09800831565 /* Sources */,
+				D5A3169B2844A09800831565 /* Frameworks */,
+				D5A3169C2844A09800831565 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShareExtension;
+			productName = ShareExtension;
+			productReference = D5A3169E2844A09800831565 /* ShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -211,6 +277,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1330;
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -219,6 +286,9 @@
 					};
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1120;
+					};
+					D5A3169D2844A09800831565 = {
+						CreatedOnToolsVersion = 13.3.1;
 					};
 				};
 			};
@@ -237,6 +307,7 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* DietPeeps */,
 				00E356ED1AD99517003FC87E /* DietPeepsTests */,
+				D5A3169D2844A09800831565 /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -256,6 +327,15 @@
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				D56A6AB227CF67A0002A7CF7 /* GoogleService-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D5A3169C2844A09800831565 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5A316AE2844A15C00831565 /* ShareExtension in Resources */,
+				D5A316A42844A09800831565 /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -454,6 +534,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D5A3169A2844A09800831565 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -462,7 +549,23 @@
 			target = 13B07F861A680F5B00A75B9A /* DietPeeps */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
+		D5A316A72844A09800831565 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D5A3169D2844A09800831565 /* ShareExtension */;
+			targetProxy = D5A316A62844A09800831565 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		D5A316A22844A09800831565 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D5A316A32844A09800831565 /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
@@ -697,6 +800,82 @@
 			};
 			name = Release;
 		};
+		D5A316AA2844A09800831565 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UGZBZJXSGR;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.DietPeeps.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		D5A316AB2844A09800831565 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UGZBZJXSGR;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.DietPeeps.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -723,6 +902,15 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D5A316AC2844A09800831565 /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D5A316AA2844A09800831565 /* Debug */,
+				D5A316AB2844A09800831565 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

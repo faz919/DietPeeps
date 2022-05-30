@@ -115,12 +115,14 @@ const Chat = ({ navigation, route }) => {
             includeExif: true,
             compressImageMaxHeight: 512,
             forceJpg: true,
+            includeBase64: true
         }).then((i) => {
             setImages([{
                 uri: i.path,
                 width: i.width,
                 height: i.height,
                 mime: i.mime,
+                base64: i.base64
             }])
             setAttachingImage(val => ({ ...val, visible: false }))
             setAttachingImage(val => ({ ...val, loading: false }))
@@ -174,7 +176,8 @@ const Chat = ({ navigation, route }) => {
             multiple: true,
             includeExif: true,
             compressImageMaxHeight: 512,
-            forceJpg: true
+            forceJpg: true,
+            includeBase64: true
         }).then((imageData) => {
             setImages(imageData.map((i) => {
                 return {
@@ -182,7 +185,8 @@ const Chat = ({ navigation, route }) => {
                     width: i.width,
                     height: i.height,
                     mime: i.mime,
-                };
+                    base64: i.base64
+                }
             }))
             setAttachingImage(val => ({ ...val, visible: false }))
             setAttachingImage(val => ({ ...val, loading: false }))
@@ -757,96 +761,28 @@ const Chat = ({ navigation, route }) => {
     useEffect(() => {
         if (globalVars.userData) {
             checkUserMembership(globalVars.userData)
+            if (!globalVars.userData.notificationsEnabled) {
+                promptUserNotifications(globalVars.userData.dateJoined)
+            }
         }
     }, [globalVars.userData])
 
-    // useEffect(() => {
-    //     if (globalVars.newUser && globalVars.coachID && globalVars.chatID) {
-    //         firestore()
-    //             .collection('chat-rooms')
-    //             .doc(globalVars.chatID)
-    //             .collection('chat-messages')
-    //             .add({
-    //                 img: null,
-    //                 msg: user.displayName == null ? 'Hey there, and welcome to DietPeeps! 🙂' : `Hi ${user.displayName}, and welcome to DietPeeps! 🙂`,
-    //                 userID: globalVars.coachID,
-    //                 timeSent: firestore.Timestamp.now()
-    //             })
-    //         setTimeout(() => {
-    //             firestore()
-    //                 .collection('chat-rooms')
-    //                 .doc(globalVars.chatID)
-    //                 .collection('chat-messages')
-    //                 .add({
-    //                     img: null,
-    //                     msg: `My name is ${globalVars.coachData?.displayName}, and I'll be your personal coach. My goal is to help you succeed by making small steps every single day.`,
-    //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.now()
-    //                 })
-    //         }, 3000)
-    //         setTimeout(() => {
-    //             firestore()
-    //                 .collection('chat-rooms')
-    //                 .doc(globalVars.chatID)
-    //                 .collection('chat-messages')
-    //                 .add({
-    //                     img: null,
-    //                     msg: `To do this, you'll need to send me a photo of every meal that you eat.`,
-    //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.now()
-    //                 })
-    //         }, 8000)
-    //         setTimeout(() => {
-    //             firestore()
-    //                 .collection('chat-rooms')
-    //                 .doc(globalVars.chatID)
-    //                 .collection('chat-messages')
-    //                 .add({
-    //                     img: null,
-    //                     msg: `My job as coach is to look at these photos and score them based on how healthy they are.`,
-    //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.now()
-    //                 })
-    //         }, 13000)
-    //         setTimeout(() => {
-    //             firestore()
-    //                 .collection('chat-rooms')
-    //                 .doc(globalVars.chatID)
-    //                 .collection('chat-messages')
-    //                 .add({
-    //                     img: null,
-    //                     msg: `First, a couple of questions for you: `,
-    //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.now()
-    //                 })
-    //         }, 17000)
-    //         setTimeout(() => {
-    //             firestore()
-    //                 .collection('chat-rooms')
-    //                 .doc(globalVars.chatID)
-    //                 .collection('chat-messages')
-    //                 .add({
-    //                     img: null,
-    //                     msg: `1) Do you have a nickname that you prefer?`,
-    //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.now()
-    //                 })
-    //         }, 20000)
-    //         setTimeout(() => {
-    //             AsyncStorage.setItem('@tutorial_finished', 'true')
-    //             firestore()
-    //                 .collection('chat-rooms')
-    //                 .doc(globalVars.chatID)
-    //                 .collection('chat-messages')
-    //                 .add({
-    //                     img: null,
-    //                     msg: `2) Any questions for me so far?`,
-    //                     userID: globalVars.coachID,
-    //                     timeSent: firestore.Timestamp.now()
-    //                 })
-    //         }, 23000)
-    //     }
-    // }, [globalVars.newUser, globalVars.coachID, globalVars.chatID])
+    const promptUserNotifications = async (dateJoined) => {
+        if (dateJoined && !globalVars.userData.notificationsEnabled) {
+            const now = new Date()
+            const fiveDaysAgo = new Date(now.getTime() - (5 * 24 * 60 * 60 * 1000))
+            const tenDaysAgo = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000))
+            const secondReminder = await AsyncStorage.getItem('@notifs_second_reminder')
+            const thirdReminder = await AsyncStorage.getItem('@notifs_third_reminder')
+            if (fiveDaysAgo > dateJoined && secondReminder == null) {
+                navigation.navigate('Enable Notifs')
+                AsyncStorage.setItem('@notifs_second_reminder', 'true')
+            } else if (tenDaysAgo > dateJoined && secondReminder == 'true' && thirdReminder == null) {
+                navigation.navigate('Enable Notifs')
+                AsyncStorage.setItem('@notifs_third_reminder', 'true')
+            }
+        }
+    }
 
     useEffect(() => {
         AsyncStorage.getItem('@notifs_enabled').then((value) => {
