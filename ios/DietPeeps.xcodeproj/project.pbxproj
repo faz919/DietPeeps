@@ -11,12 +11,13 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		4C8A9107DBBFC15E95F721CE /* libPods-DietPeepsShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9CD91B758DAF318D4C77E03 /* libPods-DietPeepsShareExtension.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		A14F364E703D6817272D4F7B /* libPods-DietPeeps-DietPeepsTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */; };
+		D530F553284518D10077893C /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D530F551284518D10077893C /* MainInterface.storyboard */; };
+		D530F557284518D10077893C /* DietPeepsShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D530F54D284518D10077893C /* DietPeepsShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D530F55D2845194C0077893C /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D530F55C2845194C0077893C /* ShareViewController.swift */; };
 		D56A6AB227CF67A0002A7CF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D56A6AB127CF67A0002A7CF7 /* GoogleService-Info.plist */; };
-		D5A316A42844A09800831565 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D5A316A22844A09800831565 /* MainInterface.storyboard */; };
-		D5A316A82844A09800831565 /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D5A3169E2844A09800831565 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		D5A316AE2844A15C00831565 /* ShareExtension in Resources */ = {isa = PBXBuildFile; fileRef = D5A316AD2844A15C00831565 /* ShareExtension */; };
 		D5FBF3282806D56300C7E8CF /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5FBF3272806D56300C7E8CF /* StoreKit.framework */; };
 		E270F422FCE46730C639B702 /* libPods-DietPeeps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E08BD998306182F0AED6417 /* libPods-DietPeeps.a */; };
 /* End PBXBuildFile section */
@@ -29,12 +30,12 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = DietPeeps;
 		};
-		D5A316A62844A09800831565 /* PBXContainerItemProxy */ = {
+		D530F555284518D10077893C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = D5A3169D2844A09800831565;
-			remoteInfo = ShareExtension;
+			remoteGlobalIDString = D530F54C284518D10077893C;
+			remoteInfo = DietPeepsShareExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -45,7 +46,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D5A316A82844A09800831565 /* ShareExtension.appex in Embed App Extensions */,
+				D530F557284518D10077893C /* DietPeepsShareExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -63,18 +64,26 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = DietPeeps/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = DietPeeps/main.m; sourceTree = "<group>"; };
 		20515A92CB533212FB968743 /* Pods-DietPeeps.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DietPeeps.debug.xcconfig"; path = "Target Support Files/Pods-DietPeeps/Pods-DietPeeps.debug.xcconfig"; sourceTree = "<group>"; };
+		3BB25C0F20395F5242352665 /* Pods-DietPeepsShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DietPeepsShareExtension.debug.xcconfig"; path = "Target Support Files/Pods-DietPeepsShareExtension/Pods-DietPeepsShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		4E08BD998306182F0AED6417 /* libPods-DietPeeps.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DietPeeps.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E92A407197160F7AA978F0D /* Pods-DietPeepsShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DietPeepsShareExtension.release.xcconfig"; path = "Target Support Files/Pods-DietPeepsShareExtension/Pods-DietPeepsShareExtension.release.xcconfig"; sourceTree = "<group>"; };
+		6D0B4D61499CA1B9F7808C34 /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = DietPeeps/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		81D56E112569E9F6EEF50AEF /* Pods-DietPeeps.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DietPeeps.release.xcconfig"; path = "Target Support Files/Pods-DietPeeps/Pods-DietPeeps.release.xcconfig"; sourceTree = "<group>"; };
+		8E353AAA4F0F18FC3F56FC9A /* libPods-ShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		93D1C99E84B0B0DB767BC8F8 /* Pods-DietPeeps-DietPeepsTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DietPeeps-DietPeepsTests.release.xcconfig"; path = "Target Support Files/Pods-DietPeeps-DietPeepsTests/Pods-DietPeeps-DietPeepsTests.release.xcconfig"; sourceTree = "<group>"; };
+		A9CD91B758DAF318D4C77E03 /* libPods-DietPeepsShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DietPeepsShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC498AECF5C35FEB02209369 /* Pods-DietPeeps-DietPeepsTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DietPeeps-DietPeepsTests.debug.xcconfig"; path = "Target Support Files/Pods-DietPeeps-DietPeepsTests/Pods-DietPeeps-DietPeepsTests.debug.xcconfig"; sourceTree = "<group>"; };
+		B6E8BF40FBD4C79677C53BF4 /* Pods-ShareExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.debug.xcconfig"; path = "Target Support Files/Pods-ShareExtension/Pods-ShareExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DietPeeps-DietPeepsTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D530F54D284518D10077893C /* DietPeepsShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DietPeepsShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D530F552284518D10077893C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		D530F554284518D10077893C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D530F55B2845194B0077893C /* DietPeepsShareExtension-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DietPeepsShareExtension-Bridging-Header.h"; sourceTree = "<group>"; };
+		D530F55C2845194C0077893C /* ShareViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ShareViewController.swift; path = "../../node_modules/react-native-share-menu/ios/ShareViewController.swift"; sourceTree = "<group>"; };
+		D530F55E284519810077893C /* DietPeepsShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DietPeepsShareExtension.entitlements; sourceTree = "<group>"; };
 		D53B2D3227BA15CA00F7B5BF /* DietPeeps.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = DietPeeps.entitlements; path = DietPeeps/DietPeeps.entitlements; sourceTree = "<group>"; };
 		D56A6AB127CF67A0002A7CF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		D5A3169E2844A09800831565 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		D5A316A32844A09800831565 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
-		D5A316A52844A09800831565 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D5A316AD2844A15C00831565 /* ShareExtension */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ShareExtension; sourceTree = "<group>"; };
 		D5FBF3272806D56300C7E8CF /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -97,10 +106,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D5A3169B2844A09800831565 /* Frameworks */ = {
+		D530F54A284518D10077893C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C8A9107DBBFC15E95F721CE /* libPods-DietPeepsShareExtension.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +155,8 @@
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				4E08BD998306182F0AED6417 /* libPods-DietPeeps.a */,
 				BEF2A413CC09C0870E6B6990 /* libPods-DietPeeps-DietPeepsTests.a */,
+				8E353AAA4F0F18FC3F56FC9A /* libPods-ShareExtension.a */,
+				A9CD91B758DAF318D4C77E03 /* libPods-DietPeepsShareExtension.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -156,6 +168,10 @@
 				81D56E112569E9F6EEF50AEF /* Pods-DietPeeps.release.xcconfig */,
 				AC498AECF5C35FEB02209369 /* Pods-DietPeeps-DietPeepsTests.debug.xcconfig */,
 				93D1C99E84B0B0DB767BC8F8 /* Pods-DietPeeps-DietPeepsTests.release.xcconfig */,
+				B6E8BF40FBD4C79677C53BF4 /* Pods-ShareExtension.debug.xcconfig */,
+				6D0B4D61499CA1B9F7808C34 /* Pods-ShareExtension.release.xcconfig */,
+				3BB25C0F20395F5242352665 /* Pods-DietPeepsShareExtension.debug.xcconfig */,
+				5E92A407197160F7AA978F0D /* Pods-DietPeepsShareExtension.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -174,7 +190,7 @@
 				13B07FAE1A68108700A75B9A /* DietPeeps */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* DietPeepsTests */,
-				D5A3169F2844A09800831565 /* ShareExtension */,
+				D530F54E284518D10077893C /* DietPeepsShareExtension */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				5F4B99525DEE53D15AFC9578 /* Pods */,
@@ -189,19 +205,21 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* DietPeeps.app */,
 				00E356EE1AD99517003FC87E /* DietPeepsTests.xctest */,
-				D5A3169E2844A09800831565 /* ShareExtension.appex */,
+				D530F54D284518D10077893C /* DietPeepsShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D5A3169F2844A09800831565 /* ShareExtension */ = {
+		D530F54E284518D10077893C /* DietPeepsShareExtension */ = {
 			isa = PBXGroup;
 			children = (
-				D5A316AD2844A15C00831565 /* ShareExtension */,
-				D5A316A22844A09800831565 /* MainInterface.storyboard */,
-				D5A316A52844A09800831565 /* Info.plist */,
+				D530F55E284519810077893C /* DietPeepsShareExtension.entitlements */,
+				D530F55C2845194C0077893C /* ShareViewController.swift */,
+				D530F551284518D10077893C /* MainInterface.storyboard */,
+				D530F554284518D10077893C /* Info.plist */,
+				D530F55B2845194B0077893C /* DietPeepsShareExtension-Bridging-Header.h */,
 			);
-			path = ShareExtension;
+			path = DietPeepsShareExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -247,28 +265,30 @@
 			buildRules = (
 			);
 			dependencies = (
-				D5A316A72844A09800831565 /* PBXTargetDependency */,
+				D530F556284518D10077893C /* PBXTargetDependency */,
 			);
 			name = DietPeeps;
 			productName = DietPeeps;
 			productReference = 13B07F961A680F5B00A75B9A /* DietPeeps.app */;
 			productType = "com.apple.product-type.application";
 		};
-		D5A3169D2844A09800831565 /* ShareExtension */ = {
+		D530F54C284518D10077893C /* DietPeepsShareExtension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D5A316AC2844A09800831565 /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildConfigurationList = D530F558284518D10077893C /* Build configuration list for PBXNativeTarget "DietPeepsShareExtension" */;
 			buildPhases = (
-				D5A3169A2844A09800831565 /* Sources */,
-				D5A3169B2844A09800831565 /* Frameworks */,
-				D5A3169C2844A09800831565 /* Resources */,
+				FC94CA21D4720C93F7882A13 /* [CP] Check Pods Manifest.lock */,
+				D530F549284518D10077893C /* Sources */,
+				D530F54A284518D10077893C /* Frameworks */,
+				D530F54B284518D10077893C /* Resources */,
+				9171C94AB010C8EB1CCC0B75 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = ShareExtension;
-			productName = ShareExtension;
-			productReference = D5A3169E2844A09800831565 /* ShareExtension.appex */;
+			name = DietPeepsShareExtension;
+			productName = DietPeepsShareExtension;
+			productReference = D530F54D284518D10077893C /* DietPeepsShareExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -277,7 +297,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1330;
+				LastSwiftUpdateCheck = 1340;
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -287,8 +307,9 @@
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1120;
 					};
-					D5A3169D2844A09800831565 = {
-						CreatedOnToolsVersion = 13.3.1;
+					D530F54C284518D10077893C = {
+						CreatedOnToolsVersion = 13.4;
+						LastSwiftMigration = 1340;
 					};
 				};
 			};
@@ -307,7 +328,7 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* DietPeeps */,
 				00E356ED1AD99517003FC87E /* DietPeepsTests */,
-				D5A3169D2844A09800831565 /* ShareExtension */,
+				D530F54C284518D10077893C /* DietPeepsShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -330,12 +351,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D5A3169C2844A09800831565 /* Resources */ = {
+		D530F54B284518D10077893C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D5A316AE2844A15C00831565 /* ShareExtension in Resources */,
-				D5A316A42844A09800831565 /* MainInterface.storyboard in Resources */,
+				D530F553284518D10077893C /* MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,6 +459,23 @@
 			shellPath = /bin/sh;
 			shellScript = "#!/usr/bin/env bash\n#\n# Copyright (c) 2016-present Invertase Limited & Contributors\n#\n# Licensed under the Apache License, Version 2.0 (the \"License\");\n# you may not use this library except in compliance with the License.\n# You may obtain a copy of the License at\n#\n#   http://www.apache.org/licenses/LICENSE-2.0\n#\n# Unless required by applicable law or agreed to in writing, software\n# distributed under the License is distributed on an \"AS IS\" BASIS,\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n# See the License for the specific language governing permissions and\n# limitations under the License.\n#\nset -e\n\n_MAX_LOOKUPS=2;\n_SEARCH_RESULT=''\n_RN_ROOT_EXISTS=''\n_CURRENT_LOOKUPS=1\n_JSON_ROOT=\"'react-native'\"\n_JSON_FILE_NAME='firebase.json'\n_JSON_OUTPUT_BASE64='e30=' # { }\n_CURRENT_SEARCH_DIR=${PROJECT_DIR}\n_PLIST_BUDDY=/usr/libexec/PlistBuddy\n_TARGET_PLIST=\"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}\"\n_DSYM_PLIST=\"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist\"\n\n# plist arrays\n_PLIST_ENTRY_KEYS=()\n_PLIST_ENTRY_TYPES=()\n_PLIST_ENTRY_VALUES=()\n\nfunction setPlistValue {\n  echo \"info:      setting plist entry '$1' of type '$2' in file '$4'\"\n  ${_PLIST_BUDDY} -c \"Add :$1 $2 '$3'\" $4 || echo \"info:      '$1' already exists\"\n}\n\nfunction getFirebaseJsonKeyValue () {\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    ruby -e \"require 'rubygems';require 'json'; output=JSON.parse('$1'); puts output[$_JSON_ROOT]['$2']\"\n  else\n    echo \"\"\n  fi;\n}\n\nfunction jsonBoolToYesNo () {\n  if [[ $1 == \"false\" ]]; then\n    echo \"NO\"\n  elif [[ $1 == \"true\" ]]; then\n    echo \"YES\"\n  else echo \"NO\"\n  fi\n}\n\necho \"info: -> RNFB build script started\"\necho \"info: 1) Locating ${_JSON_FILE_NAME} file:\"\n\nif [[ -z ${_CURRENT_SEARCH_DIR} ]]; then\n  _CURRENT_SEARCH_DIR=$(pwd)\nfi;\n\nwhile true; do\n  _CURRENT_SEARCH_DIR=$(dirname \"$_CURRENT_SEARCH_DIR\")\n  if [[ \"$_CURRENT_SEARCH_DIR\" == \"/\" ]] || [[ ${_CURRENT_LOOKUPS} -gt ${_MAX_LOOKUPS} ]]; then break; fi;\n  echo \"info:      ($_CURRENT_LOOKUPS of $_MAX_LOOKUPS) Searching in '$_CURRENT_SEARCH_DIR' for a ${_JSON_FILE_NAME} file.\"\n  _SEARCH_RESULT=$(find \"$_CURRENT_SEARCH_DIR\" -maxdepth 2 -name ${_JSON_FILE_NAME} -print | /usr/bin/head -n 1)\n  if [[ ${_SEARCH_RESULT} ]]; then\n    echo \"info:      ${_JSON_FILE_NAME} found at $_SEARCH_RESULT\"\n    break;\n  fi;\n  _CURRENT_LOOKUPS=$((_CURRENT_LOOKUPS+1))\ndone\n\nif [[ ${_SEARCH_RESULT} ]]; then\n  _JSON_OUTPUT_RAW=$(cat \"${_SEARCH_RESULT}\")\n  _RN_ROOT_EXISTS=$(ruby -e \"require 'rubygems';require 'json'; output=JSON.parse('$_JSON_OUTPUT_RAW'); puts output[$_JSON_ROOT]\" || echo '')\n\n  if [[ ${_RN_ROOT_EXISTS} ]]; then\n    _JSON_OUTPUT_BASE64=$(python -c 'import json,sys,base64;print(base64.b64encode(json.dumps(json.loads(open('\"'${_SEARCH_RESULT}'\"').read())['${_JSON_ROOT}'])))' || echo \"e30=\")\n  fi\n\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n\n  # config.app_data_collection_default_enabled\n  _APP_DATA_COLLECTION_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_data_collection_default_enabled\")\n  if [[ $_APP_DATA_COLLECTION_ENABLED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseDataCollectionDefaultEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_DATA_COLLECTION_ENABLED\")\")\n  fi\n\n  # config.analytics_auto_collection_enabled\n  _ANALYTICS_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_auto_collection_enabled\")\n  if [[ $_ANALYTICS_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_COLLECTION\")\")\n  fi\n\n  # config.analytics_collection_deactivated\n  _ANALYTICS_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_collection_deactivated\")\n  if [[ $_ANALYTICS_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_DEACTIVATED\")\")\n  fi\n\n  # config.analytics_idfv_collection_enabled\n  _ANALYTICS_IDFV_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_idfv_collection_enabled\")\n  if [[ $_ANALYTICS_IDFV_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_IDFV_COLLECTION\")\")\n  fi\n\n  # config.analytics_default_allow_ad_personalization_signals\n  _ANALYTICS_PERSONALIZATION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"analytics_default_allow_ad_personalization_signals\")\n  if [[ $_ANALYTICS_PERSONALIZATION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_PERSONALIZATION\")\")\n  fi\n\n  # config.google_analytics_automatic_screen_reporting_enabled\n  _ANALYTICS_AUTO_SCREEN_REPORTING=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"google_analytics_automatic_screen_reporting_enabled\")\n  if [[ $_ANALYTICS_AUTO_SCREEN_REPORTING ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAutomaticScreenReportingEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_ANALYTICS_AUTO_SCREEN_REPORTING\")\")\n  fi\n\n  # config.perf_auto_collection_enabled\n  _PERF_AUTO_COLLECTION=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_auto_collection_enabled\")\n  if [[ $_PERF_AUTO_COLLECTION ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_enabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_AUTO_COLLECTION\")\")\n  fi\n\n  # config.perf_collection_deactivated\n  _PERF_DEACTIVATED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"perf_collection_deactivated\")\n  if [[ $_PERF_DEACTIVATED ]]; then\n    _PLIST_ENTRY_KEYS+=(\"firebase_performance_collection_deactivated\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_PERF_DEACTIVATED\")\")\n  fi\n\n  # config.messaging_auto_init_enabled\n  _MESSAGING_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"messaging_auto_init_enabled\")\n  if [[ $_MESSAGING_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseMessagingAutoInitEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_MESSAGING_AUTO_INIT\")\")\n  fi\n\n  # config.in_app_messaging_auto_colllection_enabled\n  _FIAM_AUTO_INIT=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"in_app_messaging_auto_collection_enabled\")\n  if [[ $_FIAM_AUTO_INIT ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseInAppMessagingAutomaticDataCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_FIAM_AUTO_INIT\")\")\n  fi\n\n  # config.app_check_token_auto_refresh\n  _APP_CHECK_TOKEN_AUTO_REFRESH=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"app_check_token_auto_refresh\")\n  if [[ $_APP_CHECK_TOKEN_AUTO_REFRESH ]]; then\n    _PLIST_ENTRY_KEYS+=(\"FirebaseAppCheckTokenAutoRefreshEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"$(jsonBoolToYesNo \"$_APP_CHECK_TOKEN_AUTO_REFRESH\")\")\n  fi\n\n  # config.crashlytics_disable_auto_disabler - undocumented for now - mainly for debugging, document if becomes useful\n  _CRASHLYTICS_AUTO_DISABLE_ENABLED=$(getFirebaseJsonKeyValue \"$_JSON_OUTPUT_RAW\" \"crashlytics_disable_auto_disabler\")\n  if [[ $_CRASHLYTICS_AUTO_DISABLE_ENABLED == \"true\" ]]; then\n    echo \"Disabled Crashlytics auto disabler.\" # do nothing\n  else\n    _PLIST_ENTRY_KEYS+=(\"FirebaseCrashlyticsCollectionEnabled\")\n    _PLIST_ENTRY_TYPES+=(\"bool\")\n    _PLIST_ENTRY_VALUES+=(\"NO\")\n  fi\nelse\n  _PLIST_ENTRY_KEYS+=(\"firebase_json_raw\")\n  _PLIST_ENTRY_TYPES+=(\"string\")\n  _PLIST_ENTRY_VALUES+=(\"$_JSON_OUTPUT_BASE64\")\n  echo \"warning:   A firebase.json file was not found, whilst this file is optional it is recommended to include it to configure firebase services in React Native Firebase.\"\nfi;\n\necho \"info: 2) Injecting Info.plist entries: \"\n\n# Log out the keys we're adding\nfor i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n  echo \"    ->  $i) ${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\"\ndone\n\nfor plist in \"${_TARGET_PLIST}\" \"${_DSYM_PLIST}\" ; do\n  if [[ -f \"${plist}\" ]]; then\n\n    # paths with spaces break the call to setPlistValue. temporarily modify\n    # the shell internal field separator variable (IFS), which normally\n    # includes spaces, to consist only of line breaks\n    oldifs=$IFS\n    IFS=\"\n\"\n\n    for i in \"${!_PLIST_ENTRY_KEYS[@]}\"; do\n      setPlistValue \"${_PLIST_ENTRY_KEYS[$i]}\" \"${_PLIST_ENTRY_TYPES[$i]}\" \"${_PLIST_ENTRY_VALUES[$i]}\" \"${plist}\"\n    done\n\n    # restore the original internal field separator value\n    IFS=$oldifs\n  else\n    echo \"warning:   A Info.plist build output file was not found (${plist})\"\n  fi\ndone\n\necho \"info: <- RNFB build script finished\"\n";
 		};
+		9171C94AB010C8EB1CCC0B75 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-DietPeepsShareExtension/Pods-DietPeepsShareExtension-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-DietPeepsShareExtension/Pods-DietPeepsShareExtension-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DietPeepsShareExtension/Pods-DietPeepsShareExtension-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		9AC573AAB88956647F08583C /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -495,6 +532,28 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DietPeeps/Pods-DietPeeps-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		FC94CA21D4720C93F7882A13 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-DietPeepsShareExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -534,10 +593,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D5A3169A2844A09800831565 /* Sources */ = {
+		D530F549284518D10077893C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D530F55D2845194C0077893C /* ShareViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,18 +609,18 @@
 			target = 13B07F861A680F5B00A75B9A /* DietPeeps */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
-		D5A316A72844A09800831565 /* PBXTargetDependency */ = {
+		D530F556284518D10077893C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D5A3169D2844A09800831565 /* ShareExtension */;
-			targetProxy = D5A316A62844A09800831565 /* PBXContainerItemProxy */;
+			target = D530F54C284518D10077893C /* DietPeepsShareExtension */;
+			targetProxy = D530F555284518D10077893C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		D5A316A22844A09800831565 /* MainInterface.storyboard */ = {
+		D530F551284518D10077893C /* MainInterface.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				D5A316A32844A09800831565 /* Base */,
+				D530F552284518D10077893C /* Base */,
 			);
 			name = MainInterface.storyboard;
 			sourceTree = "<group>";
@@ -625,6 +685,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 20515A92CB533212FB968743 /* Pods-DietPeeps.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DietPeeps/DietPeeps.entitlements;
@@ -642,7 +703,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.DietPeeps;
 				PRODUCT_NAME = DietPeeps;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -654,6 +715,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 81D56E112569E9F6EEF50AEF /* Pods-DietPeeps.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = DietPeeps/DietPeeps.entitlements;
@@ -670,7 +732,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = org.DietPeeps;
 				PRODUCT_NAME = DietPeeps;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -800,25 +862,28 @@
 			};
 			name = Release;
 		};
-		D5A316AA2844A09800831565 /* Debug */ = {
+		D530F559284518D10077893C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3BB25C0F20395F5242352665 /* Pods-DietPeepsShareExtension.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = DietPeepsShareExtension/DietPeepsShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = UGZBZJXSGR;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShareExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
+				INFOPLIST_FILE = DietPeepsShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DietPeepsShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -827,26 +892,30 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.DietPeeps.ShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = org.DietPeeps.DietPeepsShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "DietPeepsShareExtension/DietPeepsShareExtension-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		D5A316AB2844A09800831565 /* Release */ = {
+		D530F55A284518D10077893C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5E92A407197160F7AA978F0D /* Pods-DietPeepsShareExtension.release.xcconfig */;
 			buildSettings = {
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = DietPeepsShareExtension/DietPeepsShareExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -854,10 +923,10 @@
 				DEVELOPMENT_TEAM = UGZBZJXSGR;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShareExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = ShareExtension;
+				INFOPLIST_FILE = DietPeepsShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DietPeepsShareExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -865,14 +934,15 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.DietPeeps.ShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = org.DietPeeps.DietPeepsShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "DietPeepsShareExtension/DietPeepsShareExtension-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -906,11 +976,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D5A316AC2844A09800831565 /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+		D530F558284518D10077893C /* Build configuration list for PBXNativeTarget "DietPeepsShareExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D5A316AA2844A09800831565 /* Debug */,
-				D5A316AB2844A09800831565 /* Release */,
+				D530F559284518D10077893C /* Debug */,
+				D530F55A284518D10077893C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -25,9 +25,11 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>org.DietPeeps</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.202312705150-0as7142qafv5phn9a277jq7c90vtjq9k</string>
+				<string>dietpeeps</string>
 			</array>
 		</dict>
 	</array>

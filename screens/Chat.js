@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react'
+import React, { useState, useContext, useEffect, useRef, useCallback } from 'react'
 import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard, Linking, Pressable, Share } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -32,6 +32,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import StreakGif from '../components/StreakGif'
 import TrialPeriodFinishedScreen from './TrialPeriodFinishedScreen'
 import UserFlaggedScreen from './UserFlaggedScreen'
+import ShareMenu from 'react-native-share-menu'
+import RNFS from 'react-native-fs'
+import MessageOptions from '../components/MessageOptions'
+import ImageResizer from 'react-native-image-resizer'
 
 const Chat = ({ navigation, route }) => {
 
@@ -60,14 +64,14 @@ const Chat = ({ navigation, route }) => {
     const [scrollToLatestButton, showScrollToLatestButton] = useState(false)
     const [scrollButtonLeft, setScrollButtonLeft] = useState(0)
     const [imgCountUpdated, setUpdated] = useState(false)
-    const [wizardRedirected, setWizardRedirected] = useState(false)
+    // const [wizardRedirected, setWizardRedirected] = useState(false)
     const [subscribed, setSubscribed] = useState(null)
     const [trialPeriodFinished, setTrialPeriodFinished] = useState(false)
     const [showExtraDaysButton, setShowExtraDaysButton] = useState(false)
     const [showWeighInButton, setShowWeighIn] = useState(false)
     const [redirected, setRedirected] = useState(false)
     const [userFlagged, setUserFlagged] = useState(false)
-    const [msgInputHeight, setMsgInputHeight] = useState(0)
+    const [selectedMessageLocation, setSelectedMessageLocation] = useState({})
 
     useEffect(() => {
         if (subscribed) {
@@ -104,6 +108,65 @@ const Chat = ({ navigation, route }) => {
         showScrollToLatestButton(event.nativeEvent.contentOffset.y > 1300)
     }
 
+    const createImageData = async (item) => {
+        const imageData = []
+        // if platform is ios, push each item in item.data to imageData, else push item.data to imageData
+        try {
+            if (Platform.OS === 'ios') {
+                item.data.forEach(async (image) => {
+                    try {
+                        const newImage = await ImageResizer.createResizedImage(image.data, 2000, 512, 'JPEG', 100)
+                        // const base64 = await RNFS.readFile(newImage.uri, 'base64')
+                        // console.log('base64 is: ', typeof base64)
+                        imageData.push({ uri: newImage.uri, mime: image.mimeType, 
+                            // base64, 
+                            fileSize: newImage.size })
+                    } catch (e) {
+                        console.error('yo ', e)
+                    }
+                })
+            } else {
+                const newImage = await ImageResizer.createResizedImage(item.data, 2000, 512, 'JPEG', 100)
+                // const base64 = await RNFS.readFile(newImage.uri, 'base64')
+                // console.log('base64 is: ', typeof base64)
+                imageData.push({ uri: newImage.uri, mime: item.mimeType, 
+                    // base64, 
+                    fileSize: newImage.size })
+            }
+            console.log(imageData)
+            setImages(imageData)
+        } catch (e) {
+            console.error('error while creating image data: ', e)
+        }
+    }
+
+    const handleShare = useCallback((item) => {
+        if (Platform.OS === 'android' && !item) {
+            return
+        }
+
+        if (Platform.OS === 'ios' && (!item || item?.data?.length === 0 || item?.data == null)) {
+            return
+        }
+
+        console.log(item)
+        createImageData(item)
+    }, [])
+
+    // if app opens from closed state
+    useEffect(() => {
+        ShareMenu.getInitialShare(handleShare)
+    }, [])
+
+    // if app opens from background state
+    useEffect(() => {
+        const listener = ShareMenu.addNewShareListener(handleShare)
+
+        return () => {
+            listener.remove()
+        }
+    }, [])
+
     const takePhotoFromCamera = () => {
         analytics().logEvent('opened_camera', {
             userID: user.uid,
@@ -115,14 +178,15 @@ const Chat = ({ navigation, route }) => {
             includeExif: true,
             compressImageMaxHeight: 512,
             forceJpg: true,
-            includeBase64: true
+            // includeBase64: true
         }).then((i) => {
             setImages([{
                 uri: i.path,
                 width: i.width,
                 height: i.height,
                 mime: i.mime,
-                base64: i.base64
+                // base64: i.data,
+                fileSize: i.size
             }])
             setAttachingImage(val => ({ ...val, visible: false }))
             setAttachingImage(val => ({ ...val, loading: false }))
@@ -177,7 +241,7 @@ const Chat = ({ navigation, route }) => {
             includeExif: true,
             compressImageMaxHeight: 512,
             forceJpg: true,
-            includeBase64: true
+            // includeBase64: true
         }).then((imageData) => {
             setImages(imageData.map((i) => {
                 return {
@@ -185,7 +249,8 @@ const Chat = ({ navigation, route }) => {
                     width: i.width,
                     height: i.height,
                     mime: i.mime,
-                    base64: i.base64
+                    // base64: i.data,
+                    fileSize: i.size
                 }
             }))
             setAttachingImage(val => ({ ...val, visible: false }))
@@ -229,9 +294,9 @@ const Chat = ({ navigation, route }) => {
         })
     }
 
-    function age (birthDate) {
+    function age(birthDate) {
         var ageInMilliseconds = new Date() - new Date(birthDate);
-        return Math.floor(ageInMilliseconds/(1000 * 60 * 60 * 24 * 365));
+        return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24 * 365));
     }
 
     useEffect(() => {
@@ -254,11 +319,11 @@ const Chat = ({ navigation, route }) => {
                                 // set globalvar of userflagged to true
                                 setGlobalVars(val => ({ ...val, userFlagged: true }))
                             }
-                            try {   
+                            try {
                                 const subscribedToMealTimes = await AsyncStorage.getItem('subscribed_user_meal_times')
                                 // subscribe user to messaging topic
                                 if (subscribedToMealTimes == null) {
-                                    for(let mealTime of usr.userBioData.mealTimes) {
+                                    for (let mealTime of usr.userBioData.mealTimes) {
                                         console.log(mealTime)
                                         const globalHour = new Date(mealTime instanceof firestore.Timestamp ? mealTime.toDate() : mealTime).getUTCHours()
                                         messaging().subscribeToTopic(`MealReminderAt${globalHour}`).then(() => {
@@ -427,7 +492,7 @@ const Chat = ({ navigation, route }) => {
     const newMessage = async (message) => {
         setMessageInput('')
         let imageInfo = await imageUploader()
-        // console.log("image info: ", imageInfo, new Date())
+        console.log("image info: ", imageInfo, new Date())
         if (message === '') {
             if (imageInfo == null) {
                 setSendingMessage(false)
@@ -490,6 +555,12 @@ const Chat = ({ navigation, route }) => {
             })
             .catch((e) => {
                 console.error("error while adding chat message: ", e)
+                Alert.alert(
+                    'Error sending message',
+                    'There was an error while sending your message. Please try again.',
+                )
+                setSendingMessage(false)
+                return null
             })
 
         // await firestore()
@@ -532,7 +603,7 @@ const Chat = ({ navigation, route }) => {
                         senderType: 'non-client'
                     })
                     .catch((e) => {
-                        console.error("error while adding chat message: ", e)
+                        console.error("error while adding chat streak message: ", e)
                     })
 
                 // await firestore()
@@ -562,7 +633,9 @@ const Chat = ({ navigation, route }) => {
         }
 
         const checkImages = async () => {
+            let totalSize = 0
             for (let item of images) {
+                totalSize += item.fileSize
                 const uploadURI = item.uri
                 let fileName = uploadURI.substring(uploadURI.lastIndexOf('/') + 1)
                 const extension = fileName.split('.').pop()
@@ -573,6 +646,13 @@ const Chat = ({ navigation, route }) => {
                     )
                     return false
                 }
+            }
+            if (totalSize >= 1000000) {
+                Alert.alert(
+                    'Images too large',
+                    'One or more of your images is too large. Please modify your image selection and try again.'
+                )
+                return false
             }
             return true
         }
@@ -599,16 +679,26 @@ const Chat = ({ navigation, route }) => {
 
                     list.push({
                         url: url,
+                        mime: item.mime,
+                        // base64: item.base64,
                         thumbnail: thumbnailName,
                         graded: false,
                         uploadedAt: firestore.Timestamp.now()
                     })
                 } catch (e) {
                     console.error('error while uploading images to firebase cloud storage: ', e)
+                    await storageRef.delete()
+                    Alert.alert(
+                        'Error uploading images',
+                        'There was an error while uploading your images. Please try again.',
+                    )
                     return null
                 }
             }
             return list
+        } else {
+            setSendingMessage(false)
+            return null
         }
     }
 
@@ -686,8 +776,8 @@ const Chat = ({ navigation, route }) => {
     function sameDay(d1, d2) {
         if (d1?.getFullYear() != null && d2?.getFullYear() != null) {
             return d1.getFullYear() === d2.getFullYear() &&
-            d1.getMonth() === d2.getMonth() &&
-            d1.getDate() === d2.getDate()
+                d1.getMonth() === d2.getMonth() &&
+                d1.getDate() === d2.getDate()
         }
     }
 
@@ -822,11 +912,11 @@ const Chat = ({ navigation, route }) => {
 
     const handleStatSummaryPress = () => {
         mixpanel.track('Button Press', { 'Button': 'GalleryImage' })
-        navigation.navigate('Main Menu', { screen: 'Your Stats'})
+        navigation.navigate('Main Menu', { screen: 'Your Stats' })
     }
 
     const handleLongPress = (item) => {
-        Share.share({ message: item.msg })
+        setGlobalVars(val => ({ ...val, selectedMessage: item }))
         mixpanel.track('Button Press', { 'Button': 'LongPressChatMessage' })
     }
 
@@ -870,11 +960,11 @@ const Chat = ({ navigation, route }) => {
                             showsVerticalScrollIndicator={false}
                             data={messages}
                             renderItem={({ item }) => (
-                                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start' }}>
+                                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start', zIndex: globalVars.selectedMessage?.id === item.id ? 69 : 1 }}>
                                     <Pressable onLongPress={() => handleLongPress(item)} style={item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg}>
                                         {item.img != null &&
                                             item.img.map((i) => (
-                                                <ChatImage key={i.url} user={user} item={item} i={i} navigation={navigation} />
+                                                <ChatImage key={i.url} user={user} message={item} image={i} navigation={navigation} onLongPress={() => handleLongPress(item)} />
                                             ))
                                         }
                                         {item.msgType === 'courseLink' &&
@@ -885,8 +975,8 @@ const Chat = ({ navigation, route }) => {
                                         }
                                         {item.msgType === 'statSummary' ?
                                             <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>Good morning! This is your weekly check-in.{`\n\n`}{SevenDayAvg() === '-' ? `You did not send in any meal photos this week.` : `Your average meal score for the past week is ${SevenDayAvg()}.`}
-                                            {`\n`}<Text onPress={handleStatSummaryPress} style={{ fontSize: 14, color: '#4D43BD', textDecorationLine: 'underline' }}>Click here</Text> to view more stats.
-                                            {`\n\n`}What are some of your victories you want to celebrate for the past week?</Text> :
+                                                {`\n`}<Text onPress={handleStatSummaryPress} style={{ fontSize: 14, color: '#4D43BD', textDecorationLine: 'underline' }}>Click here</Text> to view more stats.
+                                                {`\n\n`}What are some of your victories you want to celebrate for the past week?</Text> :
                                             <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>}
                                     </Pressable>
                                     <Text style={[styles.msgTimeText, { alignSelf: item.userID === user.uid ? 'flex-end' : 'flex-start' }]}>
@@ -895,6 +985,7 @@ const Chat = ({ navigation, route }) => {
                                 </MotiView>
                             )}
                             keyExtractor={(item) => item.id}
+                            extraData={globalVars.selectedMessage}
                         />
                         <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 300 }} style={styles.sendMsgContainer}>
                             <View style={styles.addImgContainer} onLayout={(event) => {
@@ -1071,9 +1162,23 @@ const Chat = ({ navigation, route }) => {
                 </View>
             </SafeAreaView>
             <AnimatePresence>
-                {userFlagged || globalVars.userFlagged ? 
+                {globalVars.selectedMessage &&
+                    <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', zIndex: 68 }}>
+                        <BlurView
+                            style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute' }}
+                            blurType="dark"
+                            blurAmount={10}
+                            reducedTransparencyFallbackColor="white"
+                            onTouchStart={() => setGlobalVars(val => ({ ...val, selectedMessage: null }))}
+                        />
+                        <MessageOptions message={globalVars.selectedMessage} />
+                    </MotiView>
+                }
+            </AnimatePresence>
+            <AnimatePresence>
+                {userFlagged || globalVars.userFlagged ?
                     <UserFlaggedScreen navigation={navigation} />
-                : trialPeriodFinished &&
+                    : trialPeriodFinished &&
                     <TrialPeriodFinishedScreen navigation={navigation} showExtraDaysButton={showExtraDaysButton} giveExtraTrialDays={giveExtraTrialDays} />
                 }
             </AnimatePresence>

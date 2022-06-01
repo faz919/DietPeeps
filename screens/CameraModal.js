@@ -32,12 +32,15 @@ const CameraModal = ({ navigation }) => {
             includeExif: true,
             compressImageMaxHeight: 512,
             forceJpg: true,
+            includeBase64: true
         }).then((i) => {
             navigation.navigate('Main Menu', { screen: 'Coach', params: { imageInfo: [{
                 uri: i.path,
                 width: i.width,
                 height: i.height,
                 mime: i.mime,
+                base64: i.data,
+                fileSize: i.size
             }] } })
         }).catch((e) => {
             if (e.code !== 'E_PICKER_CANCELLED') {
@@ -88,7 +91,8 @@ const CameraModal = ({ navigation }) => {
             multiple: true,
             includeExif: true,
             compressImageMaxHeight: 512,
-            forceJpg: true
+            forceJpg: true,
+            includeBase64: true
         }).then((imageData) => {
             navigation.navigate('Main Menu', { screen: 'Coach', params: { imageInfo: imageData.map((i) => {
                 return {
@@ -96,6 +100,8 @@ const CameraModal = ({ navigation }) => {
                     width: i.width,
                     height: i.height,
                     mime: i.mime,
+                    base64: i.data,
+                    fileSize: i.size
                 }
             }) } })
         }).catch((e) => {

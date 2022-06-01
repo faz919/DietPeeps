@@ -1,12 +1,13 @@
 import React, { useContext, useState } from 'react'
-import { TouchableOpacity, ImageBackground, View, Text, StyleSheet, Share } from 'react-native'
+import { TouchableOpacity, ImageBackground, View, Text, StyleSheet } from 'react-native'
+import Share from 'react-native-share'
 import PieChart from 'react-native-pie-chart'
 import { windowWidth } from '../utils/Dimensions'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 import { MotiText, MotiView } from 'moti'
 import { AuthContext } from '../navigation/AuthProvider'
 
-const ChatImage = ({ user, item, i, navigation }) => {
+const ChatImage = ({ user, message, image, navigation, onLongPress }) => {
 
     const { mixpanel } = useContext(AuthContext)
 
@@ -14,14 +15,25 @@ const ChatImage = ({ user, item, i, navigation }) => {
     const [loading, setLoading] = useState(true)
 
     const handlePress = () => {
-        i.graded ? mixpanel.track('Button Press', { 'Button': 'ChatImageGraded' }) : mixpanel.track('Button Press', { 'Button': 'ChatImage' })
-        navigation.navigate('Main Menu', { screen: 'Gallery', params: { imageInfo: i } })
+        image.graded ? mixpanel.track('Button Press', { 'Button': 'ChatImageGraded' }) : mixpanel.track('Button Press', { 'Button': 'ChatImage' })
+        navigation.navigate('Main Menu', { screen: 'Gallery', params: { imageInfo: image } })
     }
 
+    // temporary until sharing becomes a message-wide thing
+    // const shareOptions = {
+    //     message: message.msg || (message.userID === user.uid ? 'Check out this image from DietPeeps!' : image.graded ? `Check this out! My DietPeeps coach scored my meal and I got a ${image.grade}!` : 'Check out this image from my DietPeeps coach!'), 
+    //     url: `data:${image.mime};base64,${image.base64}`
+    // }
+
+    // const handleLongPress = () => {
+    //     Share.open(shareOptions)
+    //     mixpanel.track('Button Press', { 'Button': 'LongPressChatImage' })
+    // }
+
     return (
-        <TouchableOpacity key={i.url} onPress={handlePress}>
-            <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: i.graded ? item.userID !== user.uid ? 0.4 : 1 : 1 }} style={styles.textImage} source={{ uri: i.url }}>
-                {!loading && i.graded && item.userID != user.uid &&
+        <TouchableOpacity key={image.url} onPress={handlePress} onLongPress={onLongPress}>
+            <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: image.graded ? message.userID !== user.uid ? 0.4 : 1 : 1 }} style={styles.textImage} source={{ uri: image.url }}>
+                {!loading && image.graded && message.userID != user.uid &&
                     <View style={{
                         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: windowWidth * 0.65, padding: 10, elevation: 10,
                         shadowColor: '#000000',
@@ -29,7 +41,7 @@ const ChatImage = ({ user, item, i, navigation }) => {
                         shadowRadius: 5,
                         shadowOpacity: 0.4,
                     }}>
-                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginBottom: -15, color: '#202060', fontSize: 60, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal' }}>{i.grade}</MotiText>
+                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginBottom: -15, color: '#202060', fontSize: 60, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal' }}>{image.grade}</MotiText>
                         <View style={styles.pieChartContainer}>
                             <MotiView
                                 from={{
@@ -42,7 +54,7 @@ const ChatImage = ({ user, item, i, navigation }) => {
                             <PieChart
                                 style={{ borderWidth: pieChartDimensions * 0.05, borderRadius: pieChartDimensions * 0.5, borderColor: '#fff' }}
                                 widthAndHeight={pieChartDimensions}
-                                series={[i.red * 10, i.yellow * 10, i.green * 10]}
+                                series={[image.red * 10, image.yellow * 10, image.green * 10]}
                                 sliceColor={['#ECF0E6', '#FFC482', '#67BB3A']}
                             />
                             </MotiView>

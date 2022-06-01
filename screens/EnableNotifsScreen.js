@@ -14,12 +14,15 @@ const EnableNotifsScreen = ({ navigation }) => {
   const [alreadyRequested, setAlreadyRequested] = useState(null)
 
   useEffect(() => {
-    const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
-    if (alreadyEnabled != null) {
-      setAlreadyRequested(true)
-    } else {
-      setAlreadyRequested(false)
+    const checkAlrEnabled = async () => {
+      const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
+      if (alreadyEnabled != null) {
+        setAlreadyRequested(true)
+      } else {
+        setAlreadyRequested(false)
+      }
     }
+    checkAlrEnabled()
   }, [])
 
   const requestPermission = async () => {
