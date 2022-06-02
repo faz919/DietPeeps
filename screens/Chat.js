@@ -33,15 +33,16 @@ import StreakGif from '../components/StreakGif'
 import TrialPeriodFinishedScreen from './TrialPeriodFinishedScreen'
 import UserFlaggedScreen from './UserFlaggedScreen'
 import ShareMenu from 'react-native-share-menu'
-import RNFS from 'react-native-fs'
 import MessageOptions from '../components/MessageOptions'
 import ImageResizer from 'react-native-image-resizer'
+import RNFS from 'react-native-fs'
 
 const Chat = ({ navigation, route }) => {
 
     const { imageInfo, hasSubscribed } = route.params
 
     const insets = useSafeAreaInsets()
+    const messageInputRef = useRef()
 
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
@@ -97,7 +98,7 @@ const Chat = ({ navigation, route }) => {
     const messagesList = useRef()
 
     const scrollToLatest = () => {
-        messagesList && messagesList.current.scrollToIndex({ index: 0, viewOffset: 80 })
+        messagesList && messagesList.current.scrollToIndex({ index: 0, viewOffset: replyingToMessage ? 100 : 80 })
     }
 
     const loadMoreMessages = () => {
@@ -125,13 +126,34 @@ const Chat = ({ navigation, route }) => {
                         console.error('yo ', e)
                     }
                 })
+            } else if (Platform.OS === 'android') {
+                if (item.data.startsWith('content://')) {
+                    // do some magic to convert from data uri to file path
+                    const urlComponents = item.data.split('/')
+                    const fileNameAndExtension = urlComponents[urlComponents.length - 1]
+                    const destPath = `${RNFS.TemporaryDirectoryPath}/${fileNameAndExtension}`
+                    await RNFS.copyFile(item.data, destPath)
+                    // image resizer
+                    const newImage = await ImageResizer.createResizedImage('file://' + destPath, 2000, 512, 'JPEG', 100)
+                    // const base64 = await RNFS.readFile(newImage.uri, 'base64')
+                    // console.log('base64 is: ', typeof base64)
+                    imageData.push({ uri: newImage.uri, mime: item.mimeType, 
+                        // base64, 
+                        fileSize: newImage.size })
+                } else {
+                    const newImage = await ImageResizer.createResizedImage(item.data, 2000, 512, 'JPEG', 100)
+                    // const base64 = await RNFS.readFile(newImage.uri, 'base64')
+                    // console.log('base64 is: ', typeof base64)
+                    imageData.push({ uri: newImage.uri, mime: item.mimeType, 
+                        // base64, 
+                        fileSize: newImage.size })
+                }
             } else {
-                const newImage = await ImageResizer.createResizedImage(item.data, 2000, 512, 'JPEG', 100)
-                // const base64 = await RNFS.readFile(newImage.uri, 'base64')
-                // console.log('base64 is: ', typeof base64)
-                imageData.push({ uri: newImage.uri, mime: item.mimeType, 
-                    // base64, 
-                    fileSize: newImage.size })
+                Alert.alert(
+                    'Error',
+                    'Image sharing from camera roll is not supported on this device.',
+                )
+                return
             }
             console.log(imageData)
             setImages(imageData)
@@ -184,7 +206,7 @@ const Chat = ({ navigation, route }) => {
                 uri: i.path,
                 width: i.width,
                 height: i.height,
-                mime: i.mime,
+                // mime: i.mime,
                 // base64: i.data,
                 fileSize: i.size
             }])
@@ -537,7 +559,8 @@ const Chat = ({ navigation, route }) => {
             msg: message,
             img: imageInfo,
             timeSent: firestore.Timestamp.now(),
-            userID: user.uid
+            userID: user.uid,
+            repliesTo: replyingToMessage ? messageBeingRepliedTo.id : null,
         }).catch((e) => {
             console.error('error while uploading message data to analytics: ', e)
         })
@@ -551,7 +574,8 @@ const Chat = ({ navigation, route }) => {
                 img: imageInfo,
                 timeSent: firestore.Timestamp.now(),
                 userID: user.uid,
-                senderType: 'client'
+                senderType: 'client',
+                repliesTo: replyingToMessage ? messageBeingRepliedTo.id : null,
             })
             .catch((e) => {
                 console.error("error while adding chat message: ", e)
@@ -579,6 +603,8 @@ const Chat = ({ navigation, route }) => {
 
         setImages(null)
         setMessageInput('')
+        setReplyingToMessage(false)
+        setMessageBeingRepliedTo(null)
         setSendingMessage(false)
 
         let localDayStart = new Date()
@@ -920,6 +946,29 @@ const Chat = ({ navigation, route }) => {
         mixpanel.track('Button Press', { 'Button': 'LongPressChatMessage' })
     }
 
+    const [replyingToMessage, setReplyingToMessage] = useState(false)
+    const [messageBeingRepliedTo, setMessageBeingRepliedTo] = useState(null)
+    const handleReply = (message) => {
+        setMessageBeingRepliedTo(message)
+        setReplyingToMessage(true)
+        setGlobalVars(val => ({ ...val, selectedMessage: null }))
+        messageInputRef.current.focus()
+        mixpanel.track('Button Press', { 'Button': 'ReplyChatMessage' })
+        console.log(message.msg)
+    }
+
+    const cancelReply = () => {
+        setReplyingToMessage(false)
+        setMessageBeingRepliedTo(null)
+    }
+
+    const scrollToOriginal = (item) => {
+        const msgIndex = messages.findIndex((message) => message.id === item.repliesTo)
+        msgIndex === -1 ? Alert.alert(
+            'Message not found.'
+        ) : messagesList.current.scrollToIndex({ animated: true, index: msgIndex, viewOffset: replyingToMessage ? 100 : 80 })
+    }
+
     return (
         <>
             <SafeAreaView style={styles.container}>
@@ -951,17 +1000,28 @@ const Chat = ({ navigation, route }) => {
                                     </View>
                             )}
                             ListHeaderComponent={(
-                                <View style={{ margin: 40 }} />
+                                <View style={{ margin: replyingToMessage ? 50 : 40 }} />
                             )}
                             ListFooterComponent={(
                                 <View style={{ margin: 50 }} />
                             )}
-                            contentContainerStyle={{ minHeight: '100%' }}
+                            contentContainerStyle={{ minHeight: '100%', zIndex: 69 }}
                             showsVerticalScrollIndicator={false}
                             data={messages}
                             renderItem={({ item }) => (
                                 <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start', zIndex: globalVars.selectedMessage?.id === item.id ? 69 : 1 }}>
-                                    <Pressable onLongPress={() => handleLongPress(item)} style={item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg}>
+                                    {item.repliesTo != null &&
+                                        <TouchableOpacity style={{ marginBottom: -5, marginTop: 10, paddingHorizontal: 15, justifyContent: 'center' }} onPress={() => scrollToOriginal(item)}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                <View style={{ transform: [{ scaleX: -1 }] }}>
+                                                    <MaterialCommunityIcons name="reply" size={15} color="#BDB9DB" />
+                                                </View>
+                                                <Text style={{ fontWeight: 'bold', fontSize: 14, color: '#BDB9DB' }}>Replies to: </Text>
+                                                <Text numberOfLines={1} ellipsizeMode={'tail'} style={{ fontSize: 14, color: '#BDB9DB', maxWidth: item.msg != null && item.msg?.length > 0 ? windowWidth / 3 : 'auto' }}>{messages.find((message) => message.id === item.repliesTo)?.msg || '(Click to view)'}</Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                    }
+                                    <Pressable onLongPress={() => handleLongPress(item)} style={[item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg, { zIndex: globalVars.selectedMessage?.id === item.id ? 69 : 1 }]}>
                                         {item.img != null &&
                                             item.img.map((i) => (
                                                 <ChatImage key={i.url} user={user} message={item} image={i} navigation={navigation} onLongPress={() => handleLongPress(item)} />
@@ -1001,6 +1061,21 @@ const Chat = ({ navigation, route }) => {
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.msgInputContainer}>
+                                {replyingToMessage &&
+                                    <TouchableOpacity style={{ padding: 5, justifyContent: 'center' }} onPress={() => { const msgIndex = messages.findIndex((message) => message.id === messageBeingRepliedTo.id); messagesList.current.scrollToIndex({ animated: true, index: msgIndex, viewOffset: 100 }) }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', maxWidth: '60%' }}>
+                                            <Text style={{ fontWeight: 'bold', fontSize: 14, color: '#BDB9DB' }}>Replying to: </Text>
+                                            <Text numberOfLines={1} ellipsizeMode={'tail'} style={{ fontSize: 14, color: '#BDB9DB' }}>{messageBeingRepliedTo.msg || '[Image]'}</Text>
+                                        </View>
+                                        {!sendingMessage && <TouchableOpacity style={[styles.cancelImage, { width: 20, height: 20, borderRadius: 10 }]} onPress={cancelReply}>
+                                            <Icon
+                                                name='ios-close'
+                                                size={16}
+                                                color='black'
+                                            />
+                                        </TouchableOpacity>}
+                                    </TouchableOpacity>
+                                }
                                 {images?.length > 0 &&
                                     <FlatList
                                         horizontal={true}
@@ -1033,6 +1108,7 @@ const Chat = ({ navigation, route }) => {
                                 }
                                 <View style={styles.msgInputWrapper}>
                                     <TextInput
+                                        ref={messageInputRef}
                                         placeholder={!sendingMessage ? 'Write your message here...' : ''}
                                         placeholderTextColor={'#E6E7FA'}
                                         style={styles.msgInputText}
@@ -1165,13 +1241,13 @@ const Chat = ({ navigation, route }) => {
                 {globalVars.selectedMessage &&
                     <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', zIndex: 68 }}>
                         <BlurView
-                            style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute' }}
+                            style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', zIndex: 68 }}
                             blurType="dark"
                             blurAmount={10}
                             reducedTransparencyFallbackColor="white"
                             onTouchStart={() => setGlobalVars(val => ({ ...val, selectedMessage: null }))}
                         />
-                        <MessageOptions message={globalVars.selectedMessage} />
+                        <MessageOptions message={globalVars.selectedMessage} handleReply={(message) => handleReply(message)} style={{ zIndex: 69 }} />
                     </MotiView>
                 }
             </AnimatePresence>

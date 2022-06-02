@@ -1,56 +1,59 @@
 import React, { useContext, useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Share from 'react-native-share'
-import Clipboard, { useClipboard } from '@react-native-clipboard/clipboard'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { AuthContext } from '../navigation/AuthProvider'
 
-export default function MessageOptions({ message }) {
+export default function MessageOptions({ message, handleReply, style }) {
 
-    const { user, setGlobalVars } = useContext(AuthContext)
+    const { user, setGlobalVars, mixpanel } = useContext(AuthContext)
 
-    const handleReply = () => {
-
-    }
-
-    const [data, setString] = useClipboard()
     const [copied, setCopied] = useState(false)
 
     const handleCopy = () => {
-        setString(message.msg)
+        Clipboard.setString(message.msg)
         setCopied(true)
+        mixpanel.track('Button Press', { 'Button': 'CopyChatMessage' })
         setTimeout(() => {
             setGlobalVars(val => ({ ...val, selectedMessage: null }))
         }, 1000)
     }
 
+    async function getBase64(url) {
+        const data = await fetch(url)
+        const blob = await data.blob()
+        return new Promise(resolve => {
+            const reader = new FileReader()
+            reader.readAsDataURL(blob)
+            reader.onloadend = () => {
+                const base64data = reader.result
+                resolve(base64data)
+            }
+        })
+    }
+
+    const [urlList, setUrlList] = useState([])
     const handleShare = () => {
-        const createURL = async (image) => {
-            const data = await fetch(image)
-            const blob = await data.blob()
-            return new Promise(resolve => {
-                const reader = new FileReader()
-                reader.readAsDataURL(blob)
-                reader.onloadend = () => {
-                    const base64data = reader.result
-                    resolve(base64data)
-                }
-            }).catch((e) => {
-                console.error('error while getting base64: ', e)
-            })
+        setUrlList([])
+        mixpanel.track('Button Press', { 'Button': 'ShareChatMessage' })
+        for (let image of message.img) {
+            getBase64(image.url).then((base64) => {
+                setUrlList(val => [...val, base64])
+            }).catch((e) => console.error(e))
         }
         const shareOptions = { 
             message: message.msg || (message.img[0].graded ? `Check this out! My DietPeeps coach scored my meal and my score was ${message.img[0].grade}!` : message.userID === user.uid ? message.img?.length > 1 ? 'Check out these images from DietPeeps!' : 'Check out this image from DietPeeps!' : 'Check out this image from my DietPeeps coach!'), 
-            urls: message.img?.map(async (image) => { const url = await createURL(image); return url })
+            urls: urlList
         }
         Share.open(shareOptions)
     }
 
     return (
-        <View style={styles.container}>
-            <TouchableOpacity style={[styles.option, styles.reply]} onPress={handleReply}>
+        <View style={[styles.container, { ...style }]}>
+            <TouchableOpacity style={[styles.option, styles.reply]} onPress={() => handleReply(message)}>
                 <MaterialCommunityIcons name="reply" size={24} color="#202060" />
                 <View style={{ justifyContent: 'flex-start', width: 70 }}>
                     <Text style={{ fontSize: 18, color: '#202060' }}>Reply</Text>
