@@ -19,7 +19,7 @@ export default function MessageOptions({ message, handleReply, style }) {
         mixpanel.track('Button Press', { 'Button': 'CopyChatMessage' })
         setTimeout(() => {
             setGlobalVars(val => ({ ...val, selectedMessage: null }))
-        }, 1000)
+        }, 700)
     }
 
     async function getBase64(url) {
@@ -39,10 +39,12 @@ export default function MessageOptions({ message, handleReply, style }) {
     const handleShare = () => {
         setUrlList([])
         mixpanel.track('Button Press', { 'Button': 'ShareChatMessage' })
-        for (let image of message.img) {
-            getBase64(image.url).then((base64) => {
-                setUrlList(val => [...val, base64])
-            }).catch((e) => console.error(e))
+        if (message.img != null && message.img?.length > 0) {
+            for (let image of message.img) {
+                getBase64(image.url).then((base64) => {
+                    setUrlList(val => [...val, base64])
+                }).catch((e) => console.error(e))
+            }
         }
         const shareOptions = { 
             message: message.msg || (message.img[0].graded ? `Check this out! My DietPeeps coach scored my meal and my score was ${message.img[0].grade}!` : message.userID === user.uid ? message.img?.length > 1 ? 'Check out these images from DietPeeps!' : 'Check out this image from DietPeeps!' : 'Check out this image from my DietPeeps coach!'), 

@@ -79,7 +79,8 @@ const Settings = ({ navigation }) => {
                         style={styles.Divider}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Subscription', { trialReminder: 'none' })}>
+                {/* navigation.navigate('Subscription', { trialReminder: 'none' }) */}
+                <TouchableOpacity onPress={() => navigation.navigate('Onboarding Wizard')}>
                     <View style={styles.Viewk7} >
                         <View style={styles.Viewmm}>
                             <AntDesign

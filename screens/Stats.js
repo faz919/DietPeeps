@@ -12,10 +12,37 @@ import moment from 'moment'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { AnimatePresence, MotiText, MotiView } from 'moti'
 import { Easing } from 'react-native-reanimated'
+import CircularProgress, { CircularProgressBase } from 'react-native-circular-progress-indicator'
 
 const Stats = ({ navigation }) => {
 
     const { user, globalVars, updateInfo } = useContext(AuthContext)
+
+    function sameDay(d1, d2) {
+        if (d1?.getFullYear() != null && d2?.getFullYear() != null) {
+            return d1.getFullYear() === d2.getFullYear() &&
+                d1.getMonth() === d2.getMonth() &&
+                d1.getDate() === d2.getDate()
+        }
+    }
+
+    const [numTasksCompleted, setNumTasksCompleted] = useState(0)
+    const updateProgressBar = () => {
+        console.log('yo')
+        let taskCount = 0
+        sameDay(new Date(), globalVars.userData?.lastImageSent?.toDate()) && (taskCount += 1)
+        sameDay(new Date(), globalVars.userData?.lastWeighIn?.toDate()) && (taskCount += 1)
+        globalVars.userData?.courseData?.courseDayCompleted && (taskCount += 1)
+        console.log(taskCount)
+        setNumTasksCompleted(taskCount) 
+    }
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener("focus", () => {
+            updateProgressBar()
+        })
+        return unsubscribe
+    }, [navigation])
 
     const [loading, setLoading] = useState(false)
     const [calendarInfoIcon, setCalendarInfoIcon] = useState()
@@ -62,14 +89,6 @@ const Stats = ({ navigation }) => {
             return `https://avatars.dicebear.com/api/bottts/${user.displayName.substring(user.displayName.indexOf(" ") + 1)}.png?dataUri=true`
         } else {
             return `https://avatars.dicebear.com/api/bottts/${user.displayName}.png?dataUri=true`
-        }
-    }
-
-    function sameDay(d1, d2) {
-        if (d1?.getFullYear() != null && d2?.getFullYear() != null) {
-            return d1.getFullYear() === d2.getFullYear() &&
-                d1.getMonth() === d2.getMonth() &&
-                d1.getDate() === d2.getDate()
         }
     }
 
@@ -365,89 +384,29 @@ const Stats = ({ navigation }) => {
                                 <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Weight Avg</Text>
                             </View>
                         </View>
-                        {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, marginTop: 20 }}>
-                            <AnimatePresence exitBeforeEnter>
-                                {selectedGraph === 'weightHistory' ?
-                                    <MotiView key='weightHistoryChevron' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                        <TouchableOpacity onPress={() => setSelectedGraph('dailyScores')}>
-                                            <MaterialCommunityIcons
-                                                name="chevron-left"
-                                                size={28}
-                                                color="#202060"
-                                            />
-                                        </TouchableOpacity>
-                                    </MotiView> :
-                                    <MotiView key='weightHistoryChevronPlaceholder' style={{ opacity: 0 }}>
-                                        <MaterialCommunityIcons
-                                            name="chevron-left"
-                                            size={28}
-                                            color="#202060"
-                                        />
-                                    </MotiView>}
-                            </AnimatePresence>
-                            <AnimatePresence>
-                                {selectedGraph === 'dailyScores' ?
-                                <MotiView 
-                                    from={{ translateX: -(windowWidth / 2), opacity: 0 }} animate={{ translateX: 0, opacity: 1 }} exit={{ translateX: -(windowWidth / 2), opacity: 0 }} 
-                                    transition={{ type: 'timing', easing: Easing.bezier(.8,-0.01,.1,.99), translateX: { duration: 350 }, opacity: { duration: 200 } }} key='dailyScoresText' 
-                                    style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', width: windowWidth, flexDirection: 'column' }} pointerEvents='box-none'
-                                >
-                                    <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
-                                        Daily Scores
-                                    </Text>
-                                    {graphDays.length >= 6 && <Text style={{ fontSize: 12, color: '#202060', fontWeight: '500', alignSelf: 'center', textAlign: 'center' }}>
-                                        Swipe to view older data!
-                                    </Text>}
-                                </MotiView> :
-                                <MotiView 
-                                    from={{ translateX: (windowWidth / 2), opacity: 0 }} animate={{ translateX: 0, opacity: 1 }} exit={{ translateX: (windowWidth / 2), opacity: 0 }} 
-                                    transition={{ type: 'timing', easing: Easing.bezier(.8,-0.01,.1,.99), translateX: { duration: 350 }, opacity: { duration: 200 } }} key='weightHistoryText' 
-                                    style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center', width: windowWidth, flexDirection: 'column' }} pointerEvents='box-none'
-                                >
-                                    <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
-                                        Weight History
-                                    </Text>
-                                    {globalVars.userData.weightHistory.length >= 6 && <Text style={{ fontSize: 12, color: '#202060', fontWeight: '500', alignSelf: 'center', textAlign: 'center' }}>
-                                        Swipe to view older data!
-                                    </Text>}
-                                </MotiView>
-                                }
-                            </AnimatePresence>
-                            <Text style={{ fontSize: 26, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', opacity: 0 }}>Daily Scores</Text>
-                            <AnimatePresence exitBeforeEnter>
-                                {selectedGraph === 'dailyScores' ?
-                                    <MotiView key='dailyScoresChevron' from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                        <TouchableOpacity onPress={() => setSelectedGraph('weightHistory')}>
-                                            <MaterialCommunityIcons
-                                                name="chevron-right"
-                                                size={28}
-                                                color="#202060"
-                                            />
-                                        </TouchableOpacity>
-                                    </MotiView> :
-                                    <MotiView key='dailyScoresChevronPlaceholder' style={{ opacity: 0 }}>
-                                        <MaterialCommunityIcons
-                                            name="chevron-left"
-                                            size={28}
-                                            color="#202060"
-                                        />
-                                    </MotiView>}
-                            </AnimatePresence>
+                        <View style={{ width: windowWidth, minHeight: 300, justifyContent: 'center', alignItems: 'center' }}>
+                            <CircularProgress
+                                value={Math.round((numTasksCompleted / 3) * 100)}
+                                duration={1500}
+                                radius={120}
+                                progressValueColor={'#202060'}
+                                activeStrokeColor={'#2465FD'}
+                                activeStrokeSecondaryColor={'#C25AFF'}
+                                // activeStrokeColor={'#43CD3F'}
+                                inActiveStrokeColor={'#BDB9DB'}
+                                inActiveStrokeOpacity={0.5}
+                                inActiveStrokeWidth={20}
+                                activeStrokeWidth={20}
+                                valueSuffix={'%'}
+                                title={'TODAY'}
+                                subtitle={`${numTasksCompleted}/3 Tasks Completed`}
+                                titleColor={'#BDB9DB'}
+                                titleFontSize={20}
+                                subtitleColor={'#BDB9DB'}
+                                subtitleFontSize={14}
+                            />
                         </View>
-                        <AnimatePresence>
-                            <View style={{ flex: 1, flexDirection: 'row', width: windowWidth * 2, height: 260 }}>
-                                {selectedGraph === 'dailyScores' ?
-                                    <MotiView key='dailyScores' from={{ translateX: -windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: -windowWidth }} pointerEvents='box-none'>
-                                        <DailyScoresGraph />
-                                    </MotiView>
-                                    :
-                                    <MotiView key='weightHistory' from={{ translateX: windowWidth }} animate={{ translateX: 0 }} exit={{ translateX: windowWidth }} pointerEvents='box-none'>
-                                        <WeightHistoryGraph />
-                                    </MotiView>
-                                }
-                            </View>
-                        </AnimatePresence> */}
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, marginTop: 20, zIndex: 1 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, zIndex: 1 }}>
                             <TouchableOpacity onPress={() => setGraphPage(val => val + 1)}>
                                 <MaterialCommunityIcons
                                     name="chevron-left"
@@ -599,7 +558,7 @@ const Stats = ({ navigation }) => {
             </ScrollView>
             <View style={[styles.HUDWrapper, { top: Platform.OS === 'ios' ? insets.top : 0 }]}>
                 <View style={styles.headerWrapper}>
-                    <TouchableOpacity style={{ left: 15, flex: 1, flexDirection: 'row', alignItems: 'center' }} onPress={() => navigation.navigate('User Profile')}>
+                    <TouchableOpacity style={{ left: 15, flex: 1, flexDirection: 'row', alignItems: 'center' }} onPress={() => navigation.navigate('EditUserData')}>
                         <ProfilePic size={50} source={{ uri: user.photoURL == null ? tempPfp() : user.photoURL }} />
                         <Text style={styles.displayName}>{user.displayName}</Text>
                     </TouchableOpacity>

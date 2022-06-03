@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef, useCallback } from 'react'
-import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard, Linking, Pressable, Share } from 'react-native'
+import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard, Linking, Pressable, Share, Vibration } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -942,6 +942,9 @@ const Chat = ({ navigation, route }) => {
     }
 
     const handleLongPress = (item) => {
+        Platform.OS === 'ios' ? 
+            Vibration.vibrate() :
+            Vibration.vibrate(100)
         setGlobalVars(val => ({ ...val, selectedMessage: item }))
         mixpanel.track('Button Press', { 'Button': 'LongPressChatMessage' })
     }

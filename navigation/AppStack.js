@@ -22,6 +22,7 @@ import CongratsPopup from "../screens/CongratsPopup.js"
 import SubscriptionScreen from "../screens/SubscriptionScreen.js"
 import WeighInModal from "../screens/WeighInModal.js"
 import NotificationSettings from "../screens/NotificationSettings.js"
+import EditUserDataScreen from "../screens/EditUserDataScreen.js"
 
 const AppStack = createStackNavigator()
 const Tab = createBottomTabNavigator()
@@ -141,6 +142,12 @@ const App = () => {
         ...TransitionPresets.ModalPresentationIOS,
         gestureEnabled: true,
         gestureDirection: "vertical"
+      }} />
+      <AppStack.Screen name="EditUserData" component={EditUserDataScreen} options={{
+        headerShown: false,
+        ...TransitionPresets.SlideFromRightIOS,
+        gestureEnabled: true,
+        gestureDirection: "horizontal"
       }} />
       <AppStack.Screen name="Subscription" component={SubscriptionScreen} initialParams={{ trialReminder: null }} options={{
         headerShown: false,
