@@ -47,7 +47,7 @@ export default function MessageOptions({ message, handleReply, style }) {
             }
         }
         const shareOptions = { 
-            message: message.msg || (message.img[0].graded ? `Check this out! My DietPeeps coach scored my meal and my score was ${message.img[0].grade}!` : message.userID === user.uid ? message.img?.length > 1 ? 'Check out these images from DietPeeps!' : 'Check out this image from DietPeeps!' : 'Check out this image from my DietPeeps coach!'), 
+            message: message.msg ? `Check out this message from DietPeeps: ${message.msg}` : (message.img[0].graded ? `Check this out! My DietPeeps coach scored my meal and my score was ${message.img[0].grade}!` : message.userID === user.uid ? message.img?.length > 1 ? 'Check out these images from DietPeeps!' : 'Check out this image from DietPeeps!' : 'Check out this image from my DietPeeps coach!'), 
             urls: urlList
         }
         Share.open(shareOptions)
@@ -85,9 +85,6 @@ export default function MessageOptions({ message, handleReply, style }) {
 
 const styles = StyleSheet.create({
     container: {
-        position: 'absolute',
-        top: windowHeight / 2,
-        flex: 1, 
         justifyContent: 'center', 
         alignItems: 'center'
     },
@@ -107,7 +104,7 @@ const styles = StyleSheet.create({
     divider: {
         backgroundColor: '#202060',
         height: 2,
-        width: '100%'
+        width: 120
     },
     copy: {
 

@@ -5,11 +5,12 @@ import Purchases from 'react-native-purchases'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { AuthContext } from '../navigation/AuthProvider'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
-import firestore from '@react-native-firebase/firestore'
 import { ENTITLEMENT_ID } from '../constants/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const SubscriptionScreen = ({ navigation, route }) => {
+
+    const { mixpanel } = useContext(AuthContext)
 
     const { trialReminder } = route.params
 
@@ -60,12 +61,24 @@ const SubscriptionScreen = ({ navigation, route }) => {
         }
     }
 
+    const handleSubButtonPress = () => {
+        mixpanel.track('Attempted to Subscribe')
+        buySubscription(subscription.availablePackages[0])
+    }
+
+    const handleNotNowPress = () => {
+        mixpanel.track('Pressed "Not Now" in subscription page')
+        navigation.pop()
+    }
+
     const buySubscription = async (subscription) => {
         setLoading(true)
         try {
             const { purchaserInfo, productIdentifier } = await Purchases.purchasePackage(subscription)
             // console.log(purchaserInfo)
             if (typeof purchaserInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined') {
+                mixpanel.track('Subscribed & Started Paying', { 'SubscriptionInfo': JSON.stringify(purchaserInfo.entitlements.active[ENTITLEMENT_ID]) })
+                mixpanel.getPeople().set('Currently Paying', true)
                 console.log('Success!')
                 updateInfo({ subscribed: true, subscriptionInfo: { purchaserInfo } })
                 setSubscribed(true)
@@ -150,7 +163,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
                     <View style={styles.View_4v}>
                         <TouchableOpacity
                             disabled={loading}
-                            onPress={() => buySubscription(subscription.availablePackages[0])}
+                            onPress={handleSubButtonPress}
                             style={[styles.ButtonSolidQB, { backgroundColor: 'transparent', opacity: loading ? 0.7 : 1 }]}
                         >
                             <LinearGradient start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} colors={['#f9cd86', '#F7B852']} style={{ width: '100%', height: '100%', borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}>
@@ -159,7 +172,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
                                     : <Text style={styles.panelButtonText}>{'Subscribe'}</Text>}
                             </LinearGradient>
                         </TouchableOpacity>
-                        <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center' }} onPress={() => navigation.pop()}>
+                        <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center' }} onPress={handleNotNowPress}>
                             <Text style={{fontSize: 16, color: '#202060' }}>Not now</Text>
                         </TouchableOpacity>
                     </View>

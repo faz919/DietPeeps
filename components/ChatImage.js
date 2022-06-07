@@ -7,7 +7,7 @@ import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 import { MotiText, MotiView } from 'moti'
 import { AuthContext } from '../navigation/AuthProvider'
 
-const ChatImage = ({ user, message, image, navigation, onLongPress }) => {
+const ChatImage = ({ user, message, image, navigation, onLongPress, disablePress }) => {
 
     const { mixpanel } = useContext(AuthContext)
 
@@ -15,6 +15,9 @@ const ChatImage = ({ user, message, image, navigation, onLongPress }) => {
     const [loading, setLoading] = useState(true)
 
     const handlePress = () => {
+        if (disablePress) {
+            return
+        }
         image.graded ? mixpanel.track('Button Press', { 'Button': 'ChatImageGraded' }) : mixpanel.track('Button Press', { 'Button': 'ChatImage' })
         navigation.navigate('Main Menu', { screen: 'Gallery', params: { imageInfo: image } })
     }

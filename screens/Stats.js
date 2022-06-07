@@ -26,23 +26,21 @@ const Stats = ({ navigation }) => {
         }
     }
 
-    const [numTasksCompleted, setNumTasksCompleted] = useState(0)
-    const updateProgressBar = () => {
-        console.log('yo')
-        let taskCount = 0
-        sameDay(new Date(), globalVars.userData?.lastImageSent?.toDate()) && (taskCount += 1)
-        sameDay(new Date(), globalVars.userData?.lastWeighIn?.toDate()) && (taskCount += 1)
-        globalVars.userData?.courseData?.courseDayCompleted && (taskCount += 1)
-        console.log(taskCount)
-        setNumTasksCompleted(taskCount) 
-    }
+    // const [numTasksCompleted, setNumTasksCompleted] = useState(0)
+    // const updateProgressBar = () => {
+    //     let taskCount = 0
+    //     sameDay(new Date(), globalVars.userData?.lastImageSent?.toDate()) && (taskCount += 1)
+    //     sameDay(new Date(), globalVars.userData?.lastWeighIn?.toDate()) && (taskCount += 1)
+    //     globalVars.userData?.courseData?.courseDayCompleted && (taskCount += 1)
+    //     setNumTasksCompleted(taskCount) 
+    // }
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener("focus", () => {
-            updateProgressBar()
-        })
-        return unsubscribe
-    }, [navigation])
+    // useEffect(() => {
+    //     const unsubscribe = navigation.addListener("focus", () => {
+    //         updateProgressBar()
+    //     })
+    //     return unsubscribe
+    // }, [navigation])
 
     const [loading, setLoading] = useState(false)
     const [calendarInfoIcon, setCalendarInfoIcon] = useState()
@@ -384,7 +382,7 @@ const Stats = ({ navigation }) => {
                                 <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Weight Avg</Text>
                             </View>
                         </View>
-                        <View style={{ width: windowWidth, minHeight: 300, justifyContent: 'center', alignItems: 'center' }}>
+                        {/* <View style={{ width: windowWidth, minHeight: 300, justifyContent: 'center', alignItems: 'center' }}>
                             <CircularProgress
                                 value={Math.round((numTasksCompleted / 3) * 100)}
                                 duration={1500}
@@ -405,8 +403,8 @@ const Stats = ({ navigation }) => {
                                 subtitleColor={'#BDB9DB'}
                                 subtitleFontSize={14}
                             />
-                        </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, zIndex: 1 }}>
+                        </View> */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, zIndex: 1, marginTop: 20 }}>
                             <TouchableOpacity onPress={() => setGraphPage(val => val + 1)}>
                                 <MaterialCommunityIcons
                                     name="chevron-left"
@@ -558,7 +556,7 @@ const Stats = ({ navigation }) => {
             </ScrollView>
             <View style={[styles.HUDWrapper, { top: Platform.OS === 'ios' ? insets.top : 0 }]}>
                 <View style={styles.headerWrapper}>
-                    <TouchableOpacity style={{ left: 15, flex: 1, flexDirection: 'row', alignItems: 'center' }} onPress={() => navigation.navigate('EditUserData')}>
+                    <TouchableOpacity style={{ left: 15, flex: 1, flexDirection: 'row', alignItems: 'center' }} onPress={() => navigation.navigate('User Profile')}>
                         <ProfilePic size={50} source={{ uri: user.photoURL == null ? tempPfp() : user.photoURL }} />
                         <Text style={styles.displayName}>{user.displayName}</Text>
                     </TouchableOpacity>

@@ -15,7 +15,7 @@ const CourseSelection = ({ navigation, route }) => {
 
   const { courseInfo, courseCompleted, courseDayCompleted } = route.params
 
-  const { globalVars } = useContext(AuthContext)
+  const { globalVars, mixpanel } = useContext(AuthContext)
   const [userCourseData, setUserCourseData] = useState(3)
   const [loading, setLoading] = useState(true)
   const [starred, setStarred] = useState([])
@@ -116,6 +116,11 @@ const CourseSelection = ({ navigation, route }) => {
     getStarredCourses()
   }, [])
 
+  const handleCourseSelect = (item) => {
+    mixpanel.track('Button Press', { 'Button': 'Course', 'UniqueCourseNumber': item.UniqueCourseNumber, 'CourseName': item.Title })
+    navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })
+  }
+
   useEffect(() => {
     AsyncStorage.setItem('@starred_courses', JSON.stringify(starred))
   }, [starred])
@@ -172,7 +177,7 @@ const CourseSelection = ({ navigation, route }) => {
                     style={[styles.Viewe6, { borderRadius: 6, opacity: item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1 ? 0.5 : 1 }]}>
                     <CourseImage item={item} userCourseData={userCourseData} navigation={navigation} />
                     <View style={styles.View_92}>
-                      <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
+                      <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => handleCourseSelect(item)}>
                         <View>
                           <Text style={styles.TexthV}>
                             {item.Title}

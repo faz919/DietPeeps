@@ -19,7 +19,7 @@ import ChatImage from '../components/ChatImage'
 import ProfilePic from '../components/ProfilePic'
 import { AnimatePresence, MotiView } from 'moti'
 
-import ribbon from '../assets/ribbon.png'
+import badge from '../assets/badge.png'
 import CourseData from '../courses/CourseData.json'
 import CourseLinkImage from '../components/CourseLinkImage'
 import crashlytics from '@react-native-firebase/crashlytics'
@@ -36,12 +36,15 @@ import ShareMenu from 'react-native-share-menu'
 import MessageOptions from '../components/MessageOptions'
 import ImageResizer from 'react-native-image-resizer'
 import RNFS from 'react-native-fs'
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
+import ChatMessage from '../components/ChatMessage'
 
 const Chat = ({ navigation, route }) => {
 
     const { imageInfo, hasSubscribed } = route.params
 
     const insets = useSafeAreaInsets()
+    const bottomBarHeight = useBottomTabBarHeight()
     const messageInputRef = useRef()
 
     useEffect(() => {
@@ -72,7 +75,6 @@ const Chat = ({ navigation, route }) => {
     const [showWeighInButton, setShowWeighIn] = useState(false)
     const [redirected, setRedirected] = useState(false)
     const [userFlagged, setUserFlagged] = useState(false)
-    const [selectedMessageLocation, setSelectedMessageLocation] = useState({})
 
     useEffect(() => {
         if (subscribed) {
@@ -317,8 +319,8 @@ const Chat = ({ navigation, route }) => {
     }
 
     function age(birthDate) {
-        var ageInMilliseconds = new Date() - new Date(birthDate);
-        return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24 * 365));
+        var ageInMilliseconds = new Date() - new Date(birthDate)
+        return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24 * 365))
     }
 
     useEffect(() => {
@@ -367,8 +369,8 @@ const Chat = ({ navigation, route }) => {
                             deviceID: DeviceInfo.getUniqueId()
                         }
                         const appInfo = {
-                            versionName: '1.032',
-                            versionCode: 15
+                            versionName: '1.04',
+                            versionCode: 16
                         }
                         // check if user has null display name, photo url, or email
                         usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })
@@ -421,12 +423,14 @@ const Chat = ({ navigation, route }) => {
                         // if user isn't subscribed, check how long it's been since they joined
                         try {
                             if (!usr.subscribed) {
+                                mixpanel.getPeople().set('Currently Paying', false)
                                 const joinDate = new Date(user.metadata.creationTime)
                                 const oneDay = 60 * 60 * 1000 * 24
                                 const daysSinceJoin = Math.floor((new Date() - joinDate) / oneDay)
                                 const daysReminded = JSON.parse(await AsyncStorage.getItem('days_reminded'))
                                 const extraTrialDays = JSON.parse(await AsyncStorage.getItem('extra_days'))
-                                if (extraTrialDays != null && extraTrialDays instanceof Number) {
+                                if (extraTrialDays != null && typeof extraTrialDays === 'number') {
+                                    setShowExtraDaysButton(false)
                                     daysSinceJoin >= extraTrialDays + 3 && !usr.manuallyExtendedTrialPeriod && setTrialPeriodFinished(true)
                                 } else {
                                     setShowExtraDaysButton(true)
@@ -441,6 +445,8 @@ const Chat = ({ navigation, route }) => {
                                                 daysSinceJoin === 7 && navigation.navigate('Subscription', { trialReminder: daysSinceJoin })
                                     }
                                 }
+                            } else {
+                                mixpanel.getPeople().set('Currently Paying', true)
                             }
                         } catch (e) {
                             console.error(e)
@@ -465,6 +471,10 @@ const Chat = ({ navigation, route }) => {
             })
         }
         mixpanel.getPeople().set('Trial Period Finished', trialPeriodFinished)
+        if (trialPeriodFinished) {
+            setImages(null)
+            setMessageInput('')
+        }
     }, [trialPeriodFinished, globalVars.userData])
 
     const checkUserMembership = async (usr) => {
@@ -538,6 +548,7 @@ const Chat = ({ navigation, route }) => {
                     totalImageCount: firestore.FieldValue.increment(imageInfo.length)
                 })
                 for (let image of imageInfo) {
+                    mixpanel.track('Image Sent', { 'Image': image.url })
                     await analytics().logEvent('image', {
                         img: image,
                         timeSent: firestore.Timestamp.now(),
@@ -550,7 +561,7 @@ const Chat = ({ navigation, route }) => {
         }
 
         setSendingMessage(true)
-
+        mixpanel.track('Message Sent', { 'Message': message })
         updateInfo({
             lastMessageSent: firestore.Timestamp.now()
         })
@@ -614,6 +625,7 @@ const Chat = ({ navigation, route }) => {
         localDayStart.setMilliseconds(0)
         if (tempLastImageSent != null) {
             if (localDayStart > tempLastImageSent) {
+                mixpanel.track('Streak Updated', { 'Streak': globalVars.userData.streak + 1 })
                 navigation.navigate('Congrats', { congratsType: 'imageSent' })
                 await firestore()
                     .collection('chat-rooms')
@@ -942,11 +954,21 @@ const Chat = ({ navigation, route }) => {
     }
 
     const handleLongPress = (item) => {
-        Platform.OS === 'ios' ? 
-            Vibration.vibrate() :
-            Vibration.vibrate(100)
+        // figure out how to decrease vibration time on iOS before doing this
+        // Platform.OS === 'ios' ? 
+        //     Vibration.vibrate() :
+        //     Vibration.vibrate(100)
+        // const msgIndex = messages.findIndex((message) => message.id === item.id)
+        // msgIndex === -1 ? Alert.alert(
+        //     'Message not found.'
+        // ) : messagesList.current.scrollToIndex({ animated: true, index: msgIndex, viewOffset: item.msg != null && item.msg?.length > 0 ? 179 : 142 })
         setGlobalVars(val => ({ ...val, selectedMessage: item }))
         mixpanel.track('Button Press', { 'Button': 'LongPressChatMessage' })
+    }
+
+    const handleBadgePress = () => {
+        mixpanel.track('Clicked Badge', { 'Screen': 'Coach' })
+        navigation.navigate('Subscription', { trialReminder: 'none' })
     }
 
     const [replyingToMessage, setReplyingToMessage] = useState(false)
@@ -1012,40 +1034,20 @@ const Chat = ({ navigation, route }) => {
                             showsVerticalScrollIndicator={false}
                             data={messages}
                             renderItem={({ item }) => (
-                                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ alignItems: item.userID === user.uid ? 'flex-end' : 'flex-start', zIndex: globalVars.selectedMessage?.id === item.id ? 69 : 1 }}>
-                                    {item.repliesTo != null &&
-                                        <TouchableOpacity style={{ marginBottom: -5, marginTop: 10, paddingHorizontal: 15, justifyContent: 'center' }} onPress={() => scrollToOriginal(item)}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                                <View style={{ transform: [{ scaleX: -1 }] }}>
-                                                    <MaterialCommunityIcons name="reply" size={15} color="#BDB9DB" />
-                                                </View>
-                                                <Text style={{ fontWeight: 'bold', fontSize: 14, color: '#BDB9DB' }}>Replies to: </Text>
-                                                <Text numberOfLines={1} ellipsizeMode={'tail'} style={{ fontSize: 14, color: '#BDB9DB', maxWidth: item.msg != null && item.msg?.length > 0 ? windowWidth / 3 : 'auto' }}>{messages.find((message) => message.id === item.repliesTo)?.msg || '(Click to view)'}</Text>
-                                            </View>
-                                        </TouchableOpacity>
-                                    }
-                                    <Pressable onLongPress={() => handleLongPress(item)} style={[item.userID === user.uid ? styles.outgoingMsg : styles.incomingMsg, { zIndex: globalVars.selectedMessage?.id === item.id ? 69 : 1 }]}>
-                                        {item.img != null &&
-                                            item.img.map((i) => (
-                                                <ChatImage key={i.url} user={user} message={item} image={i} navigation={navigation} onLongPress={() => handleLongPress(item)} />
-                                            ))
-                                        }
-                                        {item.msgType === 'courseLink' &&
-                                            <CourseLinkImage key={item.id} user={user} messageData={item} userCourseData={globalVars.userData?.courseData} courseInfo={CourseData.find(course => item.courseInfo?.UniqueCourseNumber === NaN || item.courseInfo?.UniqueCourseNumber == null ? globalVars.userData?.courseData?.latestCourseCompleted == null ? course.UniqueCourseNumber === 1 : course.UniqueCourseNumber === globalVars.userData?.courseData?.latestCourseCompleted + 1 : course.UniqueCourseNumber === item.courseInfo?.UniqueCourseNumber)} navigation={navigation} />
-                                        }
-                                        {item.msgType === 'streakCongrats' && item.streakDay <= 30 &&
-                                            <StreakGif item={item} />
-                                        }
-                                        {item.msgType === 'statSummary' ?
-                                            <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>Good morning! This is your weekly check-in.{`\n\n`}{SevenDayAvg() === '-' ? `You did not send in any meal photos this week.` : `Your average meal score for the past week is ${SevenDayAvg()}.`}
-                                                {`\n`}<Text onPress={handleStatSummaryPress} style={{ fontSize: 14, color: '#4D43BD', textDecorationLine: 'underline' }}>Click here</Text> to view more stats.
-                                                {`\n\n`}What are some of your victories you want to celebrate for the past week?</Text> :
-                                            <Text style={item.userID === user.uid ? styles.outgoingMsgText : styles.incomingMsgText}>{item.msg}</Text>}
-                                    </Pressable>
-                                    <Text style={[styles.msgTimeText, { alignSelf: item.userID === user.uid ? 'flex-end' : 'flex-start' }]}>
-                                        {item.timeSent == undefined ? moment(item.timeSent).calendar() : moment(item.timeSent.toDate()).calendar()}
-                                    </Text>
-                                </MotiView>
+                                <ChatMessage 
+                                    item={item} 
+                                    handleLongPress={() => handleLongPress(item)}
+                                    handleStatSummaryPress={handleStatSummaryPress}
+                                    scrollToOriginal={() => scrollToOriginal(item)}
+                                    SevenDayAvg={SevenDayAvg}
+                                    outgoingMessage={item.userID === user.uid}
+                                    user={user}
+                                    navigation={navigation} 
+                                    userCourseData={globalVars.userData?.courseData}
+                                    courseInfo={CourseData.find(course => item.courseInfo?.UniqueCourseNumber === NaN || item.courseInfo?.UniqueCourseNumber == null ? globalVars.userData?.courseData?.latestCourseCompleted == null ? course.UniqueCourseNumber === 1 : course.UniqueCourseNumber === globalVars.userData?.courseData?.latestCourseCompleted + 1 : course.UniqueCourseNumber === item.courseInfo?.UniqueCourseNumber)}
+                                    msgTimeText={item.timeSent == null ? moment(item.timeSent).calendar() : moment(item.timeSent.toDate()).calendar()}
+                                    repliesToText={messages.find((message) => message.id === item.repliesTo)?.msg || '(Click to view)'}
+                                />
                             )}
                             keyExtractor={(item) => item.id}
                             extraData={globalVars.selectedMessage}
@@ -1193,9 +1195,9 @@ const Chat = ({ navigation, route }) => {
                             }
                             {!subscribed &&
                                 <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} delay={1200} transition={{ duration: 350 }} style={{ alignSelf: 'flex-end', justifyContent: 'flex-end' }}>
-                                    <TouchableOpacity onPress={() => navigation.navigate('Subscription', { trialReminder: 'none' })} style={styles.subBadgeContainer}>
+                                    <TouchableOpacity onPress={handleBadgePress} style={styles.subBadgeContainer}>
                                         <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} delay={1700} transition={{ translateY: { type: 'timing', duration: 400, easing: Easing.bezier(.56, -0.01, 0, .98) }, opacity: { type: 'timing', delay: 1850 } }} style={{ justifyContent: 'center', alignItems: 'center', width: 50, height: 50 }} >
-                                            <ImageBackground source={ribbon} style={{ width: 50, height: 50, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }} imageStyle={{ width: 50, height: 50, resizeMode: 'contain' }}>
+                                            <ImageBackground source={badge} style={{ width: 50, height: 50, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }} imageStyle={{ width: 50, height: 50, resizeMode: 'contain' }}>
                                                 <MotiView from={{ translateX: 250, translateY: 250, rotateZ: '-45deg' }} animate={{ translateX: -250, translateY: -250, rotateZ: '-45deg' }} delay={3000} transition={{ loop: true, repeatReverse: false, duration: 5000, type: 'timing' }} style={{ opacity: 0.5, backgroundColor: '#fff', width: 100, height: 20, transform: [{ rotateZ: '-45deg' }] }} />
                                             </ImageBackground>
                                         </MotiView>
@@ -1242,7 +1244,7 @@ const Chat = ({ navigation, route }) => {
             </SafeAreaView>
             <AnimatePresence>
                 {globalVars.selectedMessage &&
-                    <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', zIndex: 68 }}>
+                    <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', justifyContent: 'center', alignItems: 'center', zIndex: 68 }}>
                         <BlurView
                             style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', zIndex: 68 }}
                             blurType="dark"
@@ -1250,7 +1252,22 @@ const Chat = ({ navigation, route }) => {
                             reducedTransparencyFallbackColor="white"
                             onTouchStart={() => setGlobalVars(val => ({ ...val, selectedMessage: null }))}
                         />
-                        <MessageOptions message={globalVars.selectedMessage} handleReply={(message) => handleReply(message)} style={{ zIndex: 69 }} />
+                        <ChatMessage
+                            style={{ zIndex: 69, width: windowWidth }}
+                            item={globalVars.selectedMessage}
+                            handleLongPress={() => {}}
+                            handleStatSummaryPress={() => {}}
+                            scrollToOriginal={() => {}}
+                            SevenDayAvg={SevenDayAvg}
+                            outgoingMessage={globalVars.selectedMessage.userID === user.uid}
+                            user={user}
+                            navigation={navigation}
+                            userCourseData={globalVars.userData?.courseData}
+                            disablePress
+                            disableItemReplyIndicator
+                            courseInfo={CourseData.find(course => globalVars.selectedMessage.courseInfo?.UniqueCourseNumber === NaN || globalVars.selectedMessage.courseInfo?.UniqueCourseNumber == null ? globalVars.userData?.courseData?.latestCourseCompleted == null ? course.UniqueCourseNumber === 1 : course.UniqueCourseNumber === globalVars.userData?.courseData?.latestCourseCompleted + 1 : course.UniqueCourseNumber === globalVars.selectedMessage.courseInfo?.UniqueCourseNumber)}
+                        />
+                        <MessageOptions message={globalVars.selectedMessage} handleReply={(message) => handleReply(message)} style={{ zIndex: 69, alignSelf: globalVars.selectedMessage?.userID === user.uid ? 'flex-end' : 'flex-start', paddingHorizontal: 20 }} />
                     </MotiView>
                 }
             </AnimatePresence>

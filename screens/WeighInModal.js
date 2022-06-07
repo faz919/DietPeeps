@@ -3,14 +3,13 @@ import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, Platform }
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import Modal from 'react-native-modal'
 import { Picker } from '@react-native-picker/picker'
-
 import { AuthContext } from '../navigation/AuthProvider'
 import firestore from '@react-native-firebase/firestore'
 import analytics from '@react-native-firebase/analytics'
 
 const WeighInModal = ({ navigation }) => {
 
-    const { user, globalVars, updateInfo, setGlobalVars } = useContext(AuthContext)
+    const { user, globalVars, updateInfo, setGlobalVars, mixpanel } = useContext(AuthContext)
 
     const [visible, setVisible] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -48,6 +47,7 @@ const WeighInModal = ({ navigation }) => {
             },
             usesImperial: imperial
         })
+        mixpanel.track('Weighed In', { 'WeightKgs': weight.kgs, 'WeightLbs': weight.lbs })
         await analytics().logEvent('message', {
             msg: imperial ? `Hey coach! Today I weighed in at ${weight.lbs} lbs (${weight.kgs} kgs).` : `Hey coach! Today I weighed in at ${weight.kgs} kgs (${weight.lbs} lbs).`,
             img: null,

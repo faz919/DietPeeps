@@ -9,7 +9,13 @@ import BackButton from '../components/BackButton.js'
 
 const Settings = ({ navigation }) => {
 
-    const { logout, user } = useContext(AuthContext)
+    const { logout, mixpanel } = useContext(AuthContext)
+    
+    const handleSubButtonPress = () => {
+        mixpanel.track('Clicked Subscribe Button', { 'Screen': 'Settings' })
+        // navigation.navigate('Onboarding Wizard')
+        navigation.navigate('Subscription', { trialReminder: 'none' })
+    }
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#E6E7FA' }}>
@@ -79,8 +85,7 @@ const Settings = ({ navigation }) => {
                         style={styles.Divider}
                     />
                 </TouchableOpacity>
-                {/* navigation.navigate('Subscription', { trialReminder: 'none' }) */}
-                <TouchableOpacity onPress={() => navigation.navigate('Onboarding Wizard')}>
+                <TouchableOpacity onPress={handleSubButtonPress}>
                     <View style={styles.Viewk7} >
                         <View style={styles.Viewmm}>
                             <AntDesign

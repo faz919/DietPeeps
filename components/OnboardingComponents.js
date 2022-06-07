@@ -1,5 +1,5 @@
 import { AnimatePresence, MotiView } from 'moti';
-import React from 'react'
+import React, { useState } from 'react'
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Easing } from 'react-native-reanimated'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
@@ -160,7 +160,7 @@ const OtherGoalSelectorPage = ({ selectedGoals, customTitle, onSelectGoal, onCon
     )
 }
 
-const GenderSelectorPage = ({ onSelectResponse, disableAnimation, includePlaceholder }) => {
+const GenderSelectorPage = ({ onSelectResponse, disableAnimation }) => {
     return (
         <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }}>
         <View style={styles.ViewD2}>
@@ -187,6 +187,22 @@ const GenderSelectorPage = ({ onSelectResponse, disableAnimation, includePlaceho
 }
 
 const DateOfBirthSelectorPage = ({ prevResponse, onSelectResponse, onContinue, disableAnimation }) => {
+    const [underage, setUnderage] = useState(false)
+
+    function age(birthDate) {
+        var ageInMilliseconds = new Date() - new Date(birthDate)
+        return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24 * 365))
+    }
+
+    const handleSelectResponse = (date) => {
+        onSelectResponse(date)
+        if (age(date) < 18) {
+            setUnderage(true)
+        } else {
+            setUnderage(false)
+        }
+    }
+
     return (
         <MotiView key='page4' from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }}>
             <View style={styles.ViewD2}>
@@ -206,9 +222,15 @@ const DateOfBirthSelectorPage = ({ prevResponse, onSelectResponse, onContinue, d
                     androidVariant={'iosClone'}
                     mode={'date'}
                     date={prevResponse || new Date(2000, 0, 1)}
-                    onDateChange={(date) => onSelectResponse(date)}
+                    onDateChange={(date) => handleSelectResponse(date)}
                 />
             </View>
+            <AnimatePresence>
+                {underage && 
+                <MotiView from={{ opacity: 0, maxHeight: 0 }} animate={{ opacity: 1, maxHeight: 200 }} exit={{ opacity: 0, maxHeight: 0 }} transition={{ type: 'timing' }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text allowFontScaling={true} style={{ fontWeight: '700', fontSize: 18, color: '#DA302C', textAlign: 'center' }}>Unfortunately, we are unable to serve users under the age of 18. Although our coaches cannot help you, you may feel free to complete our daily courses.</Text>
+                </MotiView>}
+            </AnimatePresence>
             <View style={styles.View_4v}>
                 <TouchableOpacity
                     onPress={onContinue}
@@ -359,9 +381,9 @@ const MealTimesSelectorPage = ({ editingMealTime, mealCount, prevResponse, onSel
     )
 }
 
-const UnitToggler = ({ buttonText, onToggleImperial }) => {
+const UnitToggler = ({ style, buttonText, onToggleImperial }) => {
     return (
-        <TouchableOpacity onPress={onToggleImperial} style={styles.unitToggler}>
+        <TouchableOpacity onPress={onToggleImperial} style={[styles.unitToggler, { ...style }]}>
             <Text style={styles.title1}>{buttonText}</Text>
         </TouchableOpacity>
     )
@@ -383,7 +405,7 @@ const styles = StyleSheet.create({
     unitToggler: {
         alignItems: 'center', 
         justifyContent: 'center', 
-        width: windowHeight / 11, 
+        minWidth: windowHeight / 11, 
         height: windowHeight / 11, 
         borderRadius: 10, 
         backgroundColor: '#fff', 

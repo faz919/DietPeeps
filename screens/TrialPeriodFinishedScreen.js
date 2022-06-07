@@ -1,17 +1,35 @@
 import { BlurView } from '@react-native-community/blur'
 import { MotiView } from 'moti'
-import React from 'react'
+import React, { useContext } from 'react'
 import { ImageBackground, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Icon from 'react-native-vector-icons/Ionicons'
-import ribbon from '../assets/ribbon.png'
+import badge from '../assets/badge.png'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import { Easing } from 'react-native-reanimated'
 import LinearGradient from 'react-native-linear-gradient'
+import { AuthContext } from '../navigation/AuthProvider'
 
 const TrialPeriodFinishedScreen = ({ navigation, showExtraDaysButton, giveExtraTrialDays }) => {
 
+    const { mixpanel } = useContext(AuthContext)
+
     const insets = useSafeAreaInsets()
+
+    const handleBadgePress = () => {
+        mixpanel.track('Clicked Badge', { 'Screen': 'TrialPeriodFinishedScreen' })
+        navigation.navigate('Subscription', { trialReminder: 'none' })
+    }
+
+    const handleSubButtonPress = () => {
+        mixpanel.track('Clicked Subscribe Button')
+        navigation.navigate('Subscription', { trialReminder: 'none' })
+    }
+
+    const handleExtensionPress = () => {
+        mixpanel.track('Clicked Trial Extension Button')
+        giveExtraTrialDays()
+    }
 
     return (
         <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute' }}>
@@ -29,7 +47,7 @@ const TrialPeriodFinishedScreen = ({ navigation, showExtraDaysButton, giveExtraT
                 />
                 <Text style={{ fontSize: 18, color: '#fff', textAlign: 'center' }}>Your free trial has expired. Become a Subscriber to DietPeeps to enable the chat with your personal coach.</Text>
                 <TouchableOpacity
-                    onPress={() => navigation.navigate('Subscription', { trialReminder: 'none' })}
+                    onPress={handleSubButtonPress}
                     style={[styles.ButtonSolidQB, { backgroundColor: 'transparent', opacity: 1 }]}
                 >
                     <LinearGradient start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }} colors={['#f9cd86', '#F7B852']} style={{ width: '100%', height: '100%', borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}>
@@ -37,14 +55,14 @@ const TrialPeriodFinishedScreen = ({ navigation, showExtraDaysButton, giveExtraT
                     </LinearGradient>
                 </TouchableOpacity>
                 {showExtraDaysButton &&
-                    <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center' }} onPress={giveExtraTrialDays}>
+                    <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center' }} onPress={handleExtensionPress}>
                         <Text style={styles.panelButtonText}>{'Give me a few extra days'}</Text>
                     </TouchableOpacity>}
             </View>
             <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} delay={2000} transition={{ duration: 350 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 10 : 10, right: 20 }}>
-                <TouchableOpacity onPress={() => navigation.navigate('Subscription', { trialReminder: 'none' })} style={styles.subBadgeContainer}>
+                <TouchableOpacity onPress={handleBadgePress} style={styles.subBadgeContainer}>
                     <MotiView from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} delay={1700} transition={{ translateY: { type: 'timing', duration: 400, easing: Easing.bezier(.56, -0.01, 0, .98) }, opacity: { type: 'timing', delay: 1850 } }} style={{ justifyContent: 'center', alignItems: 'center', width: 50, height: 50 }} >
-                        <ImageBackground source={ribbon} style={{ width: 50, height: 50, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }} imageStyle={{ width: 50, height: 50, resizeMode: 'contain' }}>
+                        <ImageBackground source={badge} style={{ width: 50, height: 50, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }} imageStyle={{ width: 50, height: 50, resizeMode: 'contain' }}>
                             <MotiView from={{ translateX: 250, translateY: 250, rotateZ: '-45deg' }} animate={{ translateX: -250, translateY: -250, rotateZ: '-45deg' }} delay={3000} transition={{ loop: true, repeatReverse: false, duration: 5000, type: 'timing' }} style={{ opacity: 0.5, backgroundColor: '#fff', width: 100, height: 20, transform: [{ rotateZ: '-45deg' }] }} />
                         </ImageBackground>
                     </MotiView>

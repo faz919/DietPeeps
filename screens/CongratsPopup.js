@@ -7,7 +7,7 @@ import { AuthContext } from '../navigation/AuthProvider'
 import { AnimatePresence, MotiImage, MotiView } from 'moti'
 import ConfettiCannon from 'react-native-confetti-cannon'
 import { Easing } from 'react-native-reanimated'
-import ribbon from '../assets/ribbon.png'
+import badge from '../assets/badge.png'
 
 const CongratsPopup = ({ navigation, route }) => {
 
@@ -61,7 +61,7 @@ const CongratsPopup = ({ navigation, route }) => {
                                 shadowOpacity: 0.4,
                             }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', flex: 4 }}>
-                                <MotiImage source={ribbon} from={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} delay={500}
+                                <MotiImage source={badge} from={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }} delay={500}
                                     style={{ height: windowWidth * 0.4, resizeMode: 'contain' }}
                                 />
                             </View>

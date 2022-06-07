@@ -12,7 +12,7 @@ const Course = ({ navigation, route }) => {
 
     const { courseData, courseCompleted } = route.params
 
-    const { updateInfo, user } = useContext(AuthContext)
+    const { updateInfo, user, mixpanel } = useContext(AuthContext)
 
     const [loading, setLoading] = useState(true)
     const [showButton, setShowButton] = useState(false)
@@ -59,6 +59,8 @@ const Course = ({ navigation, route }) => {
                 courseDayCompleted: courseData.UniqueCourseNumber >= courseData.MaxCourseinDay ? true : false
             }
         })
+        mixpanel.track('Completed Course', { 'UniqueCourseNumber': courseData.UniqueCourseNumber })
+        courseData.UniqueCourseNumber >= courseData.MaxCourseinDay && mixpanel.track('Completed Course Day', { 'Course Day': courseData.Courseday })
         await analytics().logEvent('course_completed', {
             userID: user.uid,
             courseData: {

@@ -6,13 +6,16 @@ import { MotiText, MotiView } from 'moti'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { AuthContext } from '../navigation/AuthProvider'
 
-const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, navigation }) => {
+const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, navigation, disablePress }) => {
 
     const { mixpanel } = useContext(AuthContext)
 
     const [loading, setLoading] = useState(true)
 
     const handlePress = () => {
+        if (disablePress) {
+            return
+        }
         mixpanel.track('Button Press', { 'Button': 'CourseLinkImage' }) 
         navigation.navigate('Main Menu', { screen: 'Courses', params: { courseInfo: courseInfo, courseCompleted: userCourseData?.latestCourseCompleted >= courseInfo?.UniqueCourseNumber } })
     }
