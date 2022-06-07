@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>HostAppBundleIdentifier</key>
-	<string>org.DietPeeps</string>
+	<string>org.reactjs.native.example.DietPeeps</string>
 	<key>HostAppURLScheme</key>
 	<string>dietpeeps://</string>
 	<key>NSExtension</key>

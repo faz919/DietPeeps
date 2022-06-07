@@ -703,7 +703,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.DietPeeps;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.DietPeeps;
 				PRODUCT_NAME = DietPeeps;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -732,7 +732,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.DietPeeps;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.DietPeeps;
 				PRODUCT_NAME = DietPeeps;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -892,7 +892,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.DietPeeps.DietPeepsShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.DietPeeps.DietPeepsShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -934,7 +934,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = org.DietPeeps.DietPeepsShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.DietPeeps.DietPeepsShareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
