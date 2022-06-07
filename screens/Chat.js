@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef, useCallback } from 'react'
-import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard, Linking, Pressable, Share, Vibration } from 'react-native'
+import { KeyboardAvoidingView, SafeAreaView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image, FlatList, ActivityIndicator, ImageBackground, Alert, Platform, Keyboard, Linking, Pressable, Share, Vibration, ScrollView } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -336,6 +336,9 @@ const Chat = ({ navigation, route }) => {
                     if (userData.exists) {
                         setGlobalVars(val => ({ ...val, userData: userData.data() }))
                         const usr = userData.data()
+                        if (usr.completedNewUserProcess) {
+                            setGlobalVars(val => ({ ...val, loggingIn: false }))
+                        }
                         if (usr.userBioData != null) {
                             const dob = new Date(usr.userBioData.dob instanceof firestore.Timestamp ? usr.userBioData.dob.toDate() : usr.userBioData.dob)
                             if (age(dob) < 18) {
@@ -1244,30 +1247,32 @@ const Chat = ({ navigation, route }) => {
             </SafeAreaView>
             <AnimatePresence>
                 {globalVars.selectedMessage &&
-                    <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', justifyContent: 'center', alignItems: 'center', zIndex: 68 }}>
-                        <BlurView
-                            style={{ flex: 1, height: windowHeight, width: windowWidth, position: 'absolute', zIndex: 68 }}
-                            blurType="dark"
-                            blurAmount={10}
-                            reducedTransparencyFallbackColor="white"
-                            onTouchStart={() => setGlobalVars(val => ({ ...val, selectedMessage: null }))}
-                        />
-                        <ChatMessage
-                            style={{ zIndex: 69, width: windowWidth }}
-                            item={globalVars.selectedMessage}
-                            handleLongPress={() => {}}
-                            handleStatSummaryPress={() => {}}
-                            scrollToOriginal={() => {}}
-                            SevenDayAvg={SevenDayAvg}
-                            outgoingMessage={globalVars.selectedMessage.userID === user.uid}
-                            user={user}
-                            navigation={navigation}
-                            userCourseData={globalVars.userData?.courseData}
-                            disablePress
-                            disableItemReplyIndicator
-                            courseInfo={CourseData.find(course => globalVars.selectedMessage.courseInfo?.UniqueCourseNumber === NaN || globalVars.selectedMessage.courseInfo?.UniqueCourseNumber == null ? globalVars.userData?.courseData?.latestCourseCompleted == null ? course.UniqueCourseNumber === 1 : course.UniqueCourseNumber === globalVars.userData?.courseData?.latestCourseCompleted + 1 : course.UniqueCourseNumber === globalVars.selectedMessage.courseInfo?.UniqueCourseNumber)}
-                        />
-                        <MessageOptions message={globalVars.selectedMessage} handleReply={(message) => handleReply(message)} style={{ zIndex: 69, alignSelf: globalVars.selectedMessage?.userID === user.uid ? 'flex-end' : 'flex-start', paddingHorizontal: 20 }} />
+                    <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: '100%', width: windowWidth, position: 'absolute', justifyContent: 'center', alignItems: 'center', zIndex: 68 }}>
+                        <ScrollView contentContainerStyle={{ justifyContent: 'center', alignItems: 'center', minHeight: '100%' }} style={{ zIndex: 69, paddingTop: Platform.OS === 'ios' ? insets.top : 0 }} showsVerticalScrollIndicator={false}>
+                            <BlurView
+                                style={{ flex: 1, height: windowHeight * 2, width: windowWidth, position: 'absolute', zIndex: 68 }}
+                                blurType="dark"
+                                blurAmount={10}
+                                reducedTransparencyFallbackColor="white"
+                                onTouchStart={() => setGlobalVars(val => ({ ...val, selectedMessage: null }))}
+                            />
+                            <ChatMessage
+                                style={{ zIndex: 69, width: windowWidth }}
+                                item={globalVars.selectedMessage}
+                                handleLongPress={() => {}}
+                                handleStatSummaryPress={() => {}}
+                                scrollToOriginal={() => {}}
+                                SevenDayAvg={SevenDayAvg}
+                                outgoingMessage={globalVars.selectedMessage.userID === user.uid}
+                                user={user}
+                                navigation={navigation}
+                                userCourseData={globalVars.userData?.courseData}
+                                disablePress
+                                disableItemReplyIndicator
+                                courseInfo={CourseData.find(course => globalVars.selectedMessage.courseInfo?.UniqueCourseNumber === NaN || globalVars.selectedMessage.courseInfo?.UniqueCourseNumber == null ? globalVars.userData?.courseData?.latestCourseCompleted == null ? course.UniqueCourseNumber === 1 : course.UniqueCourseNumber === globalVars.userData?.courseData?.latestCourseCompleted + 1 : course.UniqueCourseNumber === globalVars.selectedMessage.courseInfo?.UniqueCourseNumber)}
+                            />
+                            <MessageOptions message={globalVars.selectedMessage} handleReply={(message) => handleReply(message)} style={{ zIndex: 69, alignSelf: globalVars.selectedMessage?.userID === user.uid ? 'flex-end' : 'flex-start', paddingHorizontal: 20, paddingBottom: Platform.OS === 'ios' ? insets.top + 10 : 10 }} />
+                        </ScrollView>
                     </MotiView>
                 }
             </AnimatePresence>
@@ -1376,7 +1381,8 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         borderWidth: 0,
         marginRight: 25,
-        paddingTop: 0
+        paddingTop: 0,
+        paddingBottom: 0
     },
     msgTimeText: {
         fontSize: 12,

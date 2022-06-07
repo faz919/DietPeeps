@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { ActivityIndicator, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient'
 import Purchases from 'react-native-purchases'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -57,12 +57,23 @@ const SubscriptionScreen = ({ navigation, route }) => {
             setLoading(false)
         } catch (e) {
             console.error('error while retrieving subscriptions: ', e)
+            Alert.alert(
+                'Error while retrieving subscriptions',
+                'Please try again later.'
+            )
             setLoading(false)
         }
     }
 
     const handleSubButtonPress = () => {
         mixpanel.track('Attempted to Subscribe')
+        if (subscription == null) {
+            Alert.alert(
+                'Error while making purchase',
+                'Please try again later.'
+            )
+            return
+        }
         buySubscription(subscription.availablePackages[0])
     }
 
@@ -89,6 +100,10 @@ const SubscriptionScreen = ({ navigation, route }) => {
             // }
         } catch (e) {
             console.error('error while making purchase: ', e)
+            Alert.alert(
+                'Error while making purchase',
+                'Please try again later.'
+            )
             setLoading(false)
         }
     }

@@ -37,93 +37,93 @@ export const AuthProvider = ({ children }) => {
         })
     }
 
-    const makeNewUserChat = async () => {
-        const _user = auth().currentUser
-        await analytics().logEvent('new_signup', {
-            userID: _user.uid,
-            dateJoined: _user.metadata.creationTime
-        })
-        let coachList = []
-        firestore()
-            .collection('user-info')
-            .where('type', '==', 'coach')
-            .get()
-            .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    coachList.push(doc.id)
-                })
-            })
-            .then(() => {
-                var userCoachGet = coachList[Math.floor(Math.random() * coachList.length)]
-                let userCoach = userCoachGet
-                const _user = auth().currentUser
-                firestore()
-                    .collection('chat-rooms')
-                    .add({
-                        timeCreated: firestore.Timestamp.now(),
-                        latestMessageTime: firestore.Timestamp.now(),
-                        latestMessage: "",
-                        userIDs: [_user.uid, userCoach],
-                        unreadCount: 0,
-                        ungradedImageCount: 0
-                    })
-                    .then((doc) => {
-                        setGlobalVars(val => ({
-                            ...val,
-                            chatID: doc.id,
-                        }))
-                    })
-                    .then(() => {
-                        const _user = auth().currentUser
-                        firestore()
-                            .collection('user-info')
-                            .doc(_user.uid)
-                            .set({
-                                displayName: _user.displayName,
-                                photoURL: _user.photoURL,
-                                type: 'client',
-                                lastImageSent: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
-                                streakUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
-                                totalImageCount: 0,
-                                streak: 0,
-                                dateJoined: _user.metadata.creationTime,
-                                courseData: {
-                                    courseDay: 1,
-                                    courseDayCompleted: false,
-                                    latestCourseCompleted: 0
-                                },
-                                lastLoggedIn: _user.metadata.lastSignInTime,
-                                lastWeighIn: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
-                                usesImperial: true,
-                                trialPeriod: true,
-                                photoURLLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
-                                emailLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
-                                displayNameLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
-                                passwordLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
-                                settings: {
-                                    notificationTypes: ['chatMessage', 'imageGrade', 'courseLink', 'statSummary', 'mealReminder']
-                                }
-                            }, { merge: true })
-                            .then(() => {
-                                setGlobalVars(val => ({ ...val, loggingIn: false, newUser: true }))
-                                const _user = auth().currentUser
-                                _user.reload()
-                            })
-                            .catch((e) => {
-                                console.log("Error while adding user profile on Firestore: ", e)
-                                crashlytics().recordError(e)
-                            })
-                    })
-                    .catch((e) => {
-                        console.log('Error while making new coach/client chat: ', e)
-                        crashlytics().recordError(e)
-                    })
-            })
-            .catch((e) => {
-                console.log("Error while fetching coach data: ", e)
-                crashlytics().recordError(e)
-            })
-    }
+    // const makeNewUserChat = async () => {
+    //     const _user = auth().currentUser
+    //     await analytics().logEvent('new_signup', {
+    //         userID: _user.uid,
+    //         dateJoined: _user.metadata.creationTime
+    //     })
+    //     let coachList = []
+    //     firestore()
+    //         .collection('user-info')
+    //         .where('type', '==', 'coach')
+    //         .get()
+    //         .then((querySnapshot) => {
+    //             querySnapshot.forEach((doc) => {
+    //                 coachList.push(doc.id)
+    //             })
+    //         })
+    //         .then(() => {
+    //             var userCoachGet = coachList[Math.floor(Math.random() * coachList.length)]
+    //             let userCoach = userCoachGet
+    //             const _user = auth().currentUser
+    //             firestore()
+    //                 .collection('chat-rooms')
+    //                 .add({
+    //                     timeCreated: firestore.Timestamp.now(),
+    //                     latestMessageTime: firestore.Timestamp.now(),
+    //                     latestMessage: "",
+    //                     userIDs: [_user.uid, userCoach],
+    //                     unreadCount: 0,
+    //                     ungradedImageCount: 0
+    //                 })
+    //                 .then((doc) => {
+    //                     setGlobalVars(val => ({
+    //                         ...val,
+    //                         chatID: doc.id,
+    //                     }))
+    //                 })
+    //                 .then(() => {
+    //                     const _user = auth().currentUser
+    //                     firestore()
+    //                         .collection('user-info')
+    //                         .doc(_user.uid)
+    //                         .set({
+    //                             displayName: _user.displayName,
+    //                             photoURL: _user.photoURL,
+    //                             type: 'client',
+    //                             lastImageSent: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+    //                             streakUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+    //                             totalImageCount: 0,
+    //                             streak: 0,
+    //                             dateJoined: _user.metadata.creationTime,
+    //                             courseData: {
+    //                                 courseDay: 1,
+    //                                 courseDayCompleted: false,
+    //                                 latestCourseCompleted: 0
+    //                             },
+    //                             lastLoggedIn: _user.metadata.lastSignInTime,
+    //                             lastWeighIn: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+    //                             usesImperial: true,
+    //                             trialPeriod: true,
+    //                             photoURLLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+    //                             emailLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+    //                             displayNameLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+    //                             passwordLastUpdated: firestore.Timestamp.fromDate(new Date(2022, 1, 1)),
+    //                             settings: {
+    //                                 notificationTypes: ['chatMessage', 'imageGrade', 'courseLink', 'statSummary', 'mealReminder']
+    //                             }
+    //                         }, { merge: true })
+    //                         .then(() => {
+    //                             setGlobalVars(val => ({ ...val, loggingIn: false }))
+    //                             const _user = auth().currentUser
+    //                             _user.reload()
+    //                         })
+    //                         .catch((e) => {
+    //                             console.log("Error while adding user profile on Firestore: ", e)
+    //                             crashlytics().recordError(e)
+    //                         })
+    //                 })
+    //                 .catch((e) => {
+    //                     console.log('Error while making new coach/client chat: ', e)
+    //                     crashlytics().recordError(e)
+    //                 })
+    //         })
+    //         .catch((e) => {
+    //             console.log("Error while fetching coach data: ", e)
+    //             crashlytics().recordError(e)
+    //         })
+    // }
 
     async function setUserMessagingInfo(token) {
         const _user = auth().currentUser
@@ -197,7 +197,7 @@ export const AuthProvider = ({ children }) => {
                     try {
                         await auth().signInWithEmailAndPassword(email, password).then(() => {
                             logLoginEvent()
-                            setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
+                            setGlobalVars(val => ({ ...val, loggingIn: false }))
                             messaging()
                                 .getToken()
                                 .then(token => {
@@ -213,7 +213,7 @@ export const AuthProvider = ({ children }) => {
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
                         crashlytics().recordError(e)
-                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
+                        setGlobalVars(val => ({ ...val, loggingIn: false }))
                     }
                 },
                 googleLogin: async () => {
@@ -222,7 +222,6 @@ export const AuthProvider = ({ children }) => {
                         const { idToken } = await GoogleSignin.signIn()
                         const googleCredential = auth.GoogleAuthProvider.credential(idToken)
                         await auth().signInWithCredential(googleCredential).then(() => {
-                            const _user = auth().currentUser
                             messaging()
                                 .getToken()
                                 .then(token => {
@@ -232,33 +231,35 @@ export const AuthProvider = ({ children }) => {
                                     console.log('error while retrieving messaging token (google login): ', e)
                                     crashlytics().recordError(e)
                                 })
-                            if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
-                                let now = new Date()
-                                if (now - Date.parse(_user.metadata.creationTime) > 5000) {
-                                    logLoginEvent()
-                                    setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
-                                } else {
-                                    makeNewUserChat()
-                                }
-                            } else {
-                                console.log('User was not just created.')
-                                logLoginEvent()
-                                setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
-                            }
+                            // if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
+                            //     let now = new Date()
+                            //     if (now - Date.parse(_user.metadata.creationTime) > 5000) {
+                            //         logLoginEvent()
+                            //         setGlobalVars(val => ({ ...val, loggingIn: false }))
+                            //     } else {
+                            //         makeNewUserChat()
+                            //     }
+                            // } else {
+                            //     console.log('User was not just created.')
+                            //     logLoginEvent()
+                            //     setGlobalVars(val => ({ ...val, loggingIn: false }))
+                            // }
+                            logLoginEvent()
+                            setGlobalVars(val => ({ ...val, loggingIn: false }))
                         })
                             .catch((e) => {
                                 console.log('Error when updating user info for Google login: ', e)
                                 crashlytics().recordError(e)
-                                setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
+                                setGlobalVars(val => ({ ...val, loggingIn: false }))
                             })
                     } catch (e) {
                         const eMessage = e.message.toString()
                         console.log(e)
                         crashlytics().recordError(e)
                         if (e.code === statusCodes.SIGN_IN_CANCELLED) {
-                            setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
+                            setGlobalVars(val => ({ ...val, loggingIn: false }))
                         }
-                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
+                        setGlobalVars(val => ({ ...val, loggingIn: false }))
                     }
                 },
                 appleLogin: async () => {
@@ -293,7 +294,6 @@ export const AuthProvider = ({ children }) => {
                                 })
                             }
                             await userCredentials.user.reload().then(() => {
-                                const _user = auth().currentUser
                                 messaging()
                                 .getToken()
                                 .then(token => {
@@ -303,19 +303,21 @@ export const AuthProvider = ({ children }) => {
                                     console.log('error while retrieving messaging token (apple login): ', e)
                                     crashlytics().recordError(e)
                                 })
-                                if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
-                                    let now = new Date()
-                                    if (now - Date.parse(_user.metadata.creationTime) > 5000) {
-                                        logLoginEvent()
-                                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
-                                    } else {
-                                        makeNewUserChat()
-                                    }
-                                } else {
-                                    console.log('User was not just created.')
-                                    logLoginEvent()
-                                    setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
-                                }
+                                // if (Math.abs(Date.parse(_user.metadata.creationTime) - Date.parse(_user.metadata.lastSignInTime)) < 1000) {
+                                //     let now = new Date()
+                                //     if (now - Date.parse(_user.metadata.creationTime) > 5000) {
+                                //         logLoginEvent()
+                                //         setGlobalVars(val => ({ ...val, loggingIn: false }))
+                                //     } else {
+                                //         makeNewUserChat()
+                                //     }
+                                // } else {
+                                //     console.log('User was not just created.')
+                                //     logLoginEvent()
+                                //     setGlobalVars(val => ({ ...val, loggingIn: false }))
+                                // }
+                                logLoginEvent()
+                                setGlobalVars(val => ({ ...val, loggingIn: false }))
                             })
                         } else {
                             console.log('User not found when logging in with Apple.')
@@ -325,7 +327,7 @@ export const AuthProvider = ({ children }) => {
                         //setAuthErrorText(eMessage.substring(0, eMessage.indexOf('(')))
                         console.log(e)
                         crashlytics().recordError(e)
-                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
+                        setGlobalVars(val => ({ ...val, loggingIn: false }))
                     }
                 },
                 register: async (name, email, password) => {
@@ -348,7 +350,7 @@ export const AuthProvider = ({ children }) => {
                                         console.log('error while retrieving messaging token (register): ', e)
                                         crashlytics().recordError(e)
                                     })
-                                makeNewUserChat()
+                                // makeNewUserChat()
                             })
                         }
                     } catch (e) {
@@ -356,7 +358,7 @@ export const AuthProvider = ({ children }) => {
                         setAuthErrorText(eMessage.substring(eMessage.lastIndexOf(']') + 2))
                         console.log(e)
                         crashlytics().recordError(e)
-                        setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
+                        setGlobalVars(val => ({ ...val, loggingIn: false }))
                     }
                 },
                 forgotPassword: async (email) => {
@@ -393,7 +395,7 @@ export const AuthProvider = ({ children }) => {
                             Alert.alert(
                                 'Account deleted!',
                                 'Your account has been successfully deleted.')
-                            setGlobalVars(val => ({ ...val, loggingIn: false, newUser: false }))
+                            setGlobalVars(val => ({ ...val, loggingIn: false }))
                         })
                     } catch (e) {
                         const eMessage = e.message.toString()
