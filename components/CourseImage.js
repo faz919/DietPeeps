@@ -9,6 +9,7 @@ const CourseImage = ({ item, userCourseData, navigation }) => {
 
     return (
         <View style={{ width: 140, height: 140, overflow: 'hidden', borderRadius: 16 }}>
+            {/* don't allow user to select course if it's after the course after the last completed course (2 or more courses after their latest completed course) */}
             <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => navigation.navigate('Course', { courseData: item, courseCompleted: userCourseData.latestCourseCompleted >= item.UniqueCourseNumber ? true : false })}>
                 <ImageBackground onLoadStart={() => setLoading(true)} onLoad={() => setLoading(false)}
                     style={{ width: '100%', height: '100%', borderRadius: 6, justifyContent: 'center', alignItems: 'center' }}
@@ -16,6 +17,7 @@ const CourseImage = ({ item, userCourseData, navigation }) => {
                     resizeMode={'cover'}
                     source={{ uri: `${item.CoverLink}` }}
                 >
+                        {/* if they've completed the course, show the checkmark overlay */}
                         {userCourseData.latestCourseCompleted >= item.UniqueCourseNumber &&
                         <View style={{ position: 'absolute' }}>
                             <Icon

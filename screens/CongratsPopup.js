@@ -16,6 +16,7 @@ const CongratsPopup = ({ navigation, route }) => {
     const [hideAnim, startHideAnim] = useState(false)
     let congratsTitle, congratsMessage
 
+    // show different text depending on what kind of action happened
     switch (congratsType) {
         case 'courseDayCompletion':
             congratsTitle = 'Congratulations!'
@@ -81,6 +82,7 @@ const CongratsPopup = ({ navigation, route }) => {
                                 </MotiView>
                             </View>
                         </MotiView>
+                        {/* show confetti only if iOS. confetti lags big time on android. need to find a different package */}
                         {Platform.OS === 'ios' && <ConfettiCannon count={200} origin={{ x: windowWidth / 2, y: 0 }} fallSpeed={1500} fadeOut explosionSpeed={450} />}
                     </>
                 }

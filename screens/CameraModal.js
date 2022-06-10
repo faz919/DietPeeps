@@ -7,12 +7,14 @@ import { AuthContext } from '../navigation/AuthProvider'
 import analytics from '@react-native-firebase/analytics'
 import crashlytics from '@react-native-firebase/crashlytics'
 
+// code for the screen accessed by pressing the 'camera' button on the bottom tab navigator (the middle one)
 const CameraModal = ({ navigation }) => {
 
     const [attachingImage, setAttachingImage] = useState({})
 
     const { user, setGlobalVars } = useContext(AuthContext)
 
+    // when screen comes into focus, open the modal
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
             setAttachingImage(val => ({ ...val, visible: true}))
@@ -28,18 +30,18 @@ const CameraModal = ({ navigation }) => {
         setAttachingImage(val => ({ ...val, loading: true }))
         setGlobalVars(val => ({...val, autoSend: true}))
         ImagePicker.openCamera({
+            // don't allow cropping because it's unnecessary + makes it too many steps
             cropping: false,
             includeExif: true,
             compressImageMaxHeight: 512,
             forceJpg: true,
-            // includeBase64: true
         }).then((i) => {
+            // navigate to chat screen with all the necessary image info
             navigation.navigate('Main Menu', { screen: 'Coach', params: { imageInfo: [{
                 uri: i.path,
                 width: i.width,
                 height: i.height,
                 mime: i.mime,
-                // base64: i.data,
                 fileSize: i.size
             }] } })
         }).catch((e) => {

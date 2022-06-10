@@ -27,6 +27,7 @@ import {
 } from '../components/OnboardingComponents.js'
 import moment from 'moment'
 
+// currently not being used. has been pushed back to 1.05 or later
 const EditUserDataScreen = ({ navigation }) => {
     const { user, updateInfo, globalVars, setGlobalVars, mixpanel } = useContext(AuthContext)
 

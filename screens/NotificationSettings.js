@@ -11,7 +11,7 @@ const NotificationSettings = ({ navigation }) => {
 
     const { globalVars, updateInfo, mixpanel } = useContext(AuthContext)
 
-    const appState = useRef(AppState.currentState)
+    // const appState = useRef(AppState.currentState)
 
     const notifTypes = [
         { label: 'Chat Message', value: 'chatMessage', icon: 'chatbox-ellipses-outline' },
@@ -65,6 +65,7 @@ const NotificationSettings = ({ navigation }) => {
         }
     }
 
+    // when user goes to settings and modifies their notification permissions, we want to update that in the app when they open it back up
     useEffect(() => {
         const subscription = AppState.addEventListener("change", nextAppState => {
             if (nextAppState === 'active') {

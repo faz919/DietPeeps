@@ -50,6 +50,7 @@ const Done = ({ ...props }) => (
   </TouchableOpacity>
 )
 
+// not in use
 const OnboardingScreen = ({ navigation }) => {
 
   const { user } = useContext(AuthContext)

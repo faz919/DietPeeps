@@ -14,12 +14,12 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import InAppReview from 'react-native-in-app-review'
 import analytics from '@react-native-firebase/analytics'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { AnimatePresence, MotiText, MotiView, useAnimationState } from 'moti'
+import { AnimatePresence, MotiText, MotiView } from 'moti'
 import { Easing } from 'react-native-reanimated'
 import ProfilePic from '../components/ProfilePic'
 
 const PhotoGallery = ({ navigation, route }) => {
-    const { user, updateInfo, globalVars, setGlobalVars, mixpanel } = useContext(AuthContext)
+    const { user, updateInfo, globalVars, mixpanel } = useContext(AuthContext)
 
     const { imageInfo } = route.params
 
@@ -31,7 +31,6 @@ const PhotoGallery = ({ navigation, route }) => {
     }, [navigation])
 
     const [loading, setLoading] = useState(false)
-    const [deleteMode, setDeleteMode] = useState(false)
     const [imageDetailView, setImageDetailView] = useState(false)
     const [imageDetailLoaded, setImageDetailLoaded] = useState(false)
     const [selectedImage, setSelectedImage] = useState([])
@@ -40,6 +39,7 @@ const PhotoGallery = ({ navigation, route }) => {
     const insets = useSafeAreaInsets()
     const bottomBarHeight = useBottomTabBarHeight()
 
+    // prompt user for app review if they've submitted >= 30 images
     useEffect(() => {
         if (globalVars.images?.length >= 30) {
             AsyncStorage.getItem('@reviewed_app').then((value) => {
@@ -62,31 +62,22 @@ const PhotoGallery = ({ navigation, route }) => {
         }
     }, [globalVars.images])
 
+    // when hiding the image modal, hide the score details modal as well
     useEffect(() => {
         if(!imageDetailView) {
             setShowGradeInfo(false)
         }
     }, [imageDetailView])
 
-    //skeleton placeholder array thingy, just so that I don't have to
-    //write out this view component so many times
-    const skeleton = []
-    for (let i = 0; i < 12; i++) {
-        skeleton.push(
-            <View key={i} style={{
-                width: windowWidth * (0.32),
-                height: windowWidth * (0.32),
-                marginLeft: windowWidth * (0.01),
-                marginBottom: windowWidth * (0.01)
-            }} />
-        )
-    }
+    // skeleton array that is mapped later
+    const skeleton = new Array(12).fill(0)
 
     const getImageDetail = (imgInfo) => {
         setSelectedImage(globalVars.images?.find(img => img.url === imgInfo.url))
         setImageDetailView(true)
     }
 
+    // for when user clicks on chat image in the chat screen and is navigated to gallery
     useEffect(() => {
         if (imageInfo != null) {
             handleImagePress(imageInfo)
@@ -108,7 +99,14 @@ const PhotoGallery = ({ navigation, route }) => {
                 {loading ? (
                     <SkeletonPlaceholder>
                         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                            {skeleton}
+                            {skeleton.map((i, idx) => 
+                                <View key={idx} style={{
+                                    width: windowWidth * (0.32),
+                                    height: windowWidth * (0.32),
+                                    marginLeft: windowWidth * (0.01),
+                                    marginBottom: windowWidth * (0.01)
+                                }} />
+                            )}
                         </View>
                     </SkeletonPlaceholder>) : (
                     <View>

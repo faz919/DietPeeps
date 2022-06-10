@@ -3,6 +3,7 @@ import { StyleSheet, TouchableOpacity, Text, View, ActivityIndicator } from 'rea
 import Video from 'react-native-video'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 
+// currently not being used as intro video is being remade
 const IntroVideo = ({ navigation }) => {
 
     const [videoPlaying, setVideoPlaying] = useState(false)

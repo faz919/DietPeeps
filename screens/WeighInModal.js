@@ -7,6 +7,7 @@ import { AuthContext } from '../navigation/AuthProvider'
 import firestore from '@react-native-firebase/firestore'
 import analytics from '@react-native-firebase/analytics'
 
+// this is the code for the weigh-in modal, which can be found by tapping on the scale icon on the user's chat
 const WeighInModal = ({ navigation }) => {
 
     const { user, globalVars, updateInfo, setGlobalVars, mixpanel } = useContext(AuthContext)
@@ -17,9 +18,12 @@ const WeighInModal = ({ navigation }) => {
         kgs: globalVars.userData.userBioData.weight.kgs,
         lbs: globalVars.userData.userBioData.weight.lbs
     })
+    // whether or not the user uses the imperial or metric measurement system
+    // if they don't have an existing preference, set true by default, because americans
     const [imperial, useImperial] = useState(globalVars.userData.usesImperial || true)
     const [weighedIn, setWeighedIn] = useState(false)
 
+    // open modal when the app navigates to this screen
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
             setVisible(true)
@@ -29,6 +33,7 @@ const WeighInModal = ({ navigation }) => {
 
     const weighIn = async () => {
         setLoading(true)
+        // only give weight history up to 30 days ago. this is to ensure the user's profile doesn't exceed the 1mb limit
         if (globalVars.userData.weightHistory?.length >= 30) {
             let newWeightHistory = globalVars.userData.weightHistory
             newWeightHistory.shift()
@@ -114,6 +119,7 @@ const WeighInModal = ({ navigation }) => {
                 <View overflow={'hidden'} style={[styles.largeView, { flexDirection: 'row', padding: 20, justifyContent: 'space-between', alignItems: 'center' }]}>
                     <View style={{ flex: 1, alignItems: 'center', marginRight: 20 }}>
                         <View style={{ justifyContent: 'center', width: windowHeight / 8, height: windowHeight / 11, borderRadius: 10 }}>
+                            {/* weight picker, with min/max values dependent on unit selected */}
                             <Picker style={{ margin: -(windowHeight / 50), color: '#202060' }}
                                 dropdownIconColor='#202060'
                                 itemStyle={styles.title1}
@@ -128,6 +134,7 @@ const WeighInModal = ({ navigation }) => {
                             </Picker>
                         </View>
                     </View>
+                    {/* button that allows user to switch between lbs and kgs */}
                     <TouchableOpacity onPress={() => useImperial(!imperial)} style={{ alignItems: 'center', justifyContent: 'center', width: windowHeight / 11, height: windowHeight / 11, borderRadius: 10, backgroundColor: '#fff', shadowColor: '#000000', shadowOffset: { width: 0, height: 5 }, shadowRadius: 5, shadowOpacity: 0.4 }}>
                         <Text style={styles.title1}>{imperial ? 'lbs' : 'kgs'}</Text>
                     </TouchableOpacity>

@@ -7,10 +7,12 @@ import { AuthContext } from '../navigation/AuthProvider.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import messaging from '@react-native-firebase/messaging'
 
+// code for the screen that android users see upon logging in for the first time
 const WelcomeScreen = ({ navigation }) => {
 
   const { setGlobalVars, updateInfo } = useContext(AuthContext)
 
+  // request permission, even though on android it's enabled by default
   const requestPermission = async () => {
     const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
     if(alreadyEnabled == null) {
@@ -147,7 +149,7 @@ const WelcomeScreen = ({ navigation }) => {
 
           <View style={styles.View_4v}>
             <TouchableOpacity 
-              onPress={() => requestPermission()}
+              onPress={requestPermission}
               style={[
                 styles.ButtonSolidQB,
                 { backgroundColor: '#4C44D4' },

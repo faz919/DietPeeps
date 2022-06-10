@@ -76,9 +76,7 @@ const ToggleButtonRow = ({
 	const inactiveContainerIOS = Platform.OS === "ios" ? { zIndex: -1 } : {}
 
 	return (
-		<View
-			style={[styles.container, style]}
-		>
+		<View style={[styles.container, style]}>
 			<MaskedView
 				key={selectedIndex}
 				style={styles.maskViewContainer}

@@ -25,6 +25,7 @@ import {
 const OnboardingWizard = ({ navigation }) => {
 
     const { user, updateInfo, setGlobalVars } = useContext(AuthContext)
+    // set default values. based on intl avg height and weight metrics
     const [formResponses, setFormResponses] = useState({
         mealTimes: [],
         goals: [],
@@ -44,17 +45,21 @@ const OnboardingWizard = ({ navigation }) => {
         mealCount: 3,
         timezoneOffset: (new Date()).getTimezoneOffset() / 60
     })
+    // how many pages in the form
     const formLength = 9
+    // on what page does the user pick meal times. important because the functionality of the continue button is different on this page
     const mealPickerScreen = 8
     const [formPage, setFormPage] = useState(1)
+    // is current wizard synced with responses fetched from asyncstorage
     const [synced, setSynced] = useState(false)
-    const [openTimePicker, setOpenTimePicker] = useState([])
     const insets = useSafeAreaInsets()
     const [imperial, useImperial] = useState({
         height: true,
         weight: true
     })
+    // which meal time is being edited
     const [editingMealTime, setEditingMealTime] = useState(1)
+    // which 'loading screen' is being displayed
     const [loadingScreen, setLoadingScreen] = useState(1)
 
     const toggleSelectGoal = (goal) => {
@@ -70,6 +75,7 @@ const OnboardingWizard = ({ navigation }) => {
         }
     }
 
+    // takes the values that the user has already answered on a previous session and syncs them with the current session
     useEffect(() => {
         if (!synced) {
             AsyncStorage.getItem('@onboarding_responses').then((value) => {
@@ -88,6 +94,7 @@ const OnboardingWizard = ({ navigation }) => {
                 }
             })
         }
+        // modify data when user navigates to different form page
         synced && AsyncStorage.setItem('@onboarding_responses', JSON.stringify(formResponses)) 
         synced && AsyncStorage.setItem('@onboarding_page', JSON.stringify(formPage))
     }, [formPage])
@@ -97,6 +104,7 @@ const OnboardingWizard = ({ navigation }) => {
         if (user) {
             updateInfo({ userBioData: formResponses })
         }
+        // onboarding wizard is in both authstack and app stack, so attempt to navigate to either screen
         navigation.navigate('Signup') || navigation.navigate('Main Menu')
     }
 
@@ -108,6 +116,7 @@ const OnboardingWizard = ({ navigation }) => {
         <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
             {formPage < formLength + 1 &&
                 <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, marginTop: Platform.OS === 'ios' ? 0 : 10, flexDirection: 'row' }}>
+                    {/* progress bar square thingies at the top of the screen */}
                     {Array.apply(null, { length: formLength }).map((i, index) =>
                         <AnimatePresence exitBeforeEnter key={index}>
                             {formPage > index ?
@@ -286,12 +295,14 @@ const OnboardingWizard = ({ navigation }) => {
                                 mealCount={formResponses.mealCount}
                                 prevResponse={formResponses.mealTimes}
                                 onSelectResponse={(v, index) => { let newArr = formResponses.mealTimes || []; newArr[index] = v; setFormResponses(val => ({ ...val, mealTimes: newArr })) }}
-                                onContinue={() => { 
+                                onContinue={() => {
+                                    // update meal times with the value at the current index
                                     if (formResponses.mealTimes[editingMealTime - 1] == null) { 
                                         let newArr = formResponses.mealTimes || []
                                         newArr[editingMealTime - 1] = new Date()
                                         setFormResponses(val => ({ ...val, mealTimes: newArr })) 
                                     }
+                                    // only go to next page (loading screen) if all the meal times have been selected
                                     editingMealTime == formResponses.mealCount ? setFormPage(mealPickerScreen + 1) : editingMealTime < formResponses.mealCount && setEditingMealTime(editingMealTime + 1) 
                                 }}
                                 disableContainerAnimation={false}
@@ -520,17 +531,19 @@ const OnboardingWizard = ({ navigation }) => {
                 </View>
             </KeyboardAwareScrollView>
             <AnimatePresence>
-            {formPage > 1 &&
-                !(loadingScreen < 4 && formPage === formLength) &&
-                <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 20 : 20, left: 20 }}>
-                    <TouchableOpacity onPress={() => { formPage === mealPickerScreen && editingMealTime > 1 ? setEditingMealTime(editingMealTime - 1) : setFormPage(formPage - 1); setLoadingScreen(1) }}>
-                        <Ionicons
-                            name='ios-arrow-back-circle-outline'
-                            size={30}
-                            color={'#202060'}
-                        />
-                    </TouchableOpacity>
-                </MotiView>}
+                {/* back button */}
+                {formPage > 1 &&
+                    !(loadingScreen < 4 && formPage === formLength) &&
+                    <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 20 : 20, left: 20 }}>
+                        {/* either go back to previous meal time picker, or go back to previous page */}
+                        <TouchableOpacity onPress={() => { formPage === mealPickerScreen && editingMealTime > 1 ? setEditingMealTime(editingMealTime - 1) : setFormPage(formPage - 1); setLoadingScreen(1) }}>
+                            <Ionicons
+                                name='ios-arrow-back-circle-outline'
+                                size={30}
+                                color={'#202060'}
+                            />
+                        </TouchableOpacity>
+                    </MotiView>}
             </AnimatePresence>
         </SafeAreaView>
     )

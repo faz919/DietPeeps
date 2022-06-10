@@ -6,8 +6,8 @@ import { View, Text } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 
-// create const UserFlaggedScreen with props navigation, and export default UserFlaggedScreen
-export default function UserFlaggedScreen({ navigation }) {
+// this is the screen that pops up when the user is flagged (for being under 18, or manually)
+export default function UserFlaggedScreen() {
 
     const bottomBarHeight = useBottomTabBarHeight()
 

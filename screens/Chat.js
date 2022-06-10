@@ -39,6 +39,8 @@ import RNFS from 'react-native-fs'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs'
 import ChatMessage from '../components/ChatMessage'
 
+// code for the default screen of the app (that a logged-in user would see)
+// accessed by default and by pressing the 'Coach' button on the tab navigator (the far left one)
 const Chat = ({ navigation, route }) => {
 
     const { imageInfo, hasSubscribed } = route.params
@@ -47,6 +49,7 @@ const Chat = ({ navigation, route }) => {
     const bottomBarHeight = useBottomTabBarHeight()
     const messageInputRef = useRef()
 
+    // reset image info when user navigates out of screen
     useEffect(() => {
         const unsubscribe = navigation.addListener("focus", () => {
             navigation.setParams({ imageInfo: null })
@@ -54,40 +57,54 @@ const Chat = ({ navigation, route }) => {
         return unsubscribe
     }, [navigation])
 
+    // get necessary global vars
     const { user, updateInfo, globalVars, setGlobalVars, requestPermission, checkHasPermission, mixpanel } = useContext(AuthContext)
-
+    // coach online indicator (always set to true, lol)
     const [online, setOnline] = useState(true)
+    // message input string
     const [messageInput, setMessageInput] = useState('')
+    // currently selected images to be sent in chat
     const [images, setImages] = useState(null)
+    // all loaded chat messages
     const [messages, setMessages] = useState([])
     const [loading, setLoading] = useState(true)
+    // if user is sending message
     const [sendingMessage, setSendingMessage] = useState(false)
+    // if user is attaching image(s)
     const [attachingImage, setAttachingImage] = useState({})
+    // number of message batches (25) to load. default set to 1, scrolling up increases number
     const [messageBatches, setMessageBatches] = useState(1)
     const [messagesEndReached, setMessagesEndReached] = useState(false)
     const [scrollToLatestButton, showScrollToLatestButton] = useState(false)
+    // offset that the scrollToLatestButton should have. yes, it's stupid
     const [scrollButtonLeft, setScrollButtonLeft] = useState(0)
+    // prevents repeats of updating user profile image count
     const [imgCountUpdated, setUpdated] = useState(false)
-    // const [wizardRedirected, setWizardRedirected] = useState(false)
     const [subscribed, setSubscribed] = useState(null)
     const [trialPeriodFinished, setTrialPeriodFinished] = useState(false)
     const [showExtraDaysButton, setShowExtraDaysButton] = useState(false)
+    // not always visible because user can only weigh in once per day
     const [showWeighInButton, setShowWeighIn] = useState(false)
+    // check if user has already been redirected to subscription screen reminder
     const [redirected, setRedirected] = useState(false)
+    // check if user is flagged (under 18, or another reason)
     const [userFlagged, setUserFlagged] = useState(false)
 
+    // weird logic that sets trial period to true if the user is subscribed, so that they don't get the subscription popup screen
     useEffect(() => {
         if (subscribed) {
             setTrialPeriodFinished(false)
         }
     }, [subscribed])
 
+    // give them a badge when they sub
     useEffect(() => {
         if (hasSubscribed) {
             navigation.navigate('Congrats', { congratsType: 'subscribed' })
         }
     }, [hasSubscribed])
 
+    // give them a badge when they weigh in
     useEffect(() => {
         if (globalVars.hasWeighedIn) {
             setTimeout(() => {
@@ -97,8 +114,10 @@ const Chat = ({ navigation, route }) => {
         }
     }, [globalVars.hasWeighedIn])
 
+    // ref hook for the messages FlatList
     const messagesList = useRef()
 
+    // offset of latest scroll is different depending on if user is replying to a message
     const scrollToLatest = () => {
         messagesList && messagesList.current.scrollToIndex({ index: 0, viewOffset: replyingToMessage ? 100 : 80 })
     }
@@ -107,6 +126,7 @@ const Chat = ({ navigation, route }) => {
         !messagesEndReached && setMessageBatches(messageBatches + 1)
     }
 
+    // show the scrollToLatest button if the user has scrolled up more than a certain amount
     const detectScrollPos = (event) => {
         showScrollToLatestButton(event.nativeEvent.contentOffset.y > 1300)
     }
@@ -119,10 +139,7 @@ const Chat = ({ navigation, route }) => {
                 item.data.forEach(async (image) => {
                     try {
                         const newImage = await ImageResizer.createResizedImage(image.data, 2000, 512, 'JPEG', 100)
-                        // const base64 = await RNFS.readFile(newImage.uri, 'base64')
-                        // console.log('base64 is: ', typeof base64)
                         imageData.push({ uri: newImage.uri, mime: image.mimeType, 
-                            // base64, 
                             fileSize: newImage.size })
                     } catch (e) {
                         console.error('yo ', e)
@@ -137,17 +154,11 @@ const Chat = ({ navigation, route }) => {
                     await RNFS.copyFile(item.data, destPath)
                     // image resizer
                     const newImage = await ImageResizer.createResizedImage('file://' + destPath, 2000, 512, 'JPEG', 100)
-                    // const base64 = await RNFS.readFile(newImage.uri, 'base64')
-                    // console.log('base64 is: ', typeof base64)
                     imageData.push({ uri: newImage.uri, mime: item.mimeType, 
-                        // base64, 
                         fileSize: newImage.size })
                 } else {
                     const newImage = await ImageResizer.createResizedImage(item.data, 2000, 512, 'JPEG', 100)
-                    // const base64 = await RNFS.readFile(newImage.uri, 'base64')
-                    // console.log('base64 is: ', typeof base64)
                     imageData.push({ uri: newImage.uri, mime: item.mimeType, 
-                        // base64, 
                         fileSize: newImage.size })
                 }
             } else {
@@ -164,6 +175,7 @@ const Chat = ({ navigation, route }) => {
         }
     }
 
+    // what to do when share button is pressed
     const handleShare = useCallback((item) => {
         if (Platform.OS === 'android' && !item) {
             return
@@ -177,12 +189,12 @@ const Chat = ({ navigation, route }) => {
         createImageData(item)
     }, [])
 
-    // if app opens from closed state
+    // if app opens from closed state with share data
     useEffect(() => {
         ShareMenu.getInitialShare(handleShare)
     }, [])
 
-    // if app opens from background state
+    // if app opens from background state with share data
     useEffect(() => {
         const listener = ShareMenu.addNewShareListener(handleShare)
 
@@ -208,8 +220,7 @@ const Chat = ({ navigation, route }) => {
                 uri: i.path,
                 width: i.width,
                 height: i.height,
-                // mime: i.mime,
-                // base64: i.data,
+                mime: i.mime,
                 fileSize: i.size
             }])
             setAttachingImage(val => ({ ...val, visible: false }))
@@ -273,7 +284,6 @@ const Chat = ({ navigation, route }) => {
                     width: i.width,
                     height: i.height,
                     mime: i.mime,
-                    // base64: i.data,
                     fileSize: i.size
                 }
             }))
@@ -318,14 +328,17 @@ const Chat = ({ navigation, route }) => {
         })
     }
 
+    // calculate user age
     function age(birthDate) {
         var ageInMilliseconds = new Date() - new Date(birthDate)
         return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24 * 365))
     }
 
+    // giant function that runs on app start to verify all user data and do necessary processes
     useEffect(() => {
         if (user) {
             checkHasPermission()
+            // login user to mixpanel
             mixpanel.identify(user.uid)
             mixpanel.getPeople().set('Display Name', user.displayName)
             mixpanel.getPeople().set('Email', user.email)
@@ -339,7 +352,9 @@ const Chat = ({ navigation, route }) => {
                         if (usr.completedNewUserProcess) {
                             setGlobalVars(val => ({ ...val, loggingIn: false }))
                         }
+                        // if user has completed onboarding wizard
                         if (usr.userBioData != null) {
+                            // get dob and make sure user is over 18, otherwise flag them
                             const dob = new Date(usr.userBioData.dob instanceof firestore.Timestamp ? usr.userBioData.dob.toDate() : usr.userBioData.dob)
                             if (age(dob) < 18) {
                                 setUserFlagged(true)
@@ -347,6 +362,7 @@ const Chat = ({ navigation, route }) => {
                                 setGlobalVars(val => ({ ...val, userFlagged: true }))
                             }
                             try {
+                                // subcribe user to meal photo reminders
                                 const subscribedToMealTimes = await AsyncStorage.getItem('subscribed_user_meal_times')
                                 // subscribe user to messaging topic
                                 if (subscribedToMealTimes == null) {
@@ -366,6 +382,7 @@ const Chat = ({ navigation, route }) => {
                                 console.error(e)
                             }
                         }
+                        // get device and app info and save it to user profile, so that we know which device/app version the user is on
                         const deviceInfo = {
                             deviceOS: Platform.OS,
                             deviceModel: DeviceInfo.getModel(),
@@ -389,14 +406,14 @@ const Chat = ({ navigation, route }) => {
                         })
                         usr.deviceInfo == null && updateInfo({ deviceInfo })
                         usr.appInfo !== appInfo && updateInfo({ appInfo })
-                        // check user streak
+                        // check user streak. if the user's last image wasn't sent today or yesterday, reset the streak
                         if (!yesterday(usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.lastImageSent?.toDate()) && !sameDay(new Date(), usr.streakUpdated?.toDate())) {
                             updateInfo({
                                 streak: 0,
                                 streakUpdated: firestore.Timestamp.now()
                             })
                         }
-                        // check last weigh in
+                        // check last weigh in. if they haven't weighed in today, show the weigh-in button, otherwise hide it
                         let localDayStart = new Date()
                         localDayStart.setHours(0)
                         localDayStart.setMinutes(0)
@@ -407,7 +424,7 @@ const Chat = ({ navigation, route }) => {
                         } else {
                             setShowWeighIn(false)
                         }
-                        // check course completions
+                        // check course completions. if the user completed a course day, but not today, then increment their course day and set course day completed to false.
                         const c = usr.courseData
                         if (c.courseDayCompleted && localDayStart > c.courseCompletedAt?.toDate()) {
                             updateInfo({
@@ -431,17 +448,23 @@ const Chat = ({ navigation, route }) => {
                                 const oneDay = 60 * 60 * 1000 * 24
                                 const daysSinceJoin = Math.floor((new Date() - joinDate) / oneDay)
                                 const daysReminded = JSON.parse(await AsyncStorage.getItem('days_reminded'))
+                                // on what day since joining did the user ask for a trial extension? add 3 to this day and cut them off if they arent subbed
                                 const extraTrialDays = JSON.parse(await AsyncStorage.getItem('extra_days'))
                                 if (extraTrialDays != null && typeof extraTrialDays === 'number') {
+                                    // if they've already asked for extra days, don't show them the button again
                                     setShowExtraDaysButton(false)
+                                    // if we're not manually extending their trial period, cut them off
                                     daysSinceJoin >= extraTrialDays + 3 && !usr.manuallyExtendedTrialPeriod && setTrialPeriodFinished(true)
                                 } else {
+                                    // if they haven't asked for extra days, give them the option
                                     setShowExtraDaysButton(true)
                                 }
-                                // console.log('days since user joined: ', daysSinceJoin)
+                                // if we're not manually extending their trial period, cut them off
                                 daysSinceJoin >= 14 && !extraTrialDays && !usr.manuallyExtendedTrialPeriod && setTrialPeriodFinished(true)
+                                // if the user's completed the onboarding wizard and hasn't been redirected, redirect them
                                 if (!redirected && usr.userBioData != null) {
                                     if (daysReminded == null || !daysReminded?.includes(daysSinceJoin)) {
+                                        // but only redirect them at the 7, 12, and 14 day mark after joining the app
                                         setRedirected(true)
                                         daysSinceJoin === 14 ? navigation.navigate('Subscription', { trialReminder: daysSinceJoin }) :
                                             daysSinceJoin === 12 ? navigation.navigate('Subscription', { trialReminder: daysSinceJoin }) :
@@ -449,6 +472,7 @@ const Chat = ({ navigation, route }) => {
                                     }
                                 }
                             } else {
+                                // show us that the user is paying
                                 mixpanel.getPeople().set('Currently Paying', true)
                             }
                         } catch (e) {
@@ -475,6 +499,7 @@ const Chat = ({ navigation, route }) => {
         }
         mixpanel.getPeople().set('Trial Period Finished', trialPeriodFinished)
         if (trialPeriodFinished) {
+            // reset any images or messages they could have added from a 3rd party share
             setImages(null)
             setMessageInput('')
         }
@@ -498,6 +523,7 @@ const Chat = ({ navigation, route }) => {
         }
     }
 
+    // when user only selects one image, autosend it so they don't have to press an extra button
     useEffect(() => {
         if (globalVars.autoSend && images?.length > 0) {
             setSendingMessage(true)
@@ -506,28 +532,38 @@ const Chat = ({ navigation, route }) => {
         }
     }, [images, globalVars.autoSend])
 
+    // get the image data from the camera modal (tab bar middle button)
     useEffect(() => {
         if (imageInfo != null) {
             setImages(imageInfo)
         }
     }, [imageInfo])
-
+    // check if a date is yesterday
     function yesterday(date) {
         var yesterday = new Date()
         yesterday.setDate(yesterday.getDate() - 1)
         return yesterday.toDateString() === date.toDateString()
     }
 
+    // check if two dates are on the same day
     function sameDay(d1, d2) {
-        return d1.getFullYear() === d2.getFullYear() &&
-            d1.getMonth() === d2.getMonth() &&
-            d1.getDate() === d2.getDate()
+        if (d1?.getFullYear() != null && d2?.getFullYear() != null) {
+            return d1.getFullYear() === d2.getFullYear() &&
+                d1.getMonth() === d2.getMonth() &&
+                d1.getDate() === d2.getDate()
+        }
     }
-
+    // check if two dates are within seven days of each other
+    function sevenDays(d1, d2) {
+        return Math.abs(d1 - d2) <= 60 * 60 * 24 * 1000 * 7
+    }
+    // send a new message
     const newMessage = async (message) => {
         setMessageInput('')
+        // first try to upload images
         let imageInfo = await imageUploader()
         console.log("image info: ", imageInfo, new Date())
+        // if there's no message or image, don't send the message. either one by itself is ok
         if (message === '') {
             if (imageInfo == null) {
                 setSendingMessage(false)
@@ -540,6 +576,7 @@ const Chat = ({ navigation, route }) => {
 
         let tempLastImageSent
 
+        // if the user is sending an image, update that in their profile and track it in mixpanel/GA
         if (imageInfo != null) {
             if (imageInfo.length === 0) {
                 imageInfo = null
@@ -568,7 +605,6 @@ const Chat = ({ navigation, route }) => {
         updateInfo({
             lastMessageSent: firestore.Timestamp.now()
         })
-
         await analytics().logEvent('message', {
             msg: message,
             img: imageInfo,
@@ -579,6 +615,7 @@ const Chat = ({ navigation, route }) => {
             console.error('error while uploading message data to analytics: ', e)
         })
 
+        // add the message to firestore
         await firestore()
             .collection('chat-rooms')
             .doc(globalVars.chatID)
@@ -588,6 +625,7 @@ const Chat = ({ navigation, route }) => {
                 img: imageInfo,
                 timeSent: firestore.Timestamp.now(),
                 userID: user.uid,
+                // necessary for activity feed tracking. we need to be able to distinguish which messages are from coaches, which are automated, and which are from client
                 senderType: 'client',
                 repliesTo: replyingToMessage ? messageBeingRepliedTo.id : null,
             })
@@ -601,6 +639,7 @@ const Chat = ({ navigation, route }) => {
                 return null
             })
 
+        // no longer necessary. a cloud func does this for us now :)
         // await firestore()
         //     .collection('chat-rooms')
         //     .doc(globalVars.chatID)
@@ -615,21 +654,27 @@ const Chat = ({ navigation, route }) => {
         //         console.error("error while updating chat room info: ", e)
         //     })
 
+        // after sending the message, reset everything
         setImages(null)
         setMessageInput('')
         setReplyingToMessage(false)
         setMessageBeingRepliedTo(null)
         setSendingMessage(false)
 
+        // check if the user's streak needs to be updated after sending that message. 
+        // was it an image? did they already send an image today?
         let localDayStart = new Date()
         localDayStart.setHours(0)
         localDayStart.setMinutes(0)
         localDayStart.setSeconds(0)
         localDayStart.setMilliseconds(0)
         if (tempLastImageSent != null) {
+            // if they last sent an image before today...
             if (localDayStart > tempLastImageSent) {
                 mixpanel.track('Streak Updated', { 'Streak': globalVars.userData.streak + 1 })
+                // give em a badge
                 navigation.navigate('Congrats', { congratsType: 'imageSent' })
+                // automated streak message
                 await firestore()
                     .collection('chat-rooms')
                     .doc(globalVars.chatID)
@@ -666,6 +711,7 @@ const Chat = ({ navigation, route }) => {
         }
     }
 
+    // image uploader func
     const imageUploader = async () => {
         const list = []
         // If you want to allow uploads without images...
@@ -673,6 +719,8 @@ const Chat = ({ navigation, route }) => {
             return null
         }
 
+        // run some checks on the images being sent: no HEIC (should be automatically converted to jpeg in image picker, this is a fallback), 
+        // and total size is below 1mb (also generally images are scaled down way below 1mb with image picker)
         const checkImages = async () => {
             let totalSize = 0
             for (let item of images) {
@@ -701,6 +749,9 @@ const Chat = ({ navigation, route }) => {
         const imagesPassed = await checkImages()
         if (imagesPassed) {
             for (let item of images) {
+                // some string splicing to ensure that each image has a unique uri. also gets the name of the image thumbnail, which we use later to get the downloadURL for the thumbnail
+                // 'why don't you just get the thumbnail url now?' because there's no way to check when the cloud func has finished making that thumbnail and adding it to storage,
+                // so instead we just grab it when we need it
                 const uploadURI = item.uri
                 let fileName = uploadURI.substring(uploadURI.lastIndexOf('/') + 1)
                 let thumbnailName
@@ -721,7 +772,6 @@ const Chat = ({ navigation, route }) => {
                     list.push({
                         url: url,
                         mime: item.mime,
-                        // base64: item.base64,
                         thumbnail: thumbnailName,
                         graded: false,
                         uploadedAt: firestore.Timestamp.now()
@@ -738,13 +788,14 @@ const Chat = ({ navigation, route }) => {
             }
             return list
         } else {
+            // if the images don't pass, don't send the message
             setSendingMessage(false)
             return null
         }
     }
 
     function updateUserToken(token) {
-        updateInfo({ fcmToken: token, notificationsEnabled: true })
+        updateInfo({ fcmToken: token })
     }
 
     useEffect(() => {
@@ -753,6 +804,7 @@ const Chat = ({ navigation, route }) => {
         })
     }, [])
 
+    // get the chat messages. runs at app start (when user is logged in)
     useEffect(() => {
         const unsub = firestore()
             .collection('chat-rooms')
@@ -766,11 +818,13 @@ const Chat = ({ navigation, route }) => {
                     const id = doc.id
                     return { id, ...data }
                 }))
+                // finish loading
                 if (loading) {
                     setTimeout(() => {
                         setLoading(false)
-                    }, 2000)
+                    }, 500)
                 }
+                // if there are less messages to load than the number requested, then we've reached the end
                 if (snapshot.docs.length < 25 * messageBatches) {
                     setMessagesEndReached(true)
                 }
@@ -790,6 +844,7 @@ const Chat = ({ navigation, route }) => {
                 .where('userID', '==', user.uid)
                 .orderBy('timeSent', 'desc')
                 .onSnapshot((querySnapshot) => {
+                    // get all the images the user has sent in their chat message. these will be used in the gallery, and for stat calculation on the stats page
                     querySnapshot.docs.forEach((doc) => {
                         if (doc.data().img != null) {
                             for (let image of doc.data().img) {
@@ -798,6 +853,7 @@ const Chat = ({ navigation, route }) => {
                         }
                     })
                     setGlobalVars(val => ({ ...val, images: imageList }))
+                    // update the user's total image count if it doesn't match the amount retrieved here
                     if (globalVars.userData != null && !imgCountUpdated && globalVars.userData?.totalImageCount !== imageList.length) {
                         updateInfo({
                             totalImageCount: imageList.length
@@ -814,25 +870,16 @@ const Chat = ({ navigation, route }) => {
         }
     }, [globalVars.chatID])
 
-    function sameDay(d1, d2) {
-        if (d1?.getFullYear() != null && d2?.getFullYear() != null) {
-            return d1.getFullYear() === d2.getFullYear() &&
-                d1.getMonth() === d2.getMonth() &&
-                d1.getDate() === d2.getDate()
-        }
-    }
-
-    function sevenDays(d1, d2) {
-        return Math.abs(d1 - d2) <= 60 * 60 * 24 * 1000 * 7
-    }
-
+    // get the user's seven day meal score average
     const SevenDayAvg = () => {
         if (globalVars.images != null && globalVars.images?.length !== 0) {
+            // get all graded images sent in the last seven days
             const mealGrades = globalVars.images?.filter(val => sevenDays(val.timeSent?.toDate(), new Date()) && val.graded)
             if (mealGrades.length === 0) {
                 return '-'
             }
             let totals = { red: 0, yellow: 0, green: 0 }
+            // add up the totals of the image scores
             mealGrades.forEach((meal, index) => {
                 totals.red += meal.red
                 totals.yellow += meal.yellow
@@ -842,6 +889,8 @@ const Chat = ({ navigation, route }) => {
         }
     }
 
+    // get the info of the user's coach by getting the info of the other user in the user's chat. kind of outdated system, needs to be reworked
+    // (should only run if user.coachID is null)
     useEffect(() => {
         const unsub = firestore()
             .collection('chat-rooms')
@@ -872,8 +921,8 @@ const Chat = ({ navigation, route }) => {
         return () => unsub()
     }, [globalVars.userData?.coachID])
 
+    // check if it's the user's first time logging in. needs to be reworked now that we have a cloud func to do that for us
     const [isFirstLogin, setIsFirstLogin] = useState(false)
-
     useEffect(() => {
         AsyncStorage.getItem('alreadyLoggedIn').then((value) => {
             if (value == null) {
@@ -898,6 +947,7 @@ const Chat = ({ navigation, route }) => {
         }
     }, [globalVars.userData])
 
+    // prompt the user to enable notifictions if they have them off and if they joined 5 or 10 days ago
     const promptUserNotifications = async (dateJoined) => {
         if (dateJoined && !globalVars.userData.notificationsEnabled) {
             const now = new Date()
@@ -915,6 +965,7 @@ const Chat = ({ navigation, route }) => {
         }
     }
 
+    // if it's the user's first login, navigate them to a certain screen depending on their device's OS
     useEffect(() => {
         AsyncStorage.getItem('@notifs_enabled').then((value) => {
             if (isFirstLogin === null) {
@@ -927,6 +978,7 @@ const Chat = ({ navigation, route }) => {
         })
     }, [isFirstLogin])
 
+    // functionality of the little X button on the top right of the images queued up for sending
     const cancelImage = (img) => {
         var result = images.filter(function (ele) {
             return ele != img
@@ -952,7 +1004,7 @@ const Chat = ({ navigation, route }) => {
     }
 
     const handleStatSummaryPress = () => {
-        mixpanel.track('Button Press', { 'Button': 'GalleryImage' })
+        mixpanel.track('Button Press', { 'Button': 'StatSummary' })
         navigation.navigate('Main Menu', { screen: 'Your Stats' })
     }
 
@@ -961,10 +1013,6 @@ const Chat = ({ navigation, route }) => {
         // Platform.OS === 'ios' ? 
         //     Vibration.vibrate() :
         //     Vibration.vibrate(100)
-        // const msgIndex = messages.findIndex((message) => message.id === item.id)
-        // msgIndex === -1 ? Alert.alert(
-        //     'Message not found.'
-        // ) : messagesList.current.scrollToIndex({ animated: true, index: msgIndex, viewOffset: item.msg != null && item.msg?.length > 0 ? 179 : 142 })
         setGlobalVars(val => ({ ...val, selectedMessage: item }))
         mixpanel.track('Button Press', { 'Button': 'LongPressChatMessage' })
     }
@@ -990,8 +1038,11 @@ const Chat = ({ navigation, route }) => {
         setMessageBeingRepliedTo(null)
     }
 
+    // scroll to the message that another message replied to
     const scrollToOriginal = (item) => {
+        // try to find it in messages
         const msgIndex = messages.findIndex((message) => message.id === item.repliesTo)
+        // navigate to it, or return alert saying it's not there. will expand functionality of this in the future
         msgIndex === -1 ? Alert.alert(
             'Message not found.'
         ) : messagesList.current.scrollToIndex({ animated: true, index: msgIndex, viewOffset: replyingToMessage ? 100 : 80 })
@@ -1043,12 +1094,19 @@ const Chat = ({ navigation, route }) => {
                                     handleStatSummaryPress={handleStatSummaryPress}
                                     scrollToOriginal={() => scrollToOriginal(item)}
                                     SevenDayAvg={SevenDayAvg}
+                                    // messaging is outgoing if the user sent it
                                     outgoingMessage={item.userID === user.uid}
                                     user={user}
                                     navigation={navigation} 
                                     userCourseData={globalVars.userData?.courseData}
+                                    // find the course data of the course that satisfies the following conditions:
+                                    // if the course link's unique course number is not a number or is null:
+                                    // if the user's latest course completed is null: return the first course, otherwise return the next course they have to do
+                                    // otherwise if the link's course number isn't null, return that course's data
                                     courseInfo={CourseData.find(course => item.courseInfo?.UniqueCourseNumber === NaN || item.courseInfo?.UniqueCourseNumber == null ? globalVars.userData?.courseData?.latestCourseCompleted == null ? course.UniqueCourseNumber === 1 : course.UniqueCourseNumber === globalVars.userData?.courseData?.latestCourseCompleted + 1 : course.UniqueCourseNumber === item.courseInfo?.UniqueCourseNumber)}
+                                    // format the message's timeSent date
                                     msgTimeText={item.timeSent == null ? moment(item.timeSent).calendar() : moment(item.timeSent.toDate()).calendar()}
+                                    // this is the text that will show after 'Replies to:' in a reply message
                                     repliesToText={messages.find((message) => message.id === item.repliesTo)?.msg || '(Click to view)'}
                                 />
                             )}
@@ -1056,8 +1114,10 @@ const Chat = ({ navigation, route }) => {
                             extraData={globalVars.selectedMessage}
                         />
                         <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 300 }} style={styles.sendMsgContainer}>
+                            {/* the camera button next to the message input field */}
                             <View style={styles.addImgContainer} onLayout={(event) => {
                                 const { x } = event.nativeEvent.layout
+                                // get the offset of the camera button and put the scrollToLatest button there
                                 setScrollButtonLeft(x)
                             }}>
                                 <TouchableOpacity onPress={openChatCameraPicker}>
@@ -1068,7 +1128,9 @@ const Chat = ({ navigation, route }) => {
                                     />
                                 </TouchableOpacity>
                             </View>
+                            {/* the container for the message input */}
                             <View style={styles.msgInputContainer}>
+                                {/* thing that pops up when you are replying to a message */}
                                 {replyingToMessage &&
                                     <TouchableOpacity style={{ padding: 5, justifyContent: 'center' }} onPress={() => { const msgIndex = messages.findIndex((message) => message.id === messageBeingRepliedTo.id); messagesList.current.scrollToIndex({ animated: true, index: msgIndex, viewOffset: 100 }) }}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', maxWidth: '60%' }}>
@@ -1084,6 +1146,7 @@ const Chat = ({ navigation, route }) => {
                                         </TouchableOpacity>}
                                     </TouchableOpacity>
                                 }
+                                {/* queued image container. done via a horizontal flatlist */}
                                 {images?.length > 0 &&
                                     <FlatList
                                         horizontal={true}
@@ -1115,6 +1178,7 @@ const Chat = ({ navigation, route }) => {
                                     />
                                 }
                                 <View style={styles.msgInputWrapper}>
+                                    {/* the actual message input field where the user can type */}
                                     <TextInput
                                         ref={messageInputRef}
                                         placeholder={!sendingMessage ? 'Write your message here...' : ''}
@@ -1128,14 +1192,18 @@ const Chat = ({ navigation, route }) => {
                                         blurOnSubmit={false}
                                         numberOfLines={1}
                                         onSubmitEditing={() => {
+                                            // if there's a message, or an image, send it
                                             if (messageInput || images?.length > 0) {
                                                 setSendingMessage(true)
                                                 messages.length > 0 && scrollToLatest()
                                                 newMessage(messageInput)
                                             }
                                         }}
+                                        // prevent user from editing the textinput while the message is being sent
                                         editable={!sendingMessage}
                                     />
+                                    {/* controls which icon shows up on the right. if sending message, show loading icon. if the user can weigh in, show scale icon */}
+                                    {/* otherwise, if there's either a message or image queued, show the send icon */}
                                     <AnimatePresence>
                                         {sendingMessage ?
                                             <MotiView key='loading' style={{ position: 'absolute', right: 15, bottom: 11.5 }} from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} transition={{ duration: 100 }}>
@@ -1169,6 +1237,7 @@ const Chat = ({ navigation, route }) => {
                                 </View>
                             </View>
                         </MotiView>
+                        {/* scroll to latest button */}
                         <AnimatePresence>
                             {scrollToLatestButton && <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={[styles.scrollToLatestButton, { left: scrollButtonLeft + 5 }]}>
                                 <TouchableOpacity onPress={() => scrollToLatest()}>
@@ -1181,7 +1250,9 @@ const Chat = ({ navigation, route }) => {
                             </MotiView>}
                         </AnimatePresence>
                     </KeyboardAvoidingView>
+                    {/* mask that goes above the top bar to avoid messages being visible up there */}
                     <MotiView from={{ height: 0 }} animate={{ height: 180 }} delay={850} transition={{ type: 'timing' }} style={styles.scrollViewMask} />
+                    {/* top bar */}
                     <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} delay={500} style={styles.HUDWrapper}>
                         <View style={styles.headerWrapper}>
                             <TouchableOpacity style={{ position: 'absolute', top: 15, left: 15 }} onPress={globalVars.coachData ? () => navigation.navigate('Coach Profile') : null}>
@@ -1196,6 +1267,7 @@ const Chat = ({ navigation, route }) => {
                                     <View style={[styles.statusIcon, { backgroundColor: online ? '#3DA560' : '#747F8D' }]} />
                                 </View>
                             }
+                            {/* top bar badge. only show if user hasn't subbed */}
                             {!subscribed &&
                                 <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} delay={1200} transition={{ duration: 350 }} style={{ alignSelf: 'flex-end', justifyContent: 'flex-end' }}>
                                     <TouchableOpacity onPress={handleBadgePress} style={styles.subBadgeContainer}>
@@ -1208,6 +1280,8 @@ const Chat = ({ navigation, route }) => {
                                 </MotiView>}
                         </View>
                     </MotiView>
+                    {/* camera modal, exact same as one that pops up when pressing camera button in middle of bottom bar */}
+                    {/* i have no idea why i don't just navigate the user to that bottom bar modal when they press the other camera button... */}
                     <Modal
                         isVisible={attachingImage.visible}
                         avoidKeyboard={true}
@@ -1245,6 +1319,7 @@ const Chat = ({ navigation, route }) => {
                     </Modal>
                 </View>
             </SafeAreaView>
+            {/* overlay that shows message options when holding down on a message */}
             <AnimatePresence>
                 {globalVars.selectedMessage &&
                     <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, height: '100%', width: windowWidth, position: 'absolute', justifyContent: 'center', alignItems: 'center', zIndex: 68 }}>
@@ -1276,6 +1351,7 @@ const Chat = ({ navigation, route }) => {
                     </MotiView>
                 }
             </AnimatePresence>
+            {/* overlay that shows if the user is flagged or if their trial period is finished */}
             <AnimatePresence>
                 {userFlagged || globalVars.userFlagged ?
                     <UserFlaggedScreen navigation={navigation} />

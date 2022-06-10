@@ -6,7 +6,7 @@ import { MotiText, MotiView } from 'moti'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { AuthContext } from '../navigation/AuthProvider'
 
-const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, navigation, disablePress }) => {
+const CourseLinkImage = ({ userCourseData, courseInfo, navigation, disablePress, onLongPress }) => {
 
     const { mixpanel } = useContext(AuthContext)
 
@@ -21,7 +21,7 @@ const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, naviga
     }
 
     return (
-        <TouchableOpacity onPress={handlePress}>
+        <TouchableOpacity onPress={handlePress} onLongPress={onLongPress}>
             <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: userCourseData?.latestCourseCompleted >= courseInfo?.UniqueCourseNumber ? 0.4 : 1 }} style={styles.textImage} source={{ uri: courseInfo?.CoverLink }}>
                 {!loading ?
                     <View style={{
@@ -32,6 +32,7 @@ const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, naviga
                         shadowRadius: 10,
                         shadowOpacity: 0.4,
                     }}>
+                        {/* show a little overlay that gives the course name and subtitle, and if they've completed it, show the checkmark overlay */}
                         {userCourseData?.latestCourseCompleted >= courseInfo?.UniqueCourseNumber &&
                         <MotiView from={{ opacity: 0, rotate: '180deg' }} animate={{ opacity: 1, rotate: '0deg' }} style={{ position: 'absolute', top: (windowWidth * 0.65) / 6, left: (windowWidth * 0.65) / 4 }}>
                             <Icon
@@ -46,6 +47,7 @@ const CourseLinkImage = ({ user, messageData, userCourseData, courseInfo, naviga
                     </View>
                 :
                 <SkeletonPlaceholder backgroundColor='#e6e7fa' highlightColor='#fff' speed={1000}>
+                    {/* when the image is loading, show a loading placeholder instead */}
                     <View style={[styles.textImage, { borderRadius: 10, marginVertical: 0 }]} />
                 </SkeletonPlaceholder>}
             </ImageBackground>

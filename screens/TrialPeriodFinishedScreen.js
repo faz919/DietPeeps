@@ -10,6 +10,7 @@ import { Easing } from 'react-native-reanimated'
 import LinearGradient from 'react-native-linear-gradient'
 import { AuthContext } from '../navigation/AuthProvider'
 
+// this is the screen that pops up in front of the chat when the user's trial period is finished
 const TrialPeriodFinishedScreen = ({ navigation, showExtraDaysButton, giveExtraTrialDays }) => {
 
     const { mixpanel } = useContext(AuthContext)

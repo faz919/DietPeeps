@@ -13,6 +13,7 @@ const EnableNotifsScreen = ({ navigation }) => {
 
   const [alreadyRequested, setAlreadyRequested] = useState(null)
 
+  // check if the user has already been prompted to enable notifications
   useEffect(() => {
     const checkAlrEnabled = async () => {
       const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
@@ -27,24 +28,22 @@ const EnableNotifsScreen = ({ navigation }) => {
 
   const requestPermission = async () => {
     const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
+    // if they've been prompted already, take them to settings for them to finish notification enabling process
+    // this is necessary as the prompt will not pop up again
     if (alreadyEnabled != null || alreadyRequested) {
       Linking.openSettings('app-settings://notifications')
       navigation.replace('Main Menu')
-      return null
+      return
     }
+    // otherwise go through the motions
     // if(alreadyEnabled == null) {
       const result = await requestUserPermission()
+      updateInfo({ notificationsEnabled: result })
+      AsyncStorage.setItem('@notifs_enabled', JSON.stringify(result))
+      setGlobalVars(val => ({...val, notificationsEnabled: result}))
+      navigation.navigate('Main Menu')
       if(result){
-        updateInfo({ notificationsEnabled: true })
-        AsyncStorage.setItem('@notifs_enabled', 'true')
-        setGlobalVars(val => ({...val, notificationsEnabled: true}))
         getToken()
-        navigation.navigate('Main Menu')
-      } else if(!result) {
-        updateInfo({ notificationsEnabled: false })
-        AsyncStorage.setItem('@notifs_enabled', 'false')
-        setGlobalVars(val => ({...val, notificationsEnabled: false}))
-        navigation.navigate('Main Menu')
       }
     // } else {
     //   navigation.navigate('Main Menu')
@@ -52,7 +51,7 @@ const EnableNotifsScreen = ({ navigation }) => {
   }
 
   function updateUserToken(token) {
-    updateInfo({fcmToken: token, notificationsEnabled: true})
+    updateInfo({ fcmToken: token })
   }
 
   async function getToken() {
@@ -66,7 +65,7 @@ const EnableNotifsScreen = ({ navigation }) => {
   const handleNotNowPress = () => {
     updateInfo({ notificationsEnabled: false })
     AsyncStorage.setItem('@notifs_enabled', 'false')
-    setGlobalVars(val => ({...val, notificationsEnabled: false}))
+    setGlobalVars(val => ({ ...val, notificationsEnabled: false }))
     navigation.replace('Main Menu')
   }
 

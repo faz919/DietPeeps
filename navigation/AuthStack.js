@@ -9,6 +9,7 @@ import IntroVideo from '../screens/IntroVideo'
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
+import { GOOGLE_SIGNIN_CONFIG_ANDROID, GOOGLE_SIGNIN_CONFIG_IOS } from '../constants/constants'
 
 const Stack = createStackNavigator()
 
@@ -17,6 +18,7 @@ const AuthStack = () => {
   let routeName
 
   useEffect(() => {
+    // check if user has opened app before
     AsyncStorage.getItem('alreadyLaunched').then((value) => {
       if (value == null) {
         AsyncStorage.setItem('alreadyLaunched', 'true') 
@@ -26,13 +28,15 @@ const AuthStack = () => {
       }
     }) 
   
+    // config google signin
     GoogleSignin.configure({
-      webClientId: Platform.OS === 'ios' ? '202312705150-0as7142qafv5phn9a277jq7c90vtjq9k.apps.googleusercontent.com' : '202312705150-63k1sau74drj13t0u8ptn01ubgh03534.apps.googleusercontent.com',
+      webClientId: Platform.OS === 'ios' ? GOOGLE_SIGNIN_CONFIG_IOS : GOOGLE_SIGNIN_CONFIG_ANDROID,
       profileImageSize: 300
     })
   
   }, [])
 
+  // change initial route name depending on first login
   if (isFirstLaunch === null) {
     return null 
   } else if (isFirstLaunch == true) {

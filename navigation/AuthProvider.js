@@ -125,14 +125,18 @@ export const AuthProvider = ({ children }) => {
     //         })
     // }
 
+    // subscribe user to meal msging topics
     async function setUserMessagingInfo(token) {
         const _user = auth().currentUser
+        // check if user has completed onboarding wizard (at some point)
         const userBioData = await AsyncStorage.getItem('@onboarding_responses')
-
+        // check if user has completed onboarding wizard (in this app instance)
         if(globalVars.userBioData == null) {
             if (userBioData != null) {
                 for(let mealTime of JSON.parse(userBioData).mealTimes) {
+                    // getting UTC time of meal time ensures that the user's timezone is accounted for
                     const globalHour = new Date(mealTime).getUTCHours()
+                    // subscribe user to that messaging topic
                     messaging().subscribeToTopic(`MealReminderAt${globalHour}`).then(() => {
                         console.log('Subscribed user to messaging topic: MealReminderAt' + globalHour)
                     }).catch((e) => {
@@ -140,6 +144,7 @@ export const AuthProvider = ({ children }) => {
                     })
                 }
                 messaging().subscribeToTopic('subscribed')
+                // set user bio data in their profile
                 firestore()
                     .collection('user-info')
                     .doc(_user.uid)
@@ -170,7 +175,7 @@ export const AuthProvider = ({ children }) => {
                     crashlytics().recordError(e)
                 })
         }
-
+        // set user messaging token and some extra metadata
         await firestore()
             .collection('user-info')
             .doc(_user.uid)
@@ -190,6 +195,7 @@ export const AuthProvider = ({ children }) => {
     return (
         <AuthContext.Provider
             value={{
+                // this is where we create/define the global vars
                 user,
                 setUser,
                 mixpanel,
@@ -198,6 +204,7 @@ export const AuthProvider = ({ children }) => {
                         await auth().signInWithEmailAndPassword(email, password).then(() => {
                             logLoginEvent()
                             setGlobalVars(val => ({ ...val, loggingIn: false }))
+                            // messaging token is needed to send notifications to user
                             messaging()
                                 .getToken()
                                 .then(token => {
@@ -218,6 +225,7 @@ export const AuthProvider = ({ children }) => {
                 },
                 googleLogin: async () => {
                     try {
+                        // stuff required for google login. basically copy pasted this from documentation at rnfirebase.io
                         await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true })
                         const { idToken } = await GoogleSignin.signIn()
                         const googleCredential = auth.GoogleAuthProvider.credential(idToken)
@@ -285,6 +293,7 @@ export const AuthProvider = ({ children }) => {
                             crashlytics().recordError(e)
                         })
                         if (userCredentials.user) {
+                            // set display name to user's name
                             if (fullName.familyName != null || fullName.givenName != null) {
                                 const displayName = fullName.givenName + ' ' + fullName.familyName
                                 await userCredentials.user.updateProfile({
@@ -517,29 +526,40 @@ export const AuthProvider = ({ children }) => {
                 },
                 requestPermission: async () => {
                     const _user = auth().currentUser
+                    // check if user has received notif enable prompt
                     const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
                     if (alreadyEnabled == null) {
+                        // request user notif permission
                         const result = await requestUserPermission()
+                        // update user profile with the result
+                        firestore()
+                            .collection('user-info')
+                            .doc(_user.uid)
+                            .set({ notificationsEnabled: result }, { merge: true })
+                        await AsyncStorage.setItem('@notifs_enabled', JSON.stringify(result))
+                        setGlobalVars(val => ({ ...val, notificationsEnabled: result }))
                         if (result) {
-                            firestore()
-                                .collection('user-info')
-                                .doc(_user.uid)
-                                .set({ notificationsEnabled: true }, { merge: true })
-                            await AsyncStorage.setItem('@notifs_enabled', 'true')
-                            setGlobalVars(val => ({ ...val, notificationsEnabled: true }))
                             messaging()
                                 .getToken()
                                 .then(token => {
                                     setUserMessagingInfo(token)
                                 })
-                        } else if (!result) {
-                            firestore()
-                                .collection('user-info')
-                                .doc(_user.uid)
-                                .set({ notificationsEnabled: false }, { merge: true })
-                            await AsyncStorage.setItem('@notifs_enabled', 'false')
-                            setGlobalVars(val => ({ ...val, notificationsEnabled: false }))
                         }
+                        // if (result) {
+                        //     firestore()
+                        //         .collection('user-info')
+                        //         .doc(_user.uid)
+                        //         .set({ notificationsEnabled: true }, { merge: true })
+                        //     await AsyncStorage.setItem('@notifs_enabled', 'true')
+                        //     setGlobalVars(val => ({ ...val, notificationsEnabled: true }))
+                        // } else if (!result) {
+                        //     firestore()
+                        //         .collection('user-info')
+                        //         .doc(_user.uid)
+                        //         .set({ notificationsEnabled: false }, { merge: true })
+                        //     await AsyncStorage.setItem('@notifs_enabled', 'false')
+                        //     setGlobalVars(val => ({ ...val, notificationsEnabled: false }))
+                        // }
                     } else {
                         const result = await requestUserPermission()
                         if (result !== JSON.parse(alreadyEnabled)) {
@@ -562,25 +582,18 @@ export const AuthProvider = ({ children }) => {
                     const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
                     if (alreadyEnabled == null) {
                         const result = await checkUserPermission()
+                        firestore()
+                            .collection('user-info')
+                            .doc(_user.uid)
+                            .set({ notificationsEnabled: result }, { merge: true })
+                        await AsyncStorage.setItem('@notifs_enabled', JSON.stringify(result))
+                        setGlobalVars(val => ({ ...val, notificationsEnabled: result }))
                         if (result) {
-                            firestore()
-                                .collection('user-info')
-                                .doc(_user.uid)
-                                .set({ notificationsEnabled: true }, { merge: true })
-                            await AsyncStorage.setItem('@notifs_enabled', 'true')
-                            setGlobalVars(val => ({ ...val, notificationsEnabled: true }))
                             messaging()
                                 .getToken()
                                 .then(token => {
                                     setUserMessagingInfo(token)
                                 })
-                        } else if (!result) {
-                            firestore()
-                                .collection('user-info')
-                                .doc(_user.uid)
-                                .set({ notificationsEnabled: false }, { merge: true })
-                            await AsyncStorage.setItem('@notifs_enabled', 'false')
-                            setGlobalVars(val => ({ ...val, notificationsEnabled: false }))
                         }
                     } else {
                         const result = await checkUserPermission()

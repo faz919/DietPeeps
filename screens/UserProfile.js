@@ -15,6 +15,9 @@ import { windowWidth } from '../utils/Dimensions.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import ProfilePic from '../components/ProfilePic.js'
 
+// this is the code for the 'User Profile' screen which can be found either in the Your Stats page
+// or by going to Your Stats > Settings > Account Settings
+// this will change, however. the one in Your Stats will become an 'Edit Bio Data' screen
 const UserProfile = ({ navigation }) => {
   const { user, updateInfo, emailVerification, changeEmail, forgotPassword, logout, deleteAccount, globalVars, setGlobalVars, authErrorText, mixpanel } = useContext(AuthContext)
 
@@ -23,6 +26,7 @@ const UserProfile = ({ navigation }) => {
   const [amntTransferred, setAmntTransferred] = useState(0)
   const [userInfo, setUserInfo] = useState({})
 
+  // what to display in case user doesn't have a pfp
   const tempPfp = () => {
     if (user.providerData[0].providerId === "apple.com") {
       return `https://avatars.dicebear.com/api/bottts/${user.displayName.substring(user.displayName.indexOf(" ") + 1)}.png?dataUri=true`
@@ -35,6 +39,8 @@ const UserProfile = ({ navigation }) => {
     setUserInfo(globalVars.userData)
   }, [])
 
+  // firebase requires a user to have logged in recently to perform sensitive operations, such as this one: deleting your account
+  // give them the proper error if they try to delete without recent login
   useEffect(() => {
     if (authErrorText.code === 'auth/requires-recent-login') {
       setGlobalVars(val => ({ ...val, loggingIn: false }))
@@ -47,10 +53,12 @@ const UserProfile = ({ navigation }) => {
 
   const thirtyDays = 60 * 60 * 24 * 1000 * 30
 
+  // run checks to ensure that the info being updated is valid, and that the user has permission to update their info
   const runChecks = () => {
     let now = new Date()
     if (newInfo.displayName || newInfo.email) {
       if (newInfo.displayName?.length >= 4) {
+        // if client, check if the user has updated their display name in the past 30 days
         if(now - userInfo.displayNameLastUpdated?.toDate() >= thirtyDays || userInfo.type === 'coach' || userInfo.type === 'admin'){
           updateInfo({ displayName: newInfo.displayName, displayNameLastUpdated: firestore.Timestamp.now() })
           setNewInfo(val => ({ ...val, displayName: '' }))
@@ -61,7 +69,9 @@ const UserProfile = ({ navigation }) => {
           'You can only change your display name once every 30 days.')
         }
       }
+      // check if valid email
       if (newInfo.email?.includes("@") && newInfo.email?.includes(".")) {
+        // if client, check if the user has updated their email in the past 30 days
         if(now - userInfo.emailLastUpdated?.toDate() >= thirtyDays || userInfo.type === 'coach' || userInfo.type === 'admin'){
           changeEmail(newInfo.email)
           updateInfo({ emailLastUpdated: firestore.Timestamp.now() })
@@ -137,6 +147,7 @@ const UserProfile = ({ navigation }) => {
     const storageRef = storage().ref(`profile-pics/${fileName}`)
     const task = storageRef.putFile(uploadURI)
 
+    // progress bar for image upload. might consider adding this feature to main chat
     task.on('state_changed', taskSnapshot => {
       setAmntTransferred(
         Math.round((taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) * 100)
@@ -183,6 +194,7 @@ const UserProfile = ({ navigation }) => {
     }
   }
 
+  // check if the user is allowed to change their pfp (if they haven't in last 30 days or if they aren't a client)
   const checkPfpChange = () => {
     let now = new Date()
     if(now - userInfo.photoURLLastUpdated?.toDate() >= thirtyDays || userInfo.type === 'coach' || userInfo.type === 'admin') {
@@ -193,21 +205,21 @@ const UserProfile = ({ navigation }) => {
     }
   }
 
+  // check if user's email has been verified. if not, check if the verification email has been sent
+  // we only allow one re-send so that users can't just spam this button and throttle our firebase email verification service
   const verifyEmail = () => {
     mixpanel.track('Button Press', { 'Button': 'VerifyEmail' })
     AsyncStorage.getItem('@email_verification_sent').then((value) => {
       if(value == null){
         AsyncStorage.setItem('@email_verification_sent', 'true')
         emailVerification()
-        Alert.alert('Email verification sent!',
-        'Please check your email for further instructions.')
-      } else {
-        Alert.alert('Email verification sent!',
-        'Please check your email for further instructions.')
       }
+      Alert.alert('Email verification sent!',
+      'Please check your email for further instructions.')
     })
   }
 
+  // check if the user is allowed to change their pfp (if they haven't in last 30 days or if they aren't a client)
   const checkPasswordReset = () => {
     mixpanel.track('Button Press', { 'Button': 'PasswordReset' })
     let now = new Date()
@@ -223,6 +235,8 @@ const UserProfile = ({ navigation }) => {
     }
   }
 
+  // extra prompt asking if they want to delete their account. in the future will make this into a whole form they fill out
+  // want to make it difficult for user to delete account, without making it unreasonably difficult
   const deleteAccountForm = () => {
     mixpanel.track('Button Press', { 'Button': 'DeleteAccount' })
     Alert.alert(

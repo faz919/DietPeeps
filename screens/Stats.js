@@ -14,6 +14,7 @@ import { AnimatePresence, MotiText, MotiView } from 'moti'
 import { Easing } from 'react-native-reanimated'
 import CircularProgress, { CircularProgressBase } from 'react-native-circular-progress-indicator'
 
+// code for the screen accessed by pressing 'Your Stats' button on the bottom tab navigator (middle right button)
 const Stats = ({ navigation }) => {
 
     const { user, globalVars, updateInfo } = useContext(AuthContext)
@@ -53,35 +54,7 @@ const Stats = ({ navigation }) => {
 
     const insets = useSafeAreaInsets()
 
-    // useEffect(() => {
-    //     let imageList = []
-    //     return firestore()
-    //         .collection('chat-rooms')
-    //         .doc(globalVars.chatID)
-    //         .collection('chat-messages')
-    //         .where('userID', '==', user.uid)
-    //         .orderBy('timeSent', 'desc')
-    //         .onSnapshot((querySnapshot) => {
-    //             for (let i = 0; i < querySnapshot.size; i++) {
-    //                 let doc = querySnapshot.docs[i]
-    //                 if (doc.data().img != null) {
-    //                     for (let image of doc.data().img) {
-    //                         imageList.push({ ...image, timeSent: doc.data().timeSent })
-    //                     }
-    //                     // Array.prototype.push.apply(imageList, doc.data().img)
-    //                 }
-    //             }
-    //             // console.log('snapshot received at: ', new Date())
-    //             setGlobalVars(val => ({ ...val, images: imageList }))
-    //             imageList = []
-    //             if (loading) {
-    //                 setLoading(false)
-    //             }
-    //         }, (e) => {
-    //             console.error('error while fetching chat images: ', e)
-    //         })
-    // }, [])
-
+    // in case user doesn't have a profile picture yet
     const tempPfp = () => {
         if (user.providerData[0].providerId === "apple.com") {
             return `https://avatars.dicebear.com/api/bottts/${user.displayName.substring(user.displayName.indexOf(" ") + 1)}.png?dataUri=true`
@@ -105,9 +78,12 @@ const Stats = ({ navigation }) => {
     let streakCalendarDays = {}
     let graphDays = []
 
+    // for each graded image
     globalVars.images && globalVars.images?.forEach((v, index) => {
         let dayColor = ''
+        // check how many other images were sent on the same day
         switch (globalVars.images?.filter(val => sameDay(val.timeSent?.toDate(), globalVars.images[index]?.timeSent?.toDate())).length) {
+            // return a certain color for the day (meal calendar) depending on that number. 3+ is default instead of 0 because days without images aren't counted
             case 1:
                 dayColor = '#c1efc0'
                 break
@@ -118,8 +94,9 @@ const Stats = ({ navigation }) => {
                 dayColor = '#43CD3F'
                 break
         }
+        // format the data in the way the chart package requires (it's really stupid)
         streakCalendarDays[moment(v.timeSent?.toDate()).format('YYYY[-]MM[-]DD')] = { startingDay: true, endingDay: true, color: dayColor }
-
+        // for each day that an image was sent, push it to 'graphDays'
         if (graphDays.length === 0 || !graphDays.some(val => sameDay(val?.toDate(), globalVars.images[index]?.timeSent?.toDate()))) {
             if (v.graded) {
                 graphDays.push(v.timeSent)
@@ -127,6 +104,7 @@ const Stats = ({ navigation }) => {
         }
     })
 
+    // seven day meal score average
     const SevenDayAvg = () => {
         const mealGrades = globalVars.images?.filter(val => sevenDays(val.timeSent?.toDate(), new Date()) && val.graded)
         if (mealGrades == null || mealGrades.length === 0) {
@@ -141,6 +119,7 @@ const Stats = ({ navigation }) => {
         return Math.round((((totals.green - totals.red) / (totals.green + totals.yellow + totals.red)) + 1) * 50)
     }
 
+    // seven day weight average
     const SevenDayWeightAvg = () => {
         const sevenDayWeightHistory = globalVars.userData.weightHistory?.filter(val => sevenDays(val.time?.toDate(), new Date()))
         if (sevenDayWeightHistory == null || sevenDayWeightHistory.length === 0) {
@@ -148,13 +127,16 @@ const Stats = ({ navigation }) => {
         }
         let weightSum = 0
         sevenDayWeightHistory.forEach((weighIn, index) => {
+            // show the weight sum as lbs or kgs depending on user preference (they're able to change it every time they weigh in)
             weightSum += globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs
         })
         return Math.round(weightSum / sevenDayWeightHistory.length)
     }
 
     const DailyScoresGraph = () => {
+        // find all graph days in specified date range
         const data = graphDays?.filter(val => inDateRange(val.toDate(), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * graphPage), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * (graphPage - 1)))).reverse()
+        // if aaaaanything is 0 or null, return a placeholder graph that says 'no data'
         if (graphDays.length === 0 || data.length === 0 || globalVars.images?.length === 0 || globalVars.images == null || graphDays == null || globalVars.images?.filter(val => val.graded)?.length === 0) {
             return (
                 <View style={{ height: 260, width: windowWidth, paddingHorizontal: 30, justifyContent: 'center', alignItems: 'center' }}>
@@ -209,6 +191,7 @@ const Stats = ({ navigation }) => {
                 </View>
             )
         }
+        // otherwise return their actual graph
         return (
             <Chart
                 style={{ height: 260, width: windowWidth, alignSelf: 'center' }}
@@ -224,12 +207,15 @@ const Stats = ({ navigation }) => {
                 })}
                 padding={{ left: 30, bottom: 30, right: 30, top: 30 }}
                 // xDomain={{ min: 1, max: graphDays.length <= 1 ? 2 : graphDays.length }}
+                // if user doesn't have a score for each day in the specified range, only show the days that they got scores
+                // if they only got a score for 1 day in that range, make the max 2 because a max of 1 and a min of 1 is something you want to avoid here
                 xDomain={{ min: 1, max: data.length < lastXDays ? data.length < 2 ? 2 : data.length : lastXDays }}
                 yDomain={{ min: 0, max: 100 }}
                 // viewport={{ initialOrigin: { x: graphDays.length >= 6 ? graphDays.length - 5 : 0, y: 0 }, size: { width: graphDays.length >= 6 ? 5 : graphDays.length <= 1 ? 1 : graphDays.length - 1 } }}
                 disableGestures
             >
                 <VerticalAxis tickCount={11} />
+                {/* same logic as x axis */}
                 <HorizontalAxis tickCount={lastXDays === 30 ? null : data.length < lastXDays ? data.length < 2 ? 2 : data.length : lastXDays} />
                 {/* <HorizontalAxis tickCount={graphDays.length <= 1 ? 2 : graphDays.length} /> */}
                 <Area smoothing='cubic-spline'
@@ -255,6 +241,7 @@ const Stats = ({ navigation }) => {
     }
 
     const WeightHistoryGraph = () => {
+        // same logic as daily scores graph, see annotations above
         const data = globalVars.userData.weightHistory?.filter(data => inDateRange(data.time.toDate(), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * graphPage), new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * (graphPage - 1))))
         if (globalVars.userData.weightHistory == null || globalVars.userData.weightHistory.length === 0 || data.length === 0) {
             return (
@@ -310,8 +297,10 @@ const Stats = ({ navigation }) => {
                 </View>
             )
         }
+        // get lowest and highest weight values, in the user's preferred unit
         const chartMin = Math.min(...globalVars.userData.weightHistory.map(weighIn => globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs))
         const chartMax = Math.max(...globalVars.userData.weightHistory.map(weighIn => globalVars.userData.usesImperial ? weighIn.weight.lbs : weighIn.weight.kgs))
+        // set range boundings to nearest 20/10 depending on lbs/kgs respectively
         const rangeMin = globalVars.userData.usesImperial ? 20 * Math.floor(chartMin / 20) : 10 * Math.floor(chartMin / 10)
         const rangeMax = globalVars.userData.usesImperial ? 20 * Math.ceil(chartMax / 20) : 10 * Math.ceil(chartMax / 10)
         return (
@@ -352,6 +341,7 @@ const Stats = ({ navigation }) => {
         )
     }
 
+    // handle switch between 'last 7 days' vs. 'last 30 days'
     const handleLastXModalSelection = (numDays) => {
         setLastXDays(numDays)
         showLastXDaysModal(false)
@@ -412,6 +402,7 @@ const Stats = ({ navigation }) => {
                                     color="#202060"
                                 />
                             </TouchableOpacity>
+                            {/* only allow user to toggle between last 7 days and last 30 days if they're on the most recent page, because otherwise the logic would be hell */}
                             {graphPage !== 1 ?
                             <View style={{ height: 45, padding: 5, justifyContent: 'center', alignItems: 'center' }}>
                                 <Text adjustsFontSizeToFit={true} numberOfLines={1} style={{ maxWidth: windowWidth - 120, fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>

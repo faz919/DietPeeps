@@ -3,6 +3,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons'
 import { View, TouchableOpacity, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+// back button that hangs in the top left corner of the screen, with respect to iOS safe area context. allow customization of color, size, and style
 const BackButton = ({navigation , color, size, style}) => {
 
     const insets = useSafeAreaInsets()

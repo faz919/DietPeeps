@@ -4,7 +4,7 @@ import {windowHeight} from '../utils/Dimensions';
 
 const FormButton = ({buttonTitle, customBGColor, color, disabled, ...rest}) => {
   return (
-    <TouchableOpacity style={[styles.buttonContainer, {backgroundColor: customBGColor ? color:"#4C44D4", opacity: disabled? 0.8:1}]} disabled={disabled?true:false} {...rest}>
+    <TouchableOpacity style={[styles.buttonContainer, { backgroundColor: customBGColor ? color : "#4C44D4", opacity: disabled ? 0.8 : 1 }]} disabled={disabled} {...rest}>
       <Text style={styles.buttonText}>{buttonTitle}</Text>
     </TouchableOpacity>
   );

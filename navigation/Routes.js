@@ -34,6 +34,7 @@ const Routes = () => {
         navigationRef.getCurrentRoute() ? routeNameRef.current = navigationRef.getCurrentRoute().name : null
       }}
       onStateChange={async () => {
+        // get current route and track it everywhere
         const previousRouteName = routeNameRef.current
         const currentRouteName = navigationRef.getCurrentRoute().name
 
@@ -52,6 +53,7 @@ const Routes = () => {
         routeNameRef.current = currentRouteName
       }}
     >
+      {/* depending on whether user is logged in or not, return app or auth screens (signin, signup, etc.) */}
       {user ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );

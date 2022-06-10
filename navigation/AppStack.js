@@ -24,7 +24,9 @@ import WeighInModal from "../screens/WeighInModal.js"
 import NotificationSettings from "../screens/NotificationSettings.js"
 import EditUserDataScreen from "../screens/EditUserDataScreen.js"
 
+// screen navigator
 const AppStack = createStackNavigator()
+// tab navigator (bottom of screen)
 const Tab = createBottomTabNavigator()
 
 const MainMenu = () => {
@@ -32,6 +34,7 @@ const MainMenu = () => {
     <Tab.Navigator initialRouteName={"Coach"} screenOptions={({ route }) => ({
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
+        // icon picker based on route name
         switch (route.name) {
           case "Coach":
             iconName = focused ? 'ios-chatbox-ellipses' : 'ios-chatbox-ellipses-outline'
@@ -54,12 +57,14 @@ const MainMenu = () => {
       headerShown: false,
       tabBarHideOnKeyboard: Platform.OS === 'ios' ? false : true,
       tabBarBackground: () => (
+        // can be customized, this is default
         <View style={{ width: windowWidth, height: windowHeight * 0.2, backgroundColor: '#fff' }}></View>
       ),
       tabBarInactiveTintColor: "#BDB9DB",
       tabBarActiveTintColor: "#4D43BD",
       tabBarShowLabel: true
     })}>
+      {/* define each screen and their initial params */}
       <Tab.Screen name="Coach" component={Chat} initialParams={{ imageInfo: null, hasSubscribed: null, hasWeighedIn: null }} />
       <Tab.Screen name="Gallery" component={PhotoGallery} initialParams={{ imageInfo: null }} />
       <Tab.Screen name="Camera" component={CameraModal}

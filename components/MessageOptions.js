@@ -13,6 +13,7 @@ export default function MessageOptions({ message, handleReply, style }) {
 
     const [copied, setCopied] = useState(false)
 
+    // copy the message to clipboard, and then autohide the message options screen
     const handleCopy = () => {
         Clipboard.setString(message.msg)
         setCopied(true)
@@ -22,6 +23,7 @@ export default function MessageOptions({ message, handleReply, style }) {
         }, 700)
     }
 
+    // get base64 of the image so that user can share it to other apps. MUST be done here because string is usually too large to store in firestore
     async function getBase64(url) {
         const data = await fetch(url)
         const blob = await data.blob()
@@ -39,6 +41,7 @@ export default function MessageOptions({ message, handleReply, style }) {
     const handleShare = () => {
         setUrlList([])
         mixpanel.track('Button Press', { 'Button': 'ShareChatMessage' })
+        // get the base64 of each image
         if (message.img != null && message.img?.length > 0) {
             for (let image of message.img) {
                 getBase64(image.url).then((base64) => {
@@ -46,10 +49,12 @@ export default function MessageOptions({ message, handleReply, style }) {
                 }).catch((e) => console.error(e))
             }
         }
+        // set share options with custom messages if there are none
         const shareOptions = { 
             message: message.msg ? `Check out this message from DietPeeps: ${message.msg}` : (message.img[0].graded ? `Check this out! My DietPeeps coach scored my meal and my score was ${message.img[0].grade}!` : message.userID === user.uid ? message.img?.length > 1 ? 'Check out these images from DietPeeps!' : 'Check out this image from DietPeeps!' : 'Check out this image from my DietPeeps coach!'), 
             urls: urlList
         }
+        // share data
         Share.open(shareOptions)
     }
 
@@ -62,6 +67,7 @@ export default function MessageOptions({ message, handleReply, style }) {
                 </View>
             </TouchableOpacity>
             <View style={styles.divider} />
+            {/* if there's no text in the message, don't show the 'Copy' option, since there's nothing to copy. */}
             {message.msg != null && message.msg?.length > 0 && <>
                 <TouchableOpacity style={[styles.option, styles.copy]} onPress={handleCopy}>
                     {copied ?

@@ -22,17 +22,6 @@ const ChatImage = ({ user, message, image, navigation, onLongPress, disablePress
         navigation.navigate('Main Menu', { screen: 'Gallery', params: { imageInfo: image } })
     }
 
-    // temporary until sharing becomes a message-wide thing
-    // const shareOptions = {
-    //     message: message.msg || (message.userID === user.uid ? 'Check out this image from DietPeeps!' : image.graded ? `Check this out! My DietPeeps coach scored my meal and I got a ${image.grade}!` : 'Check out this image from my DietPeeps coach!'), 
-    //     url: `data:${image.mime};base64,${image.base64}`
-    // }
-
-    // const handleLongPress = () => {
-    //     Share.open(shareOptions)
-    //     mixpanel.track('Button Press', { 'Button': 'LongPressChatImage' })
-    // }
-
     return (
         <TouchableOpacity key={image.url} onPress={handlePress} onLongPress={onLongPress}>
             <ImageBackground onLoad={() => setLoading(false)} imageStyle={{ borderRadius: 10, opacity: image.graded ? message.userID !== user.uid ? 0.4 : 1 : 1 }} style={styles.textImage} source={{ uri: image.url }}>

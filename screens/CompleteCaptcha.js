@@ -7,6 +7,7 @@ import { AuthContext } from '../navigation/AuthProvider.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import messaging from '@react-native-firebase/messaging'
 
+// currently not being used. Development started on it at some point to ward off bots, but now our onboarding wizard does enough of that
 const CaptchaScreen = ({ navigation }) => {
 
   const { setGlobalVars, updateInfo } = useContext(AuthContext)

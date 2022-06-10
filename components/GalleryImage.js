@@ -6,6 +6,7 @@ import storage from '@react-native-firebase/storage'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 import { MotiText, MotiView } from 'moti'
 
+// loading galleryimages as purecomponents because it helps with lag supposedly
 class GalleryImage extends PureComponent {
 
     constructor(props) {
@@ -13,6 +14,7 @@ class GalleryImage extends PureComponent {
         this.state = { thumbnailURL: null, loading: true }
     }
 
+    // when component mounts, get downloadURL of the image's thumbnail, so we can display that to the user instead of the full res image
     async componentDidMount() {
         const thumbnailRef = this.props.item.thumbnail ? storage().ref(`chat-pictures/${this.props.item.thumbnail}`) : null
             if(thumbnailRef) {
@@ -24,6 +26,7 @@ class GalleryImage extends PureComponent {
         return (
             <TouchableOpacity key={this.props.item.url} onPress={this.props.onPress}>
                 <ImageBackground onLoadStart={() => this.setState({ loading: true })} onLoad={() => this.setState({ loading: false })} imageStyle={{ opacity: this.props.item.graded ? 0.4 : 1 }} style={styles.photoDisplay} source={{ uri: this.state.thumbnailURL ? this.state.thumbnailURL : this.props.item.url }}>
+                    {/* if the image is graded, show the pie chart */}
                     {this.props.item.graded && !this.state.loading &&
                     <View style={styles.pieChartContainer}>
                         <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{fontSize: windowWidth * 0.32 * 0.3 * 0.7, color: '#202060'}}>{this.props.item.grade}</MotiText>
@@ -44,6 +47,7 @@ class GalleryImage extends PureComponent {
                         </MotiView>
                     </View>
                     }
+                    {/* when the image is loading, show placeholder loading thingy */}
                     {this.state.loading &&
                     <SkeletonPlaceholder backgroundColor='#BDB9DB' highlightColor='#e6e7fa' speed={1000}>
                         <View style={{ width: windowWidth * 0.32, height: windowWidth * 0.32 }} />

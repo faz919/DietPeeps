@@ -8,12 +8,15 @@ import { windowHeight, windowWidth } from '../utils/Dimensions'
 import { ENTITLEMENT_ID } from '../constants/constants'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+// code for the subscription screen, accessed via the 'Subscription' button in the 'Settings' page or by the badge on the top bar of the chat page
 const SubscriptionScreen = ({ navigation, route }) => {
 
     const { mixpanel } = useContext(AuthContext)
 
     const { trialReminder } = route.params
 
+    // if the user's receiving a reminder that they need to subscribe, add it to asyncstorage so they aren't reminded again on the same day
+    // the logic that navigates the user here first checks that they haven't already been reminded on this day
     useEffect(() => {
         const checkStuff = async () => {
             try {
@@ -42,6 +45,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true)
     const [subscribed, setSubscribed] = useState(false)
 
+    // give em a badge when they sub
     useEffect(() => {
         if (subscribed) {
             navigation.navigate('Main Menu', { screen: 'Coach', params: { hasSubscribed: true } })
