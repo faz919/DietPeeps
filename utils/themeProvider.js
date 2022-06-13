@@ -1,5 +1,6 @@
 export default theme = {
-    background: {
-        primary: '#202060'
-    }
+    background: '#E6E7FA',
+    primary: '#202060',
+    button: '#202060',
+
 }

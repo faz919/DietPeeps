@@ -381,6 +381,41 @@ const MealTimesSelectorPage = ({ editingMealTime, mealCount, prevResponse, onSel
     )
 }
 
+const ReferralCodePage = ({ prevResponse, onSelectResponse, onContinue, disableAnimation }) => {
+    return (
+        <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }}>
+            <View style={styles.ViewD2}>
+                <Text
+                    style={[
+                        styles.headline1,
+                        { color: '#202060' },
+                    ]}
+                >
+                    {'Enter your referral code below'}
+                </Text>
+            </View>
+            <View style={{ alignItems: 'center', marginVertical: 40 }}>
+                <View style={[styles.largeView, { backgroundColor: 'transparent', width: windowWidth / 5, padding: 20, justifyContent: 'center', alignItems: 'center' }]}>
+                    <View style={{ justifyContent: 'center' }}>
+                        
+                    </View>
+                </View>
+            </View>
+            <View style={styles.View_4v}>
+                <TouchableOpacity
+                    onPress={onContinue}
+                    style={[
+                        styles.ButtonSolidQB,
+                        { backgroundColor: '#4C44D4', marginTop: 20 },
+                    ]}
+                >
+                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                </TouchableOpacity>
+            </View>
+        </MotiView>
+    )
+}
+
 const UnitToggler = ({ style, buttonText, onToggleImperial }) => {
     return (
         <TouchableOpacity onPress={onToggleImperial} style={[styles.unitToggler, { ...style }]}>

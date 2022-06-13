@@ -30,7 +30,7 @@ const AuthStack = () => {
   
     // config google signin
     GoogleSignin.configure({
-      webClientId: Platform.OS === 'ios' ? GOOGLE_SIGNIN_CONFIG_IOS : GOOGLE_SIGNIN_CONFIG_ANDROID,
+      webClientId: Platform.OS === 'ios' ? '202312705150-0as7142qafv5phn9a277jq7c90vtjq9k.apps.googleusercontent.com' : '202312705150-63k1sau74drj13t0u8ptn01ubgh03534.apps.googleusercontent.com',
       profileImageSize: 300
     })
   
