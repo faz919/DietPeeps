@@ -174,6 +174,7 @@ export const AuthProvider = ({ children }) => {
                     console.log('error while setting userbiodata: ', e)
                     crashlytics().recordError(e)
                 })
+            globalVars.userBioData.referralCode && mixpanel.getPeople().set('Referral Code', globalVars.userBioData.referralCode)
         }
         // set user messaging token and some extra metadata
         await firestore()

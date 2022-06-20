@@ -20,7 +20,7 @@ import ProfilePic from '../components/ProfilePic'
 import { AnimatePresence, MotiView } from 'moti'
 
 import badge from '../assets/badge.png'
-import CourseData from '../courses/CourseData.json'
+import CourseData from '../data/CourseData.json'
 import CourseLinkImage from '../components/CourseLinkImage'
 import crashlytics from '@react-native-firebase/crashlytics'
 import DeviceInfo from 'react-native-device-info'
@@ -1346,7 +1346,12 @@ const Chat = ({ navigation, route }) => {
                                 disableItemReplyIndicator
                                 courseInfo={CourseData.find(course => globalVars.selectedMessage.courseInfo?.UniqueCourseNumber === NaN || globalVars.selectedMessage.courseInfo?.UniqueCourseNumber == null ? globalVars.userData?.courseData?.latestCourseCompleted == null ? course.UniqueCourseNumber === 1 : course.UniqueCourseNumber === globalVars.userData?.courseData?.latestCourseCompleted + 1 : course.UniqueCourseNumber === globalVars.selectedMessage.courseInfo?.UniqueCourseNumber)}
                             />
-                            <MessageOptions message={globalVars.selectedMessage} handleReply={(message) => handleReply(message)} style={{ zIndex: 69, alignSelf: globalVars.selectedMessage?.userID === user.uid ? 'flex-end' : 'flex-start', paddingHorizontal: 20, paddingBottom: Platform.OS === 'ios' ? insets.top + 10 : 10 }} />
+                            <MessageOptions 
+                                message={globalVars.selectedMessage} 
+                                handleReply={(message) => handleReply(message)} 
+                                style={{ zIndex: 69, alignSelf: globalVars.selectedMessage?.userID === user.uid ? 'flex-end' : 'flex-start', paddingHorizontal: 20, paddingBottom: Platform.OS === 'ios' ? insets.top + 10 : 10 }} 
+                                outgoing={globalVars.selectedMessage?.userID === user.uid}
+                            />
                         </ScrollView>
                     </MotiView>
                 }

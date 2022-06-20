@@ -1,11 +1,16 @@
 import { AnimatePresence, MotiView } from 'moti';
-import React, { useState } from 'react'
-import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { KeyboardAvoidingView, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Easing } from 'react-native-reanimated'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import Icon from 'react-native-vector-icons/Ionicons'
-import DatePicker from 'react-native-date-picker';
-import { Picker } from '@react-native-picker/picker';
+import DatePicker from 'react-native-date-picker'
+import { Picker } from '@react-native-picker/picker'
+import ProfilePic from './ProfilePic'
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5'
+import Svg, { Path } from 'react-native-svg'
+import theme from '../utils/theme'
+// import PartnerInfo from '../data/PartnerInfo'
 
 const WeightGoalSelectorPage = ({ containerStyle, onSelectResponse, disableAnimation, showTitle }) => {
     return (
@@ -115,6 +120,7 @@ const OtherGoalSelectorPage = ({ selectedGoals, customTitle, onSelectGoal, onCon
         'Become comfortable doing exercise outside',
         'Help my family be more healthy',
         'Break out of my comfort zone',
+        'Recover from an eating disorder',
         'Other'
     ]
 
@@ -196,11 +202,7 @@ const DateOfBirthSelectorPage = ({ prevResponse, onSelectResponse, onContinue, d
 
     const handleSelectResponse = (date) => {
         onSelectResponse(date)
-        if (age(date) < 18) {
-            setUnderage(true)
-        } else {
-            setUnderage(false)
-        }
+        setUnderage(age(date) < 18)
     }
 
     return (
@@ -381,7 +383,15 @@ const MealTimesSelectorPage = ({ editingMealTime, mealCount, prevResponse, onSel
     )
 }
 
-const ReferralCodePage = ({ prevResponse, onSelectResponse, onContinue, disableAnimation }) => {
+const ReferralCodePage = ({ partnerInfo, onContinueWithReferral, onContinueNoReferral, disableAnimation }) => {
+
+    const [code, setCode] = useState('')
+    const partner = partnerInfo.find((p) => p.referralCode === code)
+
+    const handleSocialIconSelect = (link) => {
+        Linking.openURL(link)
+    }
+
     return (
         <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }}>
             <View style={styles.ViewD2}>
@@ -391,25 +401,70 @@ const ReferralCodePage = ({ prevResponse, onSelectResponse, onContinue, disableA
                         { color: '#202060' },
                     ]}
                 >
-                    {'Enter your referral code below'}
+                    {partner ? `Have you been referred by ${partner.displayName}?` : 'Enter your referral code below'}
                 </Text>
             </View>
-            <View style={{ alignItems: 'center', marginVertical: 40 }}>
+            <KeyboardAvoidingView style={{ alignItems: 'center', marginVertical: 40 }}>
                 <View style={[styles.largeView, { backgroundColor: 'transparent', width: windowWidth / 5, padding: 20, justifyContent: 'center', alignItems: 'center' }]}>
-                    <View style={{ justifyContent: 'center' }}>
-                        
-                    </View>
+                <AnimatePresence>
+                    {partner && 
+                    <MotiView key={'profile pic'} from={{ height: 0, opacity: 0 }} animate={{ height: (windowWidth / 3) + 70, opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ type: 'timing', duration: 350 }} style={{ width: windowWidth, justifyContent: 'center', alignItems: 'center' }}>
+                        <ProfilePic 
+                            source={{ uri: partner?.photoURL }}
+                            size={windowWidth / 3}
+                            style={{ marginTop: 10, marginBottom: 10 }}
+                        />
+                        <View style={{ marginBottom: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                            {partner.socials.map((social, index) =>
+                                <MotiView key={social.link} from={{ opacity: 0, translateY: 10 }} animate={{ opacity: 1, translateY: 0 }} transition={{ type: 'timing', delay: 350 + ((index + 1) * 100), duration: 200 }}>
+                                    <TouchableOpacity onPress={() => handleSocialIconSelect(social.link)} style={{ marginLeft: 10, marginRight: 10 }}>
+                                        <FontAwesome5
+                                            name={social.logo}
+                                            size={40}
+                                            color={theme.socials[logo]}
+                                        />
+                                    </TouchableOpacity>
+                                </MotiView>
+                            )}
+                        </View>
+                    </MotiView>}
+                </AnimatePresence>
+                    <TextInput
+                        style={{ 
+                            backgroundColor: '#fff',
+                            height: 50,
+                            width: windowWidth - 60,
+                            textAlign: 'center',
+                            fontSize: 32,
+                            borderRadius: 10,
+                            borderWidth: 1,
+                            borderColor: '#bdb9db',
+                            marginBottom: 10
+                        }}
+                        placeholderTextColor={'#E6E7FA'}
+                        placeholder={'Type here...'}
+                        value={code}
+                        onChangeText={(text) => setCode(text)}
+                    />
                 </View>
-            </View>
-            <View style={styles.View_4v}>
+            </KeyboardAvoidingView>
+            {partner && 
+            <MotiView style={styles.View_4v} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <TouchableOpacity
-                    onPress={onContinue}
+                    onPress={() => onContinueWithReferral(code)}
                     style={[
                         styles.ButtonSolidQB,
                         { backgroundColor: '#4C44D4', marginTop: 20 },
                     ]}
                 >
-                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                    <Text style={styles.panelButtonText}>{'Yes!'}</Text>
+                </TouchableOpacity>
+            </MotiView>}
+            <View style={styles.View_4v}>
+                <TouchableOpacity
+                    onPress={onContinueNoReferral}
+                >
+                    <Text style={[styles.panelButtonText, { color: '#4C44D4', fontWeight: '400' }]}>I don't have a referral code</Text>
                 </TouchableOpacity>
             </View>
         </MotiView>
@@ -433,6 +488,7 @@ export {
     WeightSelector,
     MealCountSelectorPage,
     MealTimesSelectorPage,
+    ReferralCodePage,
     UnitToggler
 }
 

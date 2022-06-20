@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react'
 import { ActivityIndicator, FlatList, ImageBackground, StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Image } from 'react-native'
-import CourseData from '../courses/CourseData.json'
+import CourseData from '../data/CourseData.json'
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import { AuthContext } from '../navigation/AuthProvider'
 import firestore from '@react-native-firebase/firestore'
@@ -20,14 +20,6 @@ const CourseSelection = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true)
   const [starred, setStarred] = useState([])
   const [sortBy, setSortBy] = useState('To Do')
-
-  // const stopLoading = () => {
-  //   if (loading) {
-  //     setTimeout(() => {
-  //       setLoading(false)
-  //     }, 500)
-  //   }
-  // }
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
@@ -53,56 +45,6 @@ const CourseSelection = ({ navigation, route }) => {
     }
     setLoading(false)
   }, [globalVars.userData])
-
-  // useEffect(() => {
-  //   const unsub = firestore()
-  //     .collection('user-info')
-  //     .doc(user.uid)
-  //     .onSnapshot((doc) => {
-  //       let localDayStart = new Date()
-  //       localDayStart.setHours(0)
-  //       localDayStart.setMinutes(0)
-  //       localDayStart.setSeconds(0)
-  //       localDayStart.setMilliseconds(0)
-  //       const c = doc.data().courseData
-  //       if (c.courseDayCompleted) {
-  //         if (localDayStart > c.courseCompletedAt?.toDate()) {
-  //           setUserCourseData({
-  //             latestCourseCompleted: c.latestCourseCompleted,
-  //             courseCompletedAt: c.courseCompletedAt,
-  //             courseDay: c.courseDay + 1,
-  //             courseDayCompleted: false
-  //           })
-  //           updateInfo({
-  //             courseData: {
-  //               latestCourseCompleted: c.latestCourseCompleted,
-  //               courseCompletedAt: c.courseCompletedAt,
-  //               courseDay: c.courseDay + 1,
-  //               courseDayCompleted: false
-  //             }
-  //           })
-  //           stopLoading()
-  //           return null
-  //         } else {
-  //           setUserCourseData(c)
-  //           stopLoading()
-  //           return null
-  //         }
-  //       } else {
-  //         setUserCourseData({
-  //           latestCourseCompleted: c.latestCourseCompleted ? c.latestCourseCompleted : 0,
-  //           courseCompletedAt: c.courseCompletedAt ? c.courseCompletedAt : new Date(),
-  //           courseDay: c.courseDay ? c.courseDay : 1,
-  //           courseDayCompleted: false
-  //         })
-  //       }
-  //       stopLoading()
-  //       return null
-  //     }, (e) => {
-  //       console.error('error while updating course data: ', e)
-  //     })
-  //   return () => unsub()
-  // }, [])
 
   useEffect(() => {
     const getStarredCourses = async () => {
@@ -208,7 +150,7 @@ const CourseSelection = ({ navigation, route }) => {
             <View style={{ position: 'absolute', width: windowWidth, top: 45 }}>
               <ToggleButtonRow
                 highlightBackgroundColor={'#4D43BD'}
-                highlightTextColor={'white'}
+                highlightTextColor={'#fff'}
                 inactiveBackgroundColor={'transparent'}
                 inactiveTextColor={'#BDB9DB'}
                 values={['Completed', 'To Do', 'Starred']}

@@ -65,7 +65,10 @@ GoogleService-Info.plist
 .env
 
 # Course data
-/courses/CourseData.json
+/data/CourseData.json
+
+# Partner info
+/data/PartnerInfo.js
 
 # RevenueCat API Keys
 /constants/constants.js

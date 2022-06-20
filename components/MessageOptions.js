@@ -1,13 +1,14 @@
 import React, { useContext, useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Share from 'react-native-share'
 import Clipboard from '@react-native-clipboard/clipboard'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { AuthContext } from '../navigation/AuthProvider'
+import { MotiView } from 'moti'
 
-export default function MessageOptions({ message, handleReply, style }) {
+export default function MessageOptions({ message, handleReply, style, outgoing }) {
 
     const { user, setGlobalVars, mixpanel } = useContext(AuthContext)
 
@@ -37,16 +38,19 @@ export default function MessageOptions({ message, handleReply, style }) {
         })
     }
 
+    const [loadingShare, setLoadingShare] = useState(false)
+
     const [urlList, setUrlList] = useState([])
-    const handleShare = () => {
+    const handleShare = async () => {
+        setLoadingShare(true)
         setUrlList([])
         mixpanel.track('Button Press', { 'Button': 'ShareChatMessage' })
         // get the base64 of each image
         if (message.img != null && message.img?.length > 0) {
             for (let image of message.img) {
-                getBase64(image.url).then((base64) => {
-                    setUrlList(val => [...val, base64])
-                }).catch((e) => console.error(e))
+                const base64 = await getBase64(image.url)
+                console.log(base64.length)
+                setUrlList(val => [...val, base64])
             }
         }
         // set share options with custom messages if there are none
@@ -56,10 +60,12 @@ export default function MessageOptions({ message, handleReply, style }) {
         }
         // share data
         Share.open(shareOptions)
+        // console.log(urlList)
+        setLoadingShare(false)
     }
 
     return (
-        <View style={[styles.container, { ...style }]}>
+        <MotiView style={[styles.container, { ...style }]}>
             <TouchableOpacity style={[styles.option, styles.reply]} onPress={() => handleReply(message)}>
                 <MaterialCommunityIcons name="reply" size={24} color="#202060" />
                 <View style={{ justifyContent: 'flex-start', width: 70 }}>
@@ -79,13 +85,20 @@ export default function MessageOptions({ message, handleReply, style }) {
                 </TouchableOpacity>
                 <View style={styles.divider} />
             </>}
-            <TouchableOpacity style={[styles.option, styles.share]} onPress={handleShare}>
-                <Ionicons name="share-outline" size={24} color="#202060" />
+            <TouchableOpacity disabled={loadingShare} style={[styles.option, styles.share, { opacity: loadingShare ? 0.5 : 1 }]} onPress={handleShare}>
+                {loadingShare ? 
+                    <ActivityIndicator
+                        size={24}
+                        color='#202060'
+                    />
+                    : 
+                    <Ionicons name="share-outline" size={24} color="#202060" />
+                }
                 <View style={{ justifyContent: 'flex-start', width: 70 }}>
                     <Text style={{ fontSize: 18, color: '#202060' }}>Share</Text>
                 </View>
             </TouchableOpacity>
-        </View>
+        </MotiView>
     )
 }
 

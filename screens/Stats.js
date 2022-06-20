@@ -4,15 +4,14 @@ import { AuthContext } from '../navigation/AuthProvider'
 import { windowWidth, windowHeight } from '../utils/Dimensions'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { Chart, Line, Area, HorizontalAxis, VerticalAxis, Tooltip } from 'react-native-responsive-linechart'
-import firestore from '@react-native-firebase/firestore'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import ProfilePic from '../components/ProfilePic'
 import { Calendar } from 'react-native-calendars'
 import moment from 'moment'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { AnimatePresence, MotiText, MotiView } from 'moti'
-import { Easing } from 'react-native-reanimated'
-import CircularProgress, { CircularProgressBase } from 'react-native-circular-progress-indicator'
+// import { Easing } from 'react-native-reanimated'
+// import CircularProgress, { CircularProgressBase } from 'react-native-circular-progress-indicator'
 
 // code for the screen accessed by pressing 'Your Stats' button on the bottom tab navigator (middle right button)
 const Stats = ({ navigation }) => {

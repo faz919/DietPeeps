@@ -13,8 +13,8 @@ const Settings = ({ navigation }) => {
     
     const handleSubButtonPress = () => {
         mixpanel.track('Clicked Subscribe Button', { 'Screen': 'Settings' })
-        // navigation.navigate('Onboarding Wizard')
-        navigation.navigate('Subscription', { trialReminder: 'none' })
+        navigation.navigate('Onboarding Wizard')
+        // navigation.navigate('Subscription', { trialReminder: 'none' })
     }
 
     return (

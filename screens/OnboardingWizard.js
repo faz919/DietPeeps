@@ -11,6 +11,7 @@ import { Picker } from '@react-native-picker/picker'
 import { MotiView, MotiText, AnimatePresence, MotiImage } from 'moti'
 import { Easing } from 'react-native-reanimated'
 import Icon from 'react-native-vector-icons/Ionicons'
+import firestore from '@react-native-firebase/firestore'
 import { 
     DateOfBirthSelectorPage,
     GenderSelectorPage, 
@@ -18,13 +19,27 @@ import {
     MealCountSelectorPage, 
     MealTimesSelectorPage, 
     OtherGoalSelectorPage, 
+    ReferralCodePage, 
     WeightGoalSelectorPage,
     WeightSelector
 } from '../components/OnboardingComponents.js'
 
 const OnboardingWizard = ({ navigation }) => {
 
-    const { user, updateInfo, setGlobalVars } = useContext(AuthContext)
+    const { mixpanel, user, updateInfo, setGlobalVars } = useContext(AuthContext)
+    // get all partner data
+    const [partnerInfo, setPartnerInfo] = useState([])
+    useEffect(() => {
+        firestore()
+            .collection('partner-info')
+            .get((partnerSnapshot) => {
+                partnerSnapshot.forEach((partner) => {
+                    if(!partner.data().deleted) {
+                        setPartnerInfo(val => [...val, { ...partner.data(), id: partner.id }])
+                    }
+                })
+            })
+    }, [])
     // set default values. based on intl avg height and weight metrics
     const [formResponses, setFormResponses] = useState({
         mealTimes: [],
@@ -46,9 +61,10 @@ const OnboardingWizard = ({ navigation }) => {
         timezoneOffset: (new Date()).getTimezoneOffset() / 60
     })
     // how many pages in the form
-    const formLength = 9
+    const formLength = 10
     // on what page does the user pick meal times. important because the functionality of the continue button is different on this page
     const mealPickerScreen = 8
+    const referralCodeScreen = 9
     const [formPage, setFormPage] = useState(1)
     // is current wizard synced with responses fetched from asyncstorage
     const [synced, setSynced] = useState(false)
@@ -103,6 +119,7 @@ const OnboardingWizard = ({ navigation }) => {
         setGlobalVars(val => ({...val, userBioData: formResponses}))
         if (user) {
             updateInfo({ userBioData: formResponses })
+            formResponses.referralCode && mixpanel.getPeople().set('Referral Code', formResponses.referralCode)
         }
         // onboarding wizard is in both authstack and app stack, so attempt to navigate to either screen
         navigation.navigate('Signup') || navigation.navigate('Main Menu')
@@ -308,8 +325,17 @@ const OnboardingWizard = ({ navigation }) => {
                                 disableContainerAnimation={false}
                             />
                         }
+                        {formPage === referralCodeScreen &&
+                            <ReferralCodePage
+                                key={'page9'}
+                                partnerInfo={partnerInfo}
+                                onContinueWithReferral={(code) => { setFormResponses(val => ({ ...val, referralCode: code })); formPage === referralCodeScreen && setFormPage(referralCodeScreen + 1) }}
+                                onContinueNoReferral={() => formPage === referralCodeScreen && setFormPage(referralCodeScreen + 1)}
+                                disableAnimation={false}
+                            />
+                        }
                         {formPage === formLength &&
-                            <AnimatePresence exitBeforeEnter>
+                            <AnimatePresence exitBeforeEnter key={'loadingScreens'}>
                                 {loadingScreen === 1 &&
                                     <MotiView 
                                         key={'loadingScreen1'}
