@@ -1004,6 +1004,13 @@ const WeightGoalGuaranteeModal = ({ visible, toggleVisibility, onContinue }) => 
             <View style={styles.panel}>
                 <View style={{ alignItems: 'center' }}>
                     <Text style={styles.panelTitle}>Weight Goal Guarantee</Text>
+                    <Text style={{ color: '#202060', textAlign: 'left', fontSize: 18 }}>
+                        We are committed to ensuring all of our clients 
+                        If you complete all the steps of the program and still don't reach your weight goal, you'll receive
+                        <Text style={{ fontWeight: '700' }}>full recompensation.</Text>
+                        That means you'll get
+                        <Text style={{ fontWeight: '700' }}>all your money back.</Text>
+                    </Text>
                 </View>
                 <View style={styles.View_4v}>
                     <TouchableOpacity
