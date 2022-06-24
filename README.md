@@ -17,9 +17,9 @@ Clone this project and name it accordingly:
 
 ### Extra Files
 
-1. Ask an admin for a copy of the ``constants.js`` and ``CourseData.json`` files (necessary to run the app).
+1. Ask an admin for a copy of the ``constants.js``, ``testimonials.js`` and ``CourseData.json`` files (necessary to run the app).
 2. Make a folder named ``constants`` at the project root and place ``constants.js`` inside of it.
-3. Make a folder named ``data`` at the project root and place ``CourseData.json`` inside of it.
+3. Make a folder named ``data`` at the project root and place ``testimonials.js`` and ``CourseData.json`` inside of it.
 
 ### Package Management
 

@@ -117,7 +117,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
     }, [])
 
     const promoText = [
-        'Meal grading',
+        'Meal scoring',
         'Live feedback from your personal coach',
         'Detailed statistics',
         'Extensive course curriculum on healthy eating habits'

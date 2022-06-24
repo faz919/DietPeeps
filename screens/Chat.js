@@ -1240,7 +1240,7 @@ const Chat = ({ navigation, route }) => {
                         {/* scroll to latest button */}
                         <AnimatePresence>
                             {scrollToLatestButton && <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={[styles.scrollToLatestButton, { left: scrollButtonLeft + 5 }]}>
-                                <TouchableOpacity onPress={() => scrollToLatest()}>
+                                <TouchableOpacity onPress={scrollToLatest}>
                                     <Ionicons
                                         name="ios-chevron-down"
                                         size={30}

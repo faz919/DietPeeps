@@ -67,8 +67,8 @@ GoogleService-Info.plist
 # Course data
 /data/CourseData.json
 
-# Partner info
-/data/PartnerInfo.js
+# Client testimonials
+/data/testimonials.js
 
 # RevenueCat API Keys
 /constants/constants.js
