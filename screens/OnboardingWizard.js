@@ -65,17 +65,17 @@ const OnboardingWizard = ({ navigation }) => {
         timezoneOffset: (new Date()).getTimezoneOffset() / 60
     })
     // how many pages in the form
-    const formLength = 10
-    const weightGoalScreen = 5
-    const otherGoalScreen = 6
+    const formLength = 9
+    // const weightGoalScreen = 5
+    const otherGoalScreen = 5
     const genderScreen = 1
     const dobScreen = 2
     const heightWeightScreen = 3
     const targetWeightScreen = 4
-    const mealCountScreen = 7
+    const mealCountScreen = 6
     // on what page does the user pick meal times. important because the functionality of the continue button is different on this page
-    const mealPickerScreen = 8
-    const referralCodeScreen = 9
+    const mealPickerScreen = 7
+    const referralCodeScreen = 8
     const [formPage, setFormPage] = useState(1)
     // is current wizard synced with responses fetched from asyncstorage
     const [synced, setSynced] = useState(false)
@@ -365,24 +365,23 @@ const OnboardingWizard = ({ navigation }) => {
                                 currentWeight={imperial.weight ? formResponses.weight.lbs : formResponses.weight.kgs}
                                 targetWeight={imperial.weight ? formResponses.targetWeight.lbs : formResponses.targetWeight.kgs}
                                 usesImperial={imperial.weight}
-                                interstitialNumber={2}
+                                interstitialNumber={1}
                                 onContinue={() => { formPage === 'interstitial1' && setFormPage(targetWeightScreen + 1) }}
                             />
                         }
-                        {formPage === weightGoalScreen &&
+                        {/* {formPage === weightGoalScreen &&
                             <WeightGoalSelectorPage
                                 key={`page${weightGoalScreen}`}
                                 onSelectResponse={(response) => { setFormResponses(val => ({ ...val, weightGoal: response })); setFormPage(weightGoalScreen + 1) }}
                                 disableAnimation={false}
                                 showTitle={false}
                             />
-                        }
+                        } */}
                         {formPage === otherGoalScreen &&
                             <OtherGoalSelectorPage
                                 key={`page${otherGoalScreen}`}
                                 selectedGoals={formResponses.goals}
                                 onSelectGoal={(goal) => toggleSelectGoal(goal)}
-                                customTitle={formResponses.weightGoal === 'Not Weight Related' ? 'What are some of your goals?' : 'What other goals do you have?'}
                                 onContinue={() => { formPage === otherGoalScreen && setFormPage(otherGoalScreen + 0.5) }}
                                 disableAnimation={false}
                             />
@@ -429,7 +428,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 currentWeight={imperial.weight ? formResponses.weight.lbs : formResponses.weight.kgs}
                                 targetWeight={imperial.weight ? formResponses.targetWeight.lbs : formResponses.targetWeight.kgs}
                                 usesImperial={imperial.weight}
-                                interstitialNumber={2}
+                                interstitialNumber={1.2}
                                 onContinue={() => { formPage === 'interstitial2' && setFormPage(otherGoalScreen + 1) }}
                             />
                         }

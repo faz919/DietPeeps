@@ -94,7 +94,7 @@ const WeightGoalSelectorPage = ({ containerStyle, onSelectResponse, disableAnima
     )
 }
 
-const OtherGoalSelectorPage = ({ selectedGoals, customTitle, onSelectGoal, onContinue, disableAnimation }) => {
+const OtherGoalSelectorPage = ({ selectedGoals, onSelectGoal, onContinue, disableAnimation }) => {
 
     const goals = [
         'Eat healthy',
@@ -133,7 +133,7 @@ const OtherGoalSelectorPage = ({ selectedGoals, customTitle, onSelectGoal, onCon
         <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }} style={{ justifyContent: 'space-around', marginHorizontal: 32 }}>
             <View style={styles.ViewD2}>
                 <Text style={[styles.headline1, { color: '#202060', marginBottom: 20 }]}>
-                    {customTitle || 'What other goals do you have?'}
+                    What are some of your goals?
                 </Text>
             </View>
             <ScrollView showsVerticalScrollIndicator={false} style={{
@@ -545,9 +545,9 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
                             `You're already making progress!`
                     }
                 </Text>
-                <Text style={[styles.loadingScreenText, { marginTop: -15, marginBottom: 15, fontSize: 22, fontWeight: '600' }]}>
+                {interstitialNumber === 2 && <Text style={[styles.loadingScreenText, { marginTop: -15, marginBottom: 15, fontSize: 22, fontWeight: '600' }]}>
                     {`In ${numWeeks} weeks, you'll ${loseWeightGoal ? 'lose' : 'gain'} ${Math.abs(currentWeight - targetWeight)} ${usesImperial ? 'lbs' : 'kgs'}!`}
-                </Text>
+                </Text>}
             </View>
             <MotiView from={{ opacity: 0, translateY: 50 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: 50 }} transition={{ delay: 350, type: 'timing', duration: 500 }} style={{ width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
                     <LineChart
@@ -559,7 +559,8 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
                                 {
                                     data: Array(8).fill(null).map((w, index) => {
                                         const weightValue = loseWeightGoal ? currentWeight - ((currentWeight - targetWeight) * (Math.ceil((numWeeks * index) / 7) / numWeeks)) : currentWeight + ((targetWeight - currentWeight) * (Math.ceil((numWeeks * index) / 7) / numWeeks))
-                                        return (index === 0 || index === 7 || targetWeight === currentWeight) ? weightValue : weightValue + (varAmount - (varAmount * 2 * Math.random()))
+                                        return weightValue
+                                        // return (index === 0 || index === 7 || targetWeight === currentWeight) ? weightValue : weightValue + (varAmount - (varAmount * 2 * Math.random()))
                                     }),
                                     color: (opacity = 1) => `rgba(76, 68, 212, ${opacity})`,
                                     strokeWidth: 2
@@ -739,6 +740,8 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
         }
     ]
 
+    const [selectedOffer, setSelectedOffer] = useState(1)
+
     return (
         <>
             <ScrollView
@@ -759,7 +762,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                     }}
                 >
                     <View style={{ width: windowWidth, paddingHorizontal: 20 }}>
-                        <MotiText style={[styles.loadingScreenText, { marginTop: windowHeight / 4 }]}>
+                        <MotiText numberOfLines={1} adjustsFontSizeToFit style={[styles.loadingScreenText, { marginTop: windowHeight / 4 }]}>
                             Congratulations!
                         </MotiText>
                         <MotiText
@@ -792,6 +795,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginVertical: 20 }}>
                             {offerSheet.map((offerDetails, index) => (
                                 <MotiView 
+                                    key={index} 
                                     from={{ opacity: 0, translateY: 20 }} 
                                     animate={{ opacity: offerDetails.paid ? 1 : 0.7, translateY: offerDetails.paid ? -10 : 10 }} 
                                     transition={{ type: 'timing', delay: 900 + (200 * index) }} 
@@ -807,7 +811,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                                     <Text style={{ color: '#202060', fontSize: 22 }}>{offerDetails.name}</Text>
                                     <View style={{ alignItems: 'flex-start' }}>
                                     {offerDetails.offers.map((o, index) => (
-                                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                        <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                             <Icon
                                                 name={'checkmark'}
                                                 size={20}
@@ -851,6 +855,16 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                             </View>
                         </View>
                         <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginVertical: 5 }} />
+                        <View style={{ alignItems: 'center', marginVertical: 5 }}>
+                            <Text numberOfLines={1} adjustsFontSizeToFit style={styles.panelTitle}>Weight Goal Guarantee</Text>
+                            <Text numberOfLines={7} adjustsFontSizeToFit style={{ color: '#202060', textAlign: 'center', fontSize: 18 }}>
+                                We are committed to ensuring all of our clients reach their designated weight goal. If you complete all the steps of the program and still don't reach your weight goal, you'll receive
+                                <Text style={{ fontWeight: '700' }}> full recompensation. </Text>
+                                That means you'll get
+                                <Text style={{ fontWeight: '700' }}> all your money back.</Text>
+                            </Text>
+                        </View>
+                        <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginVertical: 5 }} />
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'center' }}>
                             <Text style={{ fontSize: 50, color: '#202060', fontWeight: '700' }}>{NUM_PEOPLE_HELPED}</Text>
                             <Text style={{ fontSize: 40, color: '#202060', fontWeight: '700' }}> people</Text>
@@ -885,7 +899,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                     <View style={{ width: windowWidth, alignItems: 'center', justifyContent: 'center' }}>
                         <View style={{ padding: 10, width: 110, justifyContent: 'center', flexDirection: 'row', backgroundColor: '#fff', borderRadius: 15, borderWidth: 1, borderColor: '#202060' }}>
                             {testimonialsSecondBatch.map((item, index) => (
-                                <MotiView from={{ scale: 0, width: 10, backgroundColor: '#BDB9DB' }} animate={{ scale: 1, width: index === visibleT ? 20 : 10, backgroundColor: index === visibleT ? '#4C44D4' : '#BDB9DB' }} transition={{ type: 'timing' }} key={index} style={{ height: 10, borderRadius: 5, marginHorizontal: 5 }} />
+                                <MotiView key={index} from={{ scale: 0, width: 10, backgroundColor: '#BDB9DB' }} animate={{ scale: 1, width: index === visibleT ? 20 : 10, backgroundColor: index === visibleT ? '#4C44D4' : '#BDB9DB' }} transition={{ type: 'timing' }} style={{ height: 10, borderRadius: 5, marginHorizontal: 5 }} />
                             ))}
                         </View>
                     </View>
@@ -984,47 +998,6 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                 </TouchableOpacity>
             </MotiView>
         </>
-    )
-}
-
-const WeightGoalGuaranteeModal = ({ visible, toggleVisibility, onContinue }) => {
-    return (
-        <Modal
-            isVisible={visible}
-            avoidKeyboard={true}
-            onBackButtonPress={toggleVisibility}
-            useNativeDriverForBackdrop
-            onBackdropPress={toggleVisibility}
-            onSwipeComplete={toggleVisibility}
-            swipeDirection={['down']}
-            swipeThreshold={50}
-            animationInTiming={400}
-            animationOutTiming={400}
-        >
-            <View style={styles.panel}>
-                <View style={{ alignItems: 'center' }}>
-                    <Text style={styles.panelTitle}>Weight Goal Guarantee</Text>
-                    <Text style={{ color: '#202060', textAlign: 'left', fontSize: 18 }}>
-                        We are committed to ensuring all of our clients 
-                        If you complete all the steps of the program and still don't reach your weight goal, you'll receive
-                        <Text style={{ fontWeight: '700' }}>full recompensation.</Text>
-                        That means you'll get
-                        <Text style={{ fontWeight: '700' }}>all your money back.</Text>
-                    </Text>
-                </View>
-                <View style={styles.View_4v}>
-                    <TouchableOpacity
-                        onPress={finishForm}
-                        style={[
-                            styles.ButtonSolidQB,
-                            { backgroundColor: '#4C44D4' },
-                        ]}
-                    >
-                        <Text style={styles.panelButtonText}>{'Continue'}</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </Modal>
     )
 }
 
@@ -1231,7 +1204,9 @@ const styles = StyleSheet.create({
     panelTitle: {
         fontSize: 27,
         height: 35,
-        color: '#202060'
+        color: '#202060',
+        marginBottom: 5,
+        fontWeight: '700'
     },
     panelSubtitle: {
         fontSize: 14,
