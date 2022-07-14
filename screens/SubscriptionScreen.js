@@ -56,8 +56,8 @@ const SubscriptionScreen = ({ navigation, route }) => {
     const fetchOfferings = async () => {
         try {
             const subscriptions = await Purchases.getOfferings()
-            // console.log(subscriptions.current.availablePackages[0].product)
-            subscriptions.current != null && setSubscription(subscriptions.current)
+            console.log(subscriptions.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')))
+            subscriptions.current.availablePackages.find((pkg) => pkg.identifier === '$rc_monthly') != null && setSubscription(subscriptions.current.availablePackages.find((pkg) => pkg.identifier === '$rc_monthly'))
             setLoading(false)
         } catch (e) {
             console.error('error while retrieving subscriptions: ', e)
@@ -78,7 +78,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
             )
             return
         }
-        buySubscription(subscription.availablePackages[0])
+        buySubscription(subscription)
     }
 
     const handleNotNowPress = () => {
@@ -146,7 +146,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
                 <View style={styles.ViewT7}>
                     <View style={{ borderRadius: windowHeight / 20, borderWidth: 1, borderColor: '#202060', justifyContent: 'center', flexDirection: 'row', alignItems: 'baseline', height: windowHeight / 10, minWidth: windowWidth / 2, paddingTop: windowHeight / 40, paddingHorizontal: 20, marginVertical: windowHeight > 700 ? 0 : windowHeight / 20 }}>
                         {/* <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>$</Text> */}
-                        {subscription && <Text style={{ color: '#202060', fontSize: windowHeight / 15, lineHeight: windowHeight / 15 }}>{(subscription.availablePackages[0]?.product?.price_string)}</Text>}
+                        {subscription && <Text style={{ color: '#202060', fontSize: windowHeight / 15, lineHeight: windowHeight / 15 }}>{(subscription.product?.price_string)}</Text>}
                         <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>/month</Text>
                     </View>
                     <View style={styles.ViewsW}>

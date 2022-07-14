@@ -15,7 +15,7 @@ const CoachProfile = ({ navigation }) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
       <View style={styles.ViewWi}>
         <ImageBackground onLoad={() => setLoading(false)} style={[styles.Image_9l, { backgroundColor: '#e6e7fa' }]}
-          source={{ uri: globalVars.coachData?.photoURL }}
+          source={{ uri: globalVars.coachData?.photoURLHighRes ? globalVars.coachData?.photoURLHighRes : globalVars.coachData?.photoURL }}
         >
           {loading &&
             <SkeletonPlaceholder backgroundColor='#BDB9DB' highlightColor='#e6e7fa' speed={1000}>
@@ -49,7 +49,9 @@ const CoachProfile = ({ navigation }) => {
         </Text>
 
         <View style={styles.ViewuK}>
+        {globalVars.coachData.coachInfo?.interests.map((interest, index) => (
           <View
+            key={index}
             style={[
               styles.ViewIr,
               {
@@ -61,41 +63,10 @@ const CoachProfile = ({ navigation }) => {
             <Text
               style={[styles.TextG2, { color: '#fff' }]}
             >
-              {globalVars.coachData.coachInfo?.interests[0]}
+              {interest}
             </Text>
           </View>
-
-          <View
-            style={[
-              styles.Viewaj,
-              {
-                backgroundColor: '#202060',
-                borderRadius: 10,
-              },
-            ]}
-          >
-            <Text
-              style={[styles.TextbA, { color: '#fff' }]}
-            >
-              {globalVars.coachData.coachInfo?.interests[1]}
-            </Text>
-          </View>
-
-          <View
-            style={[
-              styles.ViewrX,
-              {
-                backgroundColor: '#202060',
-                borderRadius: 10,
-              },
-            ]}
-          >
-            <Text
-              style={[styles.Text_1J, { color: '#fff' }]}
-            >
-              {globalVars.coachData.coachInfo?.interests[2]}
-            </Text>
-          </View>
+        ))}
         </View>  
         </>}
       </View>
@@ -103,33 +74,6 @@ const CoachProfile = ({ navigation }) => {
     </SafeAreaView>
   )
 }
-
-
-        // <View style={styles.ViewEk}>
-        //   <TouchableOpacity>
-        //     <FontAwesome
-        //       color='#202060'
-        //       size={24}
-        //       name='twitter-square'
-        //     />
-        //   </TouchableOpacity>
-
-        //   <TouchableOpacity>
-        //     <FontAwesome
-        //       color='#202060'
-        //       size={24}
-        //       name='google-plus-square'
-        //     />
-        //   </TouchableOpacity>
-
-        //   <TouchableOpacity style={styles.TouchableOpacityLv}>
-        //     <FontAwesome
-        //       color='#202060'
-        //       size={24}
-        //       name='facebook-square'
-        //     />
-        //   </TouchableOpacity>
-        // </View> 
 
 const styles = StyleSheet.create({
   Image_9l: {

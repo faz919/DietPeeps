@@ -455,7 +455,7 @@ const Chat = ({ navigation, route }) => {
                                     setShowExtraDaysButton(false)
                                     // if we're not manually extending their trial period, cut them off
                                     daysSinceJoin >= extraTrialDays + 3 && !usr.manuallyExtendedTrialPeriod && setTrialPeriodFinished(true)
-                                } else {
+                                } else if (!usr.extraTrialDaysGiven) {
                                     // if they haven't asked for extra days, give them the option
                                     setShowExtraDaysButton(true)
                                 }
@@ -483,13 +483,13 @@ const Chat = ({ navigation, route }) => {
         }
     }, [user])
 
-    useEffect(() => {
-        // check if user has completed onboarding
-        if (globalVars.userData != null && globalVars.userData?.userBioData == null && globalVars.userBioData == null) {
-            // setWizardRedirected(true)
-            return navigation.replace('Onboarding Wizard')
-        }
-    }, [globalVars.userData])
+    // useEffect(() => {
+    //     // check if user has completed onboarding
+    //     if (globalVars.userData != null && globalVars.userData?.userBioData == null && globalVars.userBioData == null) {
+    //         // setWizardRedirected(true)
+    //         return navigation.replace('Onboarding Wizard')
+    //     }
+    // }, [globalVars.userData])
 
     useEffect(() => {
         if (trialPeriodFinished != null && globalVars.userData != null && globalVars.userData.trialPeriod !== !trialPeriodFinished) {
@@ -990,17 +990,21 @@ const Chat = ({ navigation, route }) => {
         const joinDate = new Date(user.metadata.creationTime)
         const oneDay = 60 * 60 * 1000 * 24
         const daysSinceJoin = Math.floor((new Date() - joinDate) / oneDay)
+        updateInfo({
+            extraTrialDaysGiven: true
+        })
         await AsyncStorage.setItem('extra_days', JSON.stringify(daysSinceJoin))
         setTrialPeriodFinished(false)
     }
 
     const openChatCameraPicker = async () => {
-        setAttachingImage(val => ({ ...val, visible: true }))
+        // setAttachingImage(val => ({ ...val, visible: true }))
         await analytics().logScreenView({
             screen_name: 'CameraModalChatButton',
             screen_class: 'CameraModalChatButton'
         })
         mixpanel.track('Screen View', { 'Screen': 'CameraModalChatButton' })
+        navigation.navigate('CameraModal')
     }
 
     const handleStatSummaryPress = () => {
@@ -1280,43 +1284,6 @@ const Chat = ({ navigation, route }) => {
                                 </MotiView>}
                         </View>
                     </MotiView>
-                    {/* camera modal, exact same as one that pops up when pressing camera button in middle of bottom bar */}
-                    {/* i have no idea why i don't just navigate the user to that bottom bar modal when they press the other camera button... */}
-                    <Modal
-                        isVisible={attachingImage.visible}
-                        avoidKeyboard={true}
-                        onBackButtonPress={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}
-                        useNativeDriverForBackdrop
-                        onBackdropPress={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}
-                        onSwipeComplete={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}
-                        swipeDirection={['down']}
-                        swipeThreshold={50}
-                        animationInTiming={400}
-                        animationOutTiming={400}
-                    >
-                        <View style={styles.panel}>
-                            <View style={{ alignItems: 'center' }}>
-                                <Text style={styles.panelTitle}>Choose Photos</Text>
-                                <Text style={styles.panelSubtitle}>Take one photo, or choose up to five from camera roll.</Text>
-                            </View>
-                            <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
-                                <Text style={styles.panelButtonTitle}>Take Photo</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.panelButton} onPress={choosePhotosFromLibrary}>
-                                <Text style={styles.panelButtonTitle}>Choose Photos From Library</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.panelButton}
-                                onPress={() => setAttachingImage(val => ({ ...val, visible: false, loading: false }))}>
-                                <Text style={styles.panelButtonTitle}>Cancel</Text>
-                            </TouchableOpacity>
-                            {attachingImage.loading ?
-                                <View style={styles.modalLoading}>
-                                    <ActivityIndicator size={35} color="#BDB9DB" />
-                                </View>
-                                : null}
-                        </View>
-                    </Modal>
                 </View>
             </SafeAreaView>
             {/* overlay that shows message options when holding down on a message */}

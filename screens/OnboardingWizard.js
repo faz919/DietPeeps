@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity, TextInput, Platform } from 'react-native'
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity, TextInput, Platform, Alert } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { windowHeight, windowWidth } from '../utils/Dimensions.js'
 import { AuthContext } from '../navigation/AuthProvider.js'
@@ -22,17 +22,37 @@ import {
     OtherGoalSelectorPage,
     ReferralCodePage,
     WeightGoalSelectorPage,
+    CoachProfilePage,
     WeightSelector,
     WizardFinalPage,
-    TestimonialInterstitial
+    TestimonialInterstitial,
+    IntroExplainerPage,
+    TrialPricePage
 } from '../components/OnboardingComponents.js'
+import Purchases from 'react-native-purchases'
 
 const OnboardingWizard = ({ navigation }) => {
 
-    const { mixpanel, user, updateInfo, setGlobalVars } = useContext(AuthContext)
+    const { mixpanel, user, updateInfo, globalVars, setGlobalVars } = useContext(AuthContext)
     // get all partner data
     const [partnerInfo, setPartnerInfo] = useState([])
+    // get optional trial price data
+    const [optionalTrialPriceChoices, setOptionalTrialPriceChoices] = useState([])
+    const fetchOfferings = async () => {
+        try {
+            const trialPrices = await Purchases.getOfferings()
+            // console.log(trialPrices.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')))
+            trialPrices.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')) && setOptionalTrialPriceChoices(trialPrices.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')))
+        } catch (e) {
+            console.error('error while retrieving subscriptions: ', e)
+            Alert.alert(
+                'Error while retrieving subscriptions',
+                'Please try again later.'
+            )
+        }
+    }
     useEffect(() => {
+        fetchOfferings()
         firestore()
             .collection('partner-info')
             .get()
@@ -44,6 +64,79 @@ const OnboardingWizard = ({ navigation }) => {
                 })
             })
     }, [])
+
+    // loading for trial payment button
+    const [trialPaymentLoading, setTrialPaymentLoading] = useState(false)
+    // function that handles user attempting to pay for trial
+    const handleTrialPay = (option) => {
+        setTrialPaymentLoading(true)
+        mixpanel.track('Attempted to Pay for Trial')
+        if (option == null) {
+            Alert.alert(
+                'Error while making purchase',
+                'Please try again later.'
+            )
+            return
+        }
+        payForTrial(option)
+    }
+
+    // function that pays for trial, if user decides to
+    const payForTrial = async (option) => {
+        try {
+            const { purchaserInfo, productIdentifier } = await Purchases.purchasePackage(option)
+            // console.log(purchaserInfo)
+            if (typeof purchaserInfo.entitlements.active['Purchased Trial'] !== 'undefined') {
+                mixpanel.track('Paid for Trial', { 'PaymentInfo': JSON.stringify(purchaserInfo) })
+                mixpanel.getPeople().set('Paid For Trial', true)
+                console.log('Success!')
+                updateInfo({ paidForTrial: true, trialPaymentInfo: { purchaserInfo } })
+                setTrialPaymentLoading(false)
+                setFormPage(referralCodeScreen + 1)
+            } 
+            // else {
+            //     console.error('Unable to purchase subscription, or check subscription status. Please try again.')
+            //     setLoading(false)
+            // }
+        } catch (e) {
+            console.error('error while making purchase: ', e)
+            Alert.alert(
+                'Error while making purchase',
+                'Please try again later.'
+            )
+            setTrialPaymentLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        console.log(trialPaymentLoading)
+    }, [trialPaymentLoading])
+
+    // get the user's coach info
+    const [coachInfo, setCoachInfo] = useState(null)
+    useEffect(() => {
+        // if the user is logged in, run a snapshot listener on their user-info doc to get their coach's ID and info
+        if (user) {
+            firestore()
+            .collection('user-info')
+            .doc(user.uid)
+            .onSnapshot((userDoc) => {  
+                const data = userDoc.data()
+                setGlobalVars(val => ({ ...val, userData: data }))
+                if (data.completedNewUserProcess || data.coachID) {
+                    if (coachInfo == null) {
+                        firestore()
+                            .collection('user-info')
+                            .doc(data.coachID)
+                            .get()
+                            .then((coachData) => {
+                                setCoachInfo({ ...coachData.data(), id: coachData.id })
+                            })
+                    }
+                }
+            })
+        }
+    }, [user])
     // set default values. based on intl avg height and weight metrics
     const [formResponses, setFormResponses] = useState({
         mealTimes: [],
@@ -67,6 +160,7 @@ const OnboardingWizard = ({ navigation }) => {
     // how many pages in the form
     const formLength = 9
     // const weightGoalScreen = 5
+    const introScreen = 0
     const otherGoalScreen = 5
     const genderScreen = 1
     const dobScreen = 2
@@ -76,7 +170,7 @@ const OnboardingWizard = ({ navigation }) => {
     // on what page does the user pick meal times. important because the functionality of the continue button is different on this page
     const mealPickerScreen = 7
     const referralCodeScreen = 8
-    const [formPage, setFormPage] = useState(1)
+    const [formPage, setFormPage] = useState(0)
     // is current wizard synced with responses fetched from asyncstorage
     const [synced, setSynced] = useState(false)
     const insets = useSafeAreaInsets()
@@ -102,28 +196,61 @@ const OnboardingWizard = ({ navigation }) => {
         }
     }
 
+    // check if the current form page contains any letter...it is a stupid and janky workaround that's required for a stupid and janky package known as react native async storage.
+    function containsAnyLetter(str) {
+        return /[a-zA-Z]/.test(str)
+    }
+
     // takes the values that the user has already answered on a previous session and syncs them with the current session
     useEffect(() => {
+        console.log(formPage)
         if (!synced) {
             AsyncStorage.getItem('@onboarding_responses').then((value) => {
+                console.log('onbasoidjaosij value is', value)
                 if (value == null) {
                     setSynced(true)
                 } else {
                     setFormResponses(val => ({ ...val, ...JSON.parse(value) }))
                     AsyncStorage.getItem('@onboarding_page').then((value) => {
+                        console.log('Hello value is', value)
                         if (value == null) {
                             setSynced(true)
                         } else {
-                            setFormPage(JSON.parse(value))
+                            setFormPage(containsAnyLetter(value) ? value : JSON.parse(value))
                             setSynced(true)
                         }
                     })
                 }
             })
         }
+        console.log('synced?', synced)
         // modify data when user navigates to different form page
         synced && AsyncStorage.setItem('@onboarding_responses', JSON.stringify(formResponses))
-        synced && AsyncStorage.setItem('@onboarding_page', JSON.stringify(formPage))
+        synced && AsyncStorage.setItem('@onboarding_page', typeof formPage === 'string' ? formPage : JSON.stringify(formPage))
+        if (formPage === 'signup') {
+            if (user) {
+                setFormPage(mealPickerScreen + 0.5)
+            } else {
+                navigation.navigate('Signup')
+            }
+        } 
+        // for the loading screen pages to automatically navigate to next page after 3 seconds. can't do this via onDidAnimate method of motiviews because it gets called twice
+        // (also gets called on exit animation)
+        if (formPage === targetWeightScreen + 0.5) {
+            setTimeout(() => {
+                setFormPage('interstitial1')
+            }, 3000)
+        }
+        if (formPage === otherGoalScreen + 0.5) {
+            setTimeout(() => {
+                setFormPage('interstitial2')
+            }, 3000)
+        }
+        if (formPage === mealPickerScreen + 0.5) {
+            setTimeout(() => {
+                setFormPage('coachProfile')
+            }, 3000)
+        }
     }, [formPage])
 
     const finishForm = async () => {
@@ -133,7 +260,8 @@ const OnboardingWizard = ({ navigation }) => {
             formResponses.referralCode && mixpanel.getPeople().set('Referral Code', formResponses.referralCode)
         }
         // onboarding wizard is in both authstack and app stack, so attempt to navigate to either screen
-        navigation.navigate('Signup') || navigation.navigate('Main Menu')
+        AsyncStorage.setItem('hasCompletedWizard', 'true')
+        user ? navigation.replace('Main Menu') : navigation.replace('Signup')
     }
 
     const handleSubButtonPress = () => {
@@ -141,14 +269,10 @@ const OnboardingWizard = ({ navigation }) => {
         finishForm()
     }
 
-    // useEffect(() => {
-    //     console.log('rerender')
-    // }, [])
-
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
             <AnimatePresence>
-                {typeof formPage === 'number' && formPage < formLength + 1 &&
+                {typeof formPage === 'number' && formPage < formLength + 1 && formPage > 0 &&
                     <MotiView key={'progress-bar'} from={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 10 }} exit={{ opacity: 0, height: 0 }} transition={{ type: 'timing' }} style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, marginTop: Platform.OS === 'ios' ? 0 : 10, flexDirection: 'row' }}>
                         {/* progress bar square thingies at the top of the screen */}
                         {Array.apply(null, { length: formLength }).map((i, index) =>
@@ -176,6 +300,19 @@ const OnboardingWizard = ({ navigation }) => {
             <KeyboardAwareScrollView contentContainerStyle={{ flex: 2 }} bounces={false} overScrollMode='never'>
                 <View style={styles.ViewT7}>
                     <AnimatePresence exitBeforeEnter>
+                        {formPage === introScreen &&
+                            <IntroExplainerPage 
+                                key={`page${introScreen}`}
+                                onContinue={() => setFormPage('testimonialInterstitial1')}
+                            />
+                        }
+                        {formPage === 'testimonialInterstitial1' &&
+                            <TestimonialInterstitial
+                                key={'testimonialInterstitial1'}
+                                batchNumber={1}
+                                onContinue={() => setFormPage(genderScreen)}
+                            />
+                        }
                         {formPage === genderScreen &&
                             <GenderSelectorPage
                                 key={`page${genderScreen}`}
@@ -311,11 +448,6 @@ const OnboardingWizard = ({ navigation }) => {
                                 exitTransition={{
                                     duration: 300
                                 }}
-                                onDidAnimate={() => {
-                                    setTimeout(() => {
-                                        setFormPage('interstitial1')
-                                    }, 3000)
-                                }}
                             >
                                 <MotiText
                                     style={styles.loadingScreenText}
@@ -399,11 +531,6 @@ const OnboardingWizard = ({ navigation }) => {
                                 exitTransition={{
                                     duration: 300
                                 }}
-                                onDidAnimate={() => {
-                                    setTimeout(() => {
-                                        setFormPage('interstitial2')
-                                    }, 3000)
-                                }}
                             >
                                 <MotiText
                                     style={styles.loadingScreenText}
@@ -428,7 +555,7 @@ const OnboardingWizard = ({ navigation }) => {
                                 currentWeight={imperial.weight ? formResponses.weight.lbs : formResponses.weight.kgs}
                                 targetWeight={imperial.weight ? formResponses.targetWeight.lbs : formResponses.targetWeight.kgs}
                                 usesImperial={imperial.weight}
-                                interstitialNumber={1.2}
+                                interstitialNumber={2}
                                 onContinue={() => { formPage === 'interstitial2' && setFormPage(otherGoalScreen + 1) }}
                             />
                         }
@@ -455,9 +582,17 @@ const OnboardingWizard = ({ navigation }) => {
                                         setFormResponses(val => ({ ...val, mealTimes: newArr }))
                                     }
                                     // only go to next page (loading screen) if all the meal times have been selected
-                                    editingMealTime == formResponses.mealCount ? setFormPage(mealPickerScreen + 0.5) : editingMealTime < formResponses.mealCount && setEditingMealTime(editingMealTime + 1)
+                                    editingMealTime == formResponses.mealCount ? setFormPage('testimonialInterstitial2') : editingMealTime < formResponses.mealCount && setEditingMealTime(editingMealTime + 1)
                                 }}
                                 disableContainerAnimation={false}
+                            />
+                        }
+                        {formPage === 'testimonialInterstitial2' && 
+                            <TestimonialInterstitial
+                                key={'testimonialInterstitial2'}
+                                batchNumber={2}
+                                usesImperial={imperial.weight}
+                                onContinue={() => setFormPage('signup')}
                             />
                         }
                         {formPage === mealPickerScreen + 0.5 &&
@@ -472,11 +607,6 @@ const OnboardingWizard = ({ navigation }) => {
                                 }}
                                 exitTransition={{
                                     duration: 300
-                                }}
-                                onDidAnimate={() => {
-                                    setTimeout(() => {
-                                        setFormPage('testimonialInterstitial')
-                                    }, 3000)
                                 }}
                             >
                                 <MotiText
@@ -518,20 +648,31 @@ const OnboardingWizard = ({ navigation }) => {
                                 </MotiView>
                             </MotiView>
                         }
-                        {formPage === 'testimonialInterstitial' && 
-                            <TestimonialInterstitial
-                                key={'testimonialInterstitial'}
-                                usesImperial={imperial.weight}
-                                onContinue={() => { formPage === 'testimonialInterstitial' && setFormPage(mealPickerScreen + 1) }}
-                            />
+                        {formPage === 'coachProfile' && 
+                            <CoachProfilePage
+                                key={`coachProfile`}
+                                coachData={coachInfo}
+                                disableAnimation={false}
+                                onContinue={() => setFormPage(mealPickerScreen + 1)}
+                            />    
                         }
                         {formPage === referralCodeScreen &&
                             <ReferralCodePage
                                 key={`page${referralCodeScreen}`}
                                 partnerInfo={partnerInfo}
-                                onContinueWithReferral={(code) => { setFormResponses(val => ({ ...val, referralCode: code })); formPage === referralCodeScreen && setFormPage(referralCodeScreen + 1) }}
-                                onContinueNoReferral={() => formPage === referralCodeScreen && setFormPage(referralCodeScreen + 1)}
+                                onContinueWithReferral={(code) => { setFormResponses(val => ({ ...val, referralCode: code })); formPage === referralCodeScreen && setFormPage('trialPrice') }}
+                                onContinueNoReferral={() => setFormPage('trialPrice')}
                                 disableAnimation={false}
+                            />
+                        }
+                        {formPage === 'trialPrice' && 
+                            <TrialPricePage
+                                key={'trialPrice'}
+                                trialPrices={optionalTrialPriceChoices}
+                                purchaseTrial={handleTrialPay}
+                                paidForTrial={globalVars.userData?.paidForTrial}
+                                loading={trialPaymentLoading}
+                                onContinue={() => setFormPage(referralCodeScreen + 1)}
                             />
                         }
                         {formPage === formLength &&
@@ -546,11 +687,11 @@ const OnboardingWizard = ({ navigation }) => {
             </KeyboardAwareScrollView>
             <AnimatePresence>
                 {/* back button */}
-                {formPage > 1 && Number.isSafeInteger(formPage) &&
+                {formPage > 0 && Number.isSafeInteger(formPage) &&
                     <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 20 : 20, left: 20 }}>
                         {/* either go back to previous meal time picker, or go back to previous page */}
                         <TouchableOpacity onPress={() => { 
-                            if (formPage > 1 && Number.isSafeInteger(formPage)) {
+                            if (formPage > 0 && Number.isSafeInteger(formPage)) {
                                 if (formPage === mealPickerScreen && editingMealTime > 1) {
                                     setEditingMealTime(editingMealTime - 1)
                                 } else {

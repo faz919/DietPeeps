@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { Platform, View } from "react-native"
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -23,6 +23,7 @@ import SubscriptionScreen from "../screens/SubscriptionScreen.js"
 import WeighInModal from "../screens/WeighInModal.js"
 import NotificationSettings from "../screens/NotificationSettings.js"
 import EditUserDataScreen from "../screens/EditUserDataScreen.js"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 // screen navigator
 const AppStack = createStackNavigator()
@@ -82,8 +83,34 @@ const MainMenu = () => {
 }
 
 const App = () => {
+
+  const [completedWizard, setCompletedWizard] = useState(null)
+  let initialRoute
+  
+  useEffect(() => {
+    AsyncStorage.getItem('hasCompletedWizard').then((value) => {
+      console.log(value, typeof value)
+      if (value == null || value === 'false') {
+        setCompletedWizard(false)
+        return
+      }
+      if (value === 'true') {
+        setCompletedWizard(true)
+        return
+      }
+    })
+  }, [])
+
+  if (completedWizard == null) {
+    return null
+  } else if (completedWizard == true) {
+    initialRoute = 'Main Menu'
+  } else {
+    initialRoute = 'Onboarding Wizard'
+  }
+
   return (
-    <AppStack.Navigator initialRouteName={'Main Menu'} >
+    <AppStack.Navigator initialRouteName={initialRoute} >
       <AppStack.Screen name="Main Menu" component={MainMenu} options={{ headerShown: false }} />
       {/* <AppStack.Screen name="Photo Gallery" component={PhotoGallery} options={{ headerShown: false }} /> */}
       <AppStack.Screen name="Enable Notifs" component={EnableNotifsScreen} options={{ 

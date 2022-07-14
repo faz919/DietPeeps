@@ -1,6 +1,6 @@
 import { AnimatePresence, MotiText, MotiView } from 'moti';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { ImageBackground, KeyboardAvoidingView, Linking, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, ImageBackground, KeyboardAvoidingView, Linking, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Easing } from 'react-native-reanimated'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -15,7 +15,263 @@ import { FlatList } from 'react-native-gesture-handler'
 import { testimonialsFirstBatch, testimonialsSecondBatch } from '../data/testimonials'
 import LinearGradient from 'react-native-linear-gradient'
 import { Area, Chart, HorizontalAxis, Line, Tooltip, VerticalAxis } from 'react-native-responsive-linechart'
-import { LineChart } from 'react-native-chart-kit';
+import { LineChart } from 'react-native-chart-kit'
+import ChatMessage from './ChatMessage';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+
+const IntroExplainerPage = ({ onContinue }) => {
+
+    const firstPageScrollViewRef = useRef()
+    const secondPageScrollViewRef = useRef()
+    
+    const [animationStep, setAnimationStep] = useState(0)
+
+    const [introPage, setIntroPage] = useState(1)
+
+    const pageChangeDelay = 700
+
+    useEffect(() => {
+        setTimeout(() => {
+            setAnimationStep(1)
+        }, 5000)
+        setTimeout(() => {
+            setAnimationStep(2)
+        }, 7000)
+        setTimeout(() => {
+            setAnimationStep(3)
+        }, 9000)
+        setTimeout(() => {
+            setAnimationStep(4)
+        }, 11000)
+    }, [])
+
+    return (
+        <MotiView from={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <AnimatePresence exitBeforeEnter>
+                {introPage === 1 && 
+                <MotiView key={`introPage1`} from={{ opacity: 0, translateY: 0 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing' }} style={{ marginHorizontal: 20 }}>
+                    <MotiView
+                        from={{ opacity: 0, scale: 0, translateY: 200 }}
+                        animate={{ opacity: 1, scale: 1, translateY: 0 }}
+                        transition={{
+                            translateY: {
+                                delay: 1000,
+                                duration: 1500,
+                                type: 'timing',
+                                easing: Easing.bezier(.69, 0, .01, .98)
+                            },
+                            scale: {
+                                duration: 1000,
+                                type: 'timing',
+                                easing: Easing.bezier(.69, 0, 0, 1.58)
+                            }
+                        }}
+                    >
+                        <View style={styles.ViewD2}>
+                            <Text style={[styles.headline2, { color: '#202060', marginBottom: 0 }]}>
+                                {'Welcome to DietPeeps!'}
+                            </Text>
+                        </View>
+                    </MotiView>
+                    <MotiView
+                        from={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        delay={1800}
+                    >
+                        <View style={styles.ViewD2}>
+                            <Text
+                                style={[
+                                    styles.headline1,
+                                    { color: '#202060', marginBottom: 0, marginTop: 5 },
+                                ]}
+                            >
+                                {`Here's how it works.`}
+                            </Text>
+                        </View>
+                    </MotiView>
+                    <MotiView
+                        from={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        delay={3800}
+                    >
+                        <View style={styles.ViewD2}>
+                            <Text
+                                style={[
+                                    styles.headline1,
+                                    { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844) },
+                                ]}
+                            >
+                                {`Send photos of your meals`}
+                            </Text>
+                        </View>
+                    </MotiView>
+                    <ScrollView
+                        ref={firstPageScrollViewRef}
+                        onContentSizeChange={() => firstPageScrollViewRef.current.scrollToEnd({ duration: 1500, animated: true })}
+                        overScrollMode={'never'}
+                        bounces={false}
+                        scrollEnabled
+                        showsVerticalScrollIndicator={false}
+                        style={{ overflow: 'hidden', height: windowHeight * 0.4 }}
+                    >
+                        {animationStep > 0 && <MotiView
+                            key={`step0`}
+                            from={{ opacity: 0, translateY: 20 }}
+                            animate={{ opacity: 1, translateY: 0 }}
+                            transition={{ type: 'timing' }}
+                        // delay={3000}
+                        >
+                            <ChatMessage
+                                item={{
+                                    img: [
+                                        {
+                                            url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/640px-Good_Food_Display_-_NCI_Visuals_Online.jpg'
+                                        }
+                                    ]
+                                }}
+                                outgoingMessage
+                                disablePress
+                            />
+                        </MotiView>}
+                        {animationStep > 1 && <MotiView
+                            key={`step1`}
+                            from={{ opacity: 0, translateY: 20 }}
+                            animate={{ opacity: 1, translateY: 0 }}
+                            transition={{ type: 'timing' }}
+                        // delay={4000}
+                        >
+                            <ChatMessage
+                                item={{
+                                    msg: `Hey coach! Here's what I had for lunch today.`
+                                }}
+                                outgoingMessage
+                                disablePress
+                            />
+                        </MotiView>}
+                        {animationStep > 2 && <MotiView
+                            key={`step2`}
+                            from={{ opacity: 0, translateY: 20 }}
+                            animate={{ opacity: 1, translateY: 0 }}
+                            transition={{ type: 'timing' }}
+                        // delay={6000}
+                        >
+                            <ChatMessage
+                                item={{
+                                    img: [
+                                        {
+                                            url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/640px-Good_Food_Display_-_NCI_Visuals_Online.jpg',
+                                            graded: true,
+                                            grade: 82,
+                                            red: 0.75,
+                                            yellow: 3,
+                                            green: 8.5,
+                                            comment: `A healthy meal overall! Try to cut down on the sugar.`
+                                        }
+                                    ],
+                                    msg: `A healthy meal overall! Try to cut down on the sugar.`
+                                }}
+                                user={{
+                                    uid: '000000000000'
+                                }}
+                                outgoingMessage={false}
+                                disablePress
+                            />
+                        </MotiView>}
+                        {animationStep > 3 && <MotiView
+                            key={`step3`}
+                            from={{ opacity: 0, translateY: 20 }}
+                            animate={{ opacity: 1, translateY: 0 }}
+                            transition={{ type: 'timing' }}
+                        // delay={7000}
+                        >
+                            <ChatMessage
+                                item={{
+                                    msg: `Thanks so much!`
+                                }}
+                                outgoingMessage
+                                disablePress
+                            />
+                        </MotiView>}
+                    </ScrollView>
+                    <MotiView
+                        from={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        delay={10000}
+                    >
+                        <View style={styles.ViewD2}>
+                            <Text
+                                style={[
+                                    styles.headline1,
+                                    { color: '#202060', fontSize: windowHeight * (25 / 844) },
+                                ]}
+                            >
+                                {`and receive feedback from your personal coach.`}
+                            </Text>
+                        </View>
+                    </MotiView>
+                    <MotiView
+                        from={{ opacity: 0, translateY: 20 }}
+                        animate={{ opacity: 1, translateY: 0 }}
+                        transition={{ type: 'timing' }}
+                        delay={13000}
+                        style={styles.View_4v}
+                    >
+                        <TouchableOpacity
+                            onPress={() => setIntroPage(2)}
+                            style={[
+                                styles.ButtonSolidQB,
+                                { backgroundColor: '#4C44D4', marginTop: 0 },
+                            ]}
+                        >
+                            <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                        </TouchableOpacity>
+                    </MotiView>
+                </MotiView>}
+                {introPage === 2 && 
+                <MotiView key={`introPage2`} from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing', delay: pageChangeDelay }} exitTransition={{ type: 'timing', delay: 0 }} style={{ marginHorizontal: 20 }}>
+                    <View style={styles.ViewD2}>
+                        <Text
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844) },
+                            ]}
+                        >
+                            {`Take advantage of our daily course curriculum.`}
+                        </Text>
+                    </View>
+                    <ScrollView
+                        ref={secondPageScrollViewRef}
+                        overScrollMode={'never'}
+                        bounces={false}
+                        scrollEnabled
+                        showsVerticalScrollIndicator={false}
+                        style={{ overflow: 'hidden', height: windowHeight * 0.4 }}
+                    >
+
+                    </ScrollView>
+                    <MotiView
+                        from={{ opacity: 0, translateY: 20 }}
+                        animate={{ opacity: 1, translateY: 0 }}
+                        transition={{ type: 'timing' }}
+                        delay={pageChangeDelay + 1000}
+                        style={styles.View_4v}
+                    >
+                        <TouchableOpacity
+                            onPress={onContinue}
+                            style={[
+                                styles.ButtonSolidQB,
+                                { backgroundColor: '#4C44D4', marginTop: 0 },
+                            ]}
+                        >
+                            <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                        </TouchableOpacity>
+                    </MotiView>
+                </MotiView>}
+            </AnimatePresence>
+        </MotiView>
+    )
+}
 
 const WeightGoalSelectorPage = ({ containerStyle, onSelectResponse, disableAnimation, showTitle }) => {
     return (
@@ -209,7 +465,7 @@ const GenderSelectorPage = ({ onSelectResponse, disableAnimation, showTitle }) =
                             { color: '#202060', marginBottom: 20 },
                         ]}
                     >
-                        {'What is your gender?'}
+                        {'What is your sex?'}
                     </Text>
                 </View>
             </MotiView>
@@ -617,7 +873,7 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
     )
 }
 
-const TestimonialInterstitial = ({ usesImperial, onContinue }) => {
+const TestimonialInterstitial = ({ batchNumber, usesImperial, onContinue }) => {
 
     const [visibleT, setVisibleT] = useState(0)
 
@@ -631,13 +887,15 @@ const TestimonialInterstitial = ({ usesImperial, onContinue }) => {
 
     const viewabilityConfigCallbackPairs = useRef([{ viewabilityConfig, onViewableItemsChanged }])
 
+    const batch = batchNumber === 1 ? testimonialsFirstBatch : testimonialsSecondBatch
+
     return (
         <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <View style={{ width: windowWidth, paddingHorizontal: 20 }}>
+            {/* <View style={{ width: windowWidth, paddingHorizontal: 20 }}>
                 <Text style={[styles.loadingScreenText, { marginVertical: 20 }]}>
                     See what our clients have to say!
                 </Text>
-            </View>
+            </View> */}
             <FlatList
                 style={{ marginVertical: 10 }}
                 horizontal
@@ -645,20 +903,28 @@ const TestimonialInterstitial = ({ usesImperial, onContinue }) => {
                 snapToInterval={windowWidth}
                 decelerationRate='fast'
                 viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
-                data={testimonialsFirstBatch}
+                data={batch}
                 pagingEnabled
                 renderItem={({ item }) => (
                     <View key={item.displayName} style={{ overflow: 'hidden', width: windowWidth - 40, marginHorizontal: 20, borderRadius: 20, backgroundColor: '#fff', borderColor: '#202060', borderWidth: 1 }}>
                         <ImageBackground source={{ uri: item.photoURL }} style={{ width: '100%', height: windowHeight / 3, justifyContent: 'flex-end', alignItems: 'flex-start' }} imageStyle={{ borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
                             <Text style={{ fontWeight: '700', fontSize: 25, color: '#fff', marginLeft: 10, marginBottom: 5 }}>{item.displayName}</Text>
                         </ImageBackground>
-                        <View style={{ padding: 10, paddingTop: 5 }}>
-                            <Text adjustsFontSizeToFit style={{ marginTop: 5, fontWeight: '500', fontSize: 18, color: '#202060' }}>{item.testimonial}</Text>
-                            <View style={{ justifyContent: 'flex-end' }}>
-                                <Text adjustsFontSizeToFit style={{ marginTop: 8, fontWeight: '500', fontSize: 18, color: '#202060' }}><Text style={{ fontWeight: '700' }}>Initial Weight: </Text>{usesImperial ? item.weightStats.initial.lbs : item.weightStats.initial.kgs}</Text>
-                                <Text adjustsFontSizeToFit style={{ marginTop: 3, fontWeight: '500', fontSize: 18, color: '#202060' }}><Text style={{ fontWeight: '700' }}>Target Weight: </Text>{usesImperial ? item.weightStats.target.lbs : item.weightStats.target.kgs}</Text>
-                                <Text adjustsFontSizeToFit style={{ marginTop: 3, fontWeight: '500', fontSize: 18, color: '#202060' }}><Text style={{ fontWeight: '700' }}>Weight Goal Reached: </Text>{item.weightStats.numDays}</Text>
-                            </View>
+                        <View style={{ paddingHorizontal: 15, paddingVertical: 0 }}>
+                            <ScrollView
+                                showsVerticalScrollIndicator
+                                style={{
+                                    height: windowHeight / 3,
+                                    paddingVertical: 10
+                                }}
+                            >
+                                <Text adjustsFontSizeToFit style={{ marginTop: 5, fontWeight: '500', fontSize: 22, color: '#202060' }}>{item.testimonial}</Text>
+                                {item.weightStats && <View style={{ justifyContent: 'flex-end', flex: 1, marginBottom: 20 }}>
+                                    <Text adjustsFontSizeToFit style={{ marginTop: 8, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Initial Weight: </Text>{usesImperial ? item.weightStats?.initial?.lbs : item.weightStats?.initial?.kgs}</Text>
+                                    <Text adjustsFontSizeToFit style={{ marginTop: 3, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Target Weight: </Text>{usesImperial ? item.weightStats?.target?.lbs : item.weightStats?.target?.kgs}</Text>
+                                    <Text adjustsFontSizeToFit style={{ marginTop: 3, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Weight Goal Reached: </Text>{item.weightStats?.numDays}</Text>
+                                </View>}
+                            </ScrollView>
                         </View>
                     </View>
                 )}
@@ -666,7 +932,7 @@ const TestimonialInterstitial = ({ usesImperial, onContinue }) => {
             />
             <View style={{ width: windowWidth, alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{ padding: 10, width: 110, justifyContent: 'center', flexDirection: 'row', backgroundColor: '#fff', borderRadius: 15, borderWidth: 1, borderColor: '#202060' }}>
-                    {testimonialsFirstBatch.map((item, index) => (
+                    {batch.map((item, index) => (
                         <MotiView from={{ scale: 0, width: 10, backgroundColor: '#BDB9DB' }} animate={{ scale: 1, width: index === visibleT ? 20 : 10, backgroundColor: index === visibleT ? '#4C44D4' : '#BDB9DB' }} transition={{ type: 'timing' }} key={index} style={{ height: 10, borderRadius: 5, marginHorizontal: 5 }} />
                     ))}
                 </View>
@@ -676,6 +942,199 @@ const TestimonialInterstitial = ({ usesImperial, onContinue }) => {
                     onPress={onContinue}
                     style={[styles.ButtonSolidQB, { backgroundColor: '#4C44D4', marginTop: 20 }]}>
                     <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                </TouchableOpacity>
+            </View>
+        </MotiView>
+    )
+}
+
+const CoachProfilePage = ({ coachData, disableAnimation, onContinue }) => {
+    const [loading, setLoading] = useState(true)
+    return (
+        <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }}>
+            <View style={styles.ViewD2}>
+                <Text
+                    style={[
+                        styles.headline1,
+                        { color: '#202060' },
+                    ]}
+                >
+                    Meet your personal coach!
+                </Text>
+            </View>
+            <View style={styles.ViewWi}>
+                <ImageBackground onLoad={() => setLoading(false)} style={[styles.Image_9l, { backgroundColor: '#e6e7fa' }]}
+                    source={{ uri: coachData?.photoURLHighRes ? coachData?.photoURLHighRes : coachData?.photoURL }}
+                >
+                    {loading &&
+                        <SkeletonPlaceholder backgroundColor='#BDB9DB' highlightColor='#e6e7fa' speed={1000}>
+                            <View style={styles.Image_9l} />
+                        </SkeletonPlaceholder>}
+                    <LinearGradient style={{ height: 50, flex: 1 }} colors={['rgba(230,231,250,1)', 'rgba(230,231,250,0)', 'rgba(230,231,250,0)', 'rgba(230,231,250,0)', 'rgba(230,231,250,1)']} />
+                </ImageBackground>
+            </View>
+            <View style={styles.ViewmY}>
+                <View style={styles.ViewvG}>
+                    <Text style={[styles.TextOd, { color: '#202060' }]}>
+                        {coachData?.displayName}
+                    </Text>
+                    <MaterialCommunityIcons
+                        color={'#202060'}
+                        size={20}
+                        name='check-decagram'
+                    />
+                </View>
+                <Text style={[styles.Textra, { color: '#202060' }]}>
+                    {'About Me'}
+                </Text>
+
+                <Text style={[styles.TextBM, { color: '#202060' }]}>
+                    {coachData.coachInfo?.bio || `Hey! I'm ${coachData.displayName}. Welcome to DietPeeps!`}
+                </Text>
+
+                {coachData.coachInfo?.interests &&
+                    <>
+                        <Text style={[styles.TextO5, { color: '#202060' }]}>
+                            {'Interests'}
+                        </Text>
+
+                        <View style={styles.ViewuK}>
+                            {coachData.coachInfo?.interests.map((interest, index) => (
+                                <View
+                                    key={index}
+                                    style={[
+                                        styles.ViewIr,
+                                        {
+                                            backgroundColor: '#202060',
+                                            borderRadius: 10,
+                                        },
+                                    ]}
+                                >
+                                    <Text
+                                        style={[styles.TextG2, { color: '#fff' }]}
+                                    >
+                                        {interest}
+                                    </Text>
+                                </View>
+                            ))}
+                        </View>
+                    </>}
+            </View>
+            <MotiView style={styles.View_4v} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <TouchableOpacity
+                    onPress={onContinue}
+                    style={[
+                        styles.ButtonSolidQB,
+                        { backgroundColor: '#4C44D4', marginTop: 20 },
+                    ]}
+                >
+                    <Text style={styles.panelButtonText}>{'Awesome!'}</Text>
+                </TouchableOpacity>
+            </MotiView>
+        </MotiView>
+    )
+}
+
+const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onContinue }) => {
+    const [selectedPrice, setSelectedPrice] = useState(null)
+    return (
+        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+            <View style={styles.ViewD2}>
+                <Text
+                    style={[
+                        styles.headline1,
+                        { color: '#202060', fontSize: 20 },
+                    ]}
+                >
+                    In light of the global health crisis, we are offering the option to try DietPeeps for only {trialPrices[0].product.price_string}.
+                    Money shouldn't stand in the way of finding a plan that really works. So, choose an amount that you think is reasonable to try us out.
+                    It costs us {trialPrices[3].product.price_string} to compensate our DietPeeps employees for the trial, but please choose the amount you are comfortable with.
+                </Text>
+            </View>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 20 }}>
+                {trialPrices?.map((option, index) => (
+                    <View key={index} pointerEvents={paidForTrial ? 'none' : 'auto'} style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', opacity: paidForTrial ? 0.5 : 1 }}>
+                        <MotiView
+                            key={index}
+                            from={{ 
+                                opacity: 0, 
+                                translateY: 20,
+                                shadowOpacity: 0,
+                                elevation: 0,
+                                borderColor: '#202060'
+                            }}
+                            animate={{ 
+                                opacity: 1, 
+                                translateY: selectedPrice?.identifier === option.identifier ? -10 : 0,                             
+                                shadowOpacity: selectedPrice?.identifier === option.identifier ? 0.4 : 0,
+                                elevation: selectedPrice?.identifier === option.identifier ? 0.4 : 0,
+                                borderColor: selectedPrice?.identifier === option.identifier ? '#4C44D4' : '#202060'
+                            }}
+                            transition={{ type: 'timing' }}
+                            style={{
+                                borderRadius: 20, borderWidth: 1, borderColor: '#202060', backgroundColor: '#fff', padding: 10, justifyContent: 'center', alignItems: 'center', width: 100, height: 100,
+                                shadowColor: '#000000',
+                                shadowOffset: { width: 0, height: 3 },
+                                shadowRadius: 5,
+                                margin: 10,
+                            }}
+                        >
+                            <TouchableOpacity
+                                onPress={() => setSelectedPrice(option)}
+                                style={{ 
+                                    borderRadius: 20,
+                                    width: '100%',
+                                    height: '100%',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <Text adjustsFontSizeToFit style={{ color: '#202060', fontSize: 22 }}>{option.product.price_string}</Text>
+                            </TouchableOpacity>
+                        </MotiView>
+                        {index === trialPrices.length - 1 && 
+                            <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={2}
+                                style={{ color: '#202060', fontSize: windowHeight * (16/844), maxWidth: 100, textAlign: 'center', position: 'absolute', bottom: -30 }}
+                            >
+                                Most popular option
+                            </Text>
+                        }
+                    </View>
+                ))}
+                {paidForTrial && 
+                <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
+                        <Text
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 20, maxWidth: windowWidth * 0.6, textAlign: 'center' },
+                            ]}
+                        >
+                            Thanks so much for your support!
+                        </Text>
+                </View>}
+            </View>
+            <MotiView style={styles.View_4v} from={{ opacity: 0 }} animate={{ opacity: loading ? 0.7 : 1 }}>
+                <TouchableOpacity
+                    disabled={loading}
+                    onPress={() => selectedPrice != null && purchaseTrial(selectedPrice)}
+                    style={[
+                        styles.ButtonSolidQB,
+                        { backgroundColor: '#4C44D4', marginTop: 20 },
+                    ]}
+                >
+                    {loading ? 
+                        <ActivityIndicator color='#BDB9DB' /> :
+                        <Text style={styles.panelButtonText}>{`Let's do it!`}</Text>
+                    }
+                </TouchableOpacity>
+            </MotiView>
+            <View style={styles.View_4v}>
+                <TouchableOpacity
+                    onPress={onContinue}
+                >
+                    <Text style={[styles.panelButtonText, { color: '#4C44D4', fontWeight: '400', textAlign: 'center' }]}>I'm not willing to compensate DietPeeps for my trial.</Text>
                 </TouchableOpacity>
             </View>
         </MotiView>
@@ -1010,6 +1469,7 @@ const UnitToggler = ({ style, buttonText, onToggleImperial }) => {
 }
 
 export { 
+    IntroExplainerPage,
     WeightGoalSelectorPage, 
     OtherGoalSelectorPage, 
     GenderSelectorPage, 
@@ -1020,12 +1480,74 @@ export {
     MealTimesSelectorPage,
     ReferralCodePage,
     WeightChartInterstitial,
+    CoachProfilePage,
+    TrialPricePage,
     WizardFinalPage,
     TestimonialInterstitial,
     UnitToggler
 }
 
 const styles = StyleSheet.create({
+    Image_9l: {
+        height: '100%',
+        width: '100%',
+    },
+    ViewWi: {
+        minHeight: '50%',
+        maxHeight: '50%',
+    },
+    TextOd: {
+        marginRight: 6,
+        fontSize: 18,
+        lineHeight: 24,
+        fontFamily: 'System',
+        fontWeight: '700',
+    },
+    ViewvG: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 18,
+    },
+    Textra: {
+        textTransform: 'uppercase',
+        fontFamily: 'System',
+        fontWeight: '400',
+        fontSize: 11,
+        marginTop: 18,
+    },
+    TextBM: {
+        fontSize: 12,
+        lineHeight: 18,
+        marginTop: 12,
+    },
+    TextO5: {
+        marginTop: 16,
+        marginTop: 24,
+        textTransform: 'uppercase',
+        fontFamily: 'System',
+        fontWeight: '400',
+        fontSize: 11,
+    },
+    TextG2: {
+        fontSize: 10,
+        fontFamily: 'System',
+        fontWeight: '700',
+    },
+    ViewIr: {
+        marginRight: 8,
+        paddingBottom: 8,
+        paddingTop: 8,
+        paddingRight: 16,
+        paddingLeft: 16,
+    },
+    ViewuK: {
+        flexDirection: 'row',
+        marginTop: 12,
+    },
+    ViewmY: {
+        marginLeft: 18,
+        marginRight: 18,
+    },
     unitToggler: {
         alignItems: 'center', 
         justifyContent: 'center', 
@@ -1038,42 +1560,8 @@ const styles = StyleSheet.create({
         shadowRadius: 5, 
         shadowOpacity: 0.4
     },
-    Imaget6: {
-        width: windowWidth * 0.24,
-        height: windowWidth * 0.24,
-        marginLeft: -(windowWidth * 0.04)
-    },
     ViewD2: {
         alignItems: 'center'
-    },
-    Icona8: {
-        height: 34,
-        width: 34,
-        marginRight: 14,
-    },
-    ViewZZ: {
-        flex: 1,
-        justifyContent: 'center'
-    },
-    Viewvs: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        marginBottom: 12,
-        marginTop: 12
-    },
-    IcongB: {
-        marginRight: 14,
-        width: 34,
-        height: 34,
-    },
-    Viewk7: {
-        flex: 1,
-    },
-    Viewwb: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        marginBottom: 12,
-        marginTop: 12,
     },
     panelButtonTitle: {
         fontSize: 17,
@@ -1081,24 +1569,6 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlign: 'center',
         width: '100%'
-    },
-    IconCl: {
-        height: 34,
-        width: 34,
-        marginRight: 14,
-    },
-    View_9d: {
-        flex: 1,
-    },
-    Viewre: {
-        flexDirection: 'row',
-        marginBottom: 12,
-        marginTop: 12,
-        alignItems: 'flex-start',
-    },
-    ViewsW: {
-        alignItems: 'center',
-        alignSelf: 'center',
     },
     ButtonSolidQB: {
         width: windowWidth - 64,
@@ -1110,24 +1580,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginVertical: 7,
     },
-    Buttonu5: {
-        alignSelf: 'center',
-        alignContent: 'center',
-        paddingLeft: 12,
-        paddingRight: 12,
-    },
     View_4v: {
         alignItems: 'center',
-    },
-    ViewT7: {
-        justifyContent: 'space-evenly',
-        flex: 1,
-        margin: 32,
-        marginTop: 0
-    },
-    ScrollViewUJContent: {
-        justifyContent: 'space-evenly',
-        flex: 1,
     },
     headline2: {
         fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
@@ -1149,11 +1603,6 @@ const styles = StyleSheet.create({
         letterSpacing: 0,
         textAlign: 'center',
         color: '#202060',
-    },
-    subtitle1: {
-        fontSize: windowHeight * (16/844),
-        letterSpacing: 0,
-        marginVertical: 20
     },
     panelButtonText: {
         fontSize: windowHeight * (17/844),
@@ -1187,31 +1636,11 @@ const styles = StyleSheet.create({
         // shadowRadius: 1,
         // position: 'absolute'
     },
-    panel: {
-        width: windowWidth * 0.9, 
-        height: windowHeight * 0.55, 
-        borderRadius: 10, 
-        backgroundColor: '#fff', 
-        padding: 15, 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        elevation: 10,
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 0 },
-        shadowRadius: 10,
-        shadowOpacity: 0.4,
-    },
     panelTitle: {
         fontSize: 27,
         height: 35,
         color: '#202060',
         marginBottom: 5,
         fontWeight: '700'
-    },
-    panelSubtitle: {
-        fontSize: 14,
-        color: 'gray',
-        textAlign: 'center',
-        marginBottom: 10,
-    },
+    }
 })

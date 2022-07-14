@@ -14,7 +14,7 @@ import { GOOGLE_SIGNIN_CONFIG_ANDROID, GOOGLE_SIGNIN_CONFIG_IOS } from '../const
 const Stack = createStackNavigator()
 
 const AuthStack = () => {
-  const [isFirstLaunch, setIsFirstLaunch] = useState(null)
+  const [completedWizard, setCompletedWizard] = useState(null)
   let routeName
 
   useEffect(() => {
@@ -22,9 +22,9 @@ const AuthStack = () => {
     AsyncStorage.getItem('alreadyLaunched').then((value) => {
       if (value == null) {
         AsyncStorage.setItem('alreadyLaunched', 'true') 
-        setIsFirstLaunch(true)
+        setCompletedWizard(true)
       } else {
-        setIsFirstLaunch(false)
+        setCompletedWizard(false)
       }
     }) 
   
@@ -37,9 +37,9 @@ const AuthStack = () => {
   }, [])
 
   // change initial route name depending on first login
-  if (isFirstLaunch === null) {
+  if (completedWizard === null) {
     return null 
-  } else if (isFirstLaunch == true) {
+  } else if (completedWizard == true) {
     routeName = 'Onboarding'
   } else {
     routeName = 'Login'
