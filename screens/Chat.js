@@ -639,21 +639,6 @@ const Chat = ({ navigation, route }) => {
                 return null
             })
 
-        // no longer necessary. a cloud func does this for us now :)
-        // await firestore()
-        //     .collection('chat-rooms')
-        //     .doc(globalVars.chatID)
-        //     .set({
-        //         latestMessageTime: firestore.Timestamp.now(),
-        //         latestMessage: message === '' ? '[Image]' : message,
-        //         unreadCount: firestore.FieldValue.increment(1),
-        //         latestMessageSender: user.uid,
-        //         ungradedImageCount: imageInfo != null && imageInfo.length > 0 ? firestore.FieldValue.increment(imageInfo.length) : firestore.FieldValue.increment(0)
-        //     }, { merge: true })
-        //     .catch((e) => {
-        //         console.error("error while updating chat room info: ", e)
-        //     })
-
         // after sending the message, reset everything
         setImages(null)
         setMessageInput('')
@@ -691,18 +676,6 @@ const Chat = ({ navigation, route }) => {
                     .catch((e) => {
                         console.error("error while adding chat streak message: ", e)
                     })
-
-                // await firestore()
-                //     .collection('chat-rooms')
-                //     .doc(globalVars.chatID)
-                //     .set({
-                //         latestMessageTime: firestore.Timestamp.now(),
-                //         latestMessage: `Congratulations! You've just extended your streak to ${globalVars.userData.streak === 0 ? `1 day!` : `${globalVars.userData.streak + 1} days!`}`,
-                //         latestMessageSender: globalVars.coachID,
-                //     }, { merge: true })
-                //     .catch((e) => {
-                //         console.error("error while updating chat room info: ", e)
-                //     })
                 updateInfo({
                     streak: firestore.FieldValue.increment(1),
                     streakUpdated: firestore.Timestamp.now()
@@ -1181,7 +1154,7 @@ const Chat = ({ navigation, route }) => {
                                         keyExtractor={(item) => item.uri}
                                     />
                                 }
-                                <View style={styles.msgInputWrapper}>
+                                <View style={[styles.msgInputWrapper, { height: messageInput.length === 0 ? 50 : 'auto' }]}>
                                     {/* the actual message input field where the user can type */}
                                     <TextInput
                                         ref={messageInputRef}
@@ -1263,7 +1236,7 @@ const Chat = ({ navigation, route }) => {
                                 <ProfilePic size={50} source={{ uri: globalVars.coachData?.photoURL }} />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={globalVars.coachData ? () => navigation.navigate('Coach Profile') : null}>
-                                <Text style={styles.displayName}>{globalVars.coachData?.displayName}</Text>
+                                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.displayName}>{globalVars.coachData?.displayName}</Text>
                             </TouchableOpacity>
                             {loading ? null :
                                 <View>
@@ -1479,7 +1452,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
         color: '#202060',
-        width: windowWidth
+        width: windowWidth / 2
     },
     onlineStatus: {
         position: 'absolute',

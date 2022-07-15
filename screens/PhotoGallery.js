@@ -211,9 +211,9 @@ const PhotoGallery = ({ navigation, route }) => {
                                                                     }}
                                                                 >
                                                                     <View style={{ height: 70, borderRadius: 10, justifyContent: 'center', alignItems: 'flex-start', marginLeft: 0, padding: 10 }}>
-                                                                        <Text style={{ color: '#202060' }}>Green: {Math.round((selectedImage.green / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
-                                                                        <Text style={{ color: '#202060' }}>Yellow: {Math.round((selectedImage.yellow / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
-                                                                        <Text style={{ color: '#202060' }}>White: {Math.round((selectedImage.red / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
+                                                                        <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: '#202060' }}>Green: {Math.round((selectedImage.green / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
+                                                                        <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: '#202060' }}>Yellow: {Math.round((selectedImage.yellow / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
+                                                                        <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: '#202060' }}>White: {Math.round((selectedImage.red / (selectedImage.red + selectedImage.yellow + selectedImage.green)) * 100)}%</Text>
                                                                     </View>
                                                                 </MotiView>
                                                             </View>

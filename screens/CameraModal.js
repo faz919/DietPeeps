@@ -161,19 +161,20 @@ const CameraModal = ({ navigation }) => {
         >
             <View style={styles.panel}>
                 <View style={{ alignItems: 'center' }}>
-                    <Text style={styles.panelTitle}>Choose Photos</Text>
-                    <Text style={styles.panelSubtitle}>Take one photo, or choose up to five from camera roll.</Text>
+                    <Text adjustsFontSizeToFit numberOfLines={1} style={styles.panelTitle}>Choose Photos</Text>
+                    <Text adjustsFontSizeToFit numberOfLines={2} style={styles.panelSubtitle}>Take one photo, or choose up to five from camera roll.</Text>
                 </View>
                 <TouchableOpacity style={styles.panelButton} onPress={takePhotoFromCamera}>
-                    <Text style={styles.panelButtonTitle}>Take Photo</Text>
+                    <Text adjustsFontSizeToFit numberOfLines={1} style={styles.panelButtonTitle}>Take Photo</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.panelButton} onPress={choosePhotosFromLibrary}>
-                    <Text style={styles.panelButtonTitle}>Choose Photos From Library</Text>
+                    <Text adjustsFontSizeToFit numberOfLines={1} style={styles.panelButtonTitle}>Choose Photos From Library</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.panelButton}
-                    onPress={() => { setAttachingImage(val => ({ ...val, visible: false, loading: false })) }}>
-                    <Text style={styles.panelButtonTitle}>Cancel</Text>
+                    onPress={() => { setAttachingImage(val => ({ ...val, visible: false, loading: false })) }}
+                >
+                    <Text adjustsFontSizeToFit numberOfLines={1} style={styles.panelButtonTitle}>Cancel</Text>
                 </TouchableOpacity>
                 {attachingImage.loading ?
                     <View style={styles.modalLoading}>
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         margin: -20,
         bottom: 0,
-        height: 300
+        height: 320
     },
     panelTitle: {
         fontSize: 27,

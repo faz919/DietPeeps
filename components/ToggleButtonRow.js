@@ -111,6 +111,7 @@ const ToggleButtonRow = ({
 							style={styles.baseTouchableRipple}
 						>
 							<Text
+								adjustsFontSizeToFit
 								style={[
 									styles.baseButtonText,
 									styles.highlightText,
@@ -149,6 +150,7 @@ const ToggleButtonRow = ({
 						}}
 					>
 						<Text
+							adjustsFontSizeToFit
 							style={[styles.baseButtonText, textStyle, inactiveText]}
 							numberOfLines={1}
 						>

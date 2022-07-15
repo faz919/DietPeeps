@@ -27,7 +27,10 @@ import {
     WizardFinalPage,
     TestimonialInterstitial,
     IntroExplainerPage,
-    TrialPricePage
+    TrialPricePage,
+    GoalExplainerPage,
+    MealPhotoExplainerPage,
+    PhotoPledgePage
 } from '../components/OnboardingComponents.js'
 import Purchases from 'react-native-purchases'
 
@@ -259,8 +262,9 @@ const OnboardingWizard = ({ navigation }) => {
             updateInfo({ userBioData: formResponses })
             formResponses.referralCode && mixpanel.getPeople().set('Referral Code', formResponses.referralCode)
         }
-        // onboarding wizard is in both authstack and app stack, so attempt to navigate to either screen
+        // this is the new method of checking whether user has completed onb wizard, old method had redirect bug
         AsyncStorage.setItem('hasCompletedWizard', 'true')
+        // onboarding wizard is in both authstack and app stack, so attempt to navigate to either screen
         user ? navigation.replace('Main Menu') : navigation.replace('Signup')
     }
 
@@ -334,6 +338,8 @@ const OnboardingWizard = ({ navigation }) => {
                             <MotiView key={`page${heightWeightScreen}`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
                                 <View style={styles.ViewD2}>
                                     <Text
+                                        adjustsFontSizeToFit
+                                        numberOfLines={2}
                                         style={[
                                             styles.headline1,
                                             { color: '#202060' },
@@ -367,6 +373,8 @@ const OnboardingWizard = ({ navigation }) => {
                                 />
                                 <View style={styles.ViewD2}>
                                     <Text
+                                        adjustsFontSizeToFit
+                                        numberOfLines={1}
                                         style={[
                                             styles.headline1,
                                             { color: '#202060' },
@@ -450,6 +458,8 @@ const OnboardingWizard = ({ navigation }) => {
                                 }}
                             >
                                 <MotiText
+                                    adjustsFontSizeToFit
+                                    numberOfLines={2}
                                     style={styles.loadingScreenText}
                                     from={{ translateY: -5 }}
                                     animate={{ translateY: 5 }}
@@ -498,17 +508,15 @@ const OnboardingWizard = ({ navigation }) => {
                                 targetWeight={imperial.weight ? formResponses.targetWeight.lbs : formResponses.targetWeight.kgs}
                                 usesImperial={imperial.weight}
                                 interstitialNumber={1}
-                                onContinue={() => { formPage === 'interstitial1' && setFormPage(targetWeightScreen + 1) }}
+                                onContinue={() => { formPage === 'interstitial1' && setFormPage('goalExplainer') }}
                             />
                         }
-                        {/* {formPage === weightGoalScreen &&
-                            <WeightGoalSelectorPage
-                                key={`page${weightGoalScreen}`}
-                                onSelectResponse={(response) => { setFormResponses(val => ({ ...val, weightGoal: response })); setFormPage(weightGoalScreen + 1) }}
-                                disableAnimation={false}
-                                showTitle={false}
+                        {formPage === 'goalExplainer' && 
+                            <GoalExplainerPage 
+                                key={'goalExplainer'}
+                                onContinue={() => setFormPage(targetWeightScreen + 1)}
                             />
-                        } */}
+                        }
                         {formPage === otherGoalScreen &&
                             <OtherGoalSelectorPage
                                 key={`page${otherGoalScreen}`}
@@ -533,6 +541,8 @@ const OnboardingWizard = ({ navigation }) => {
                                 }}
                             >
                                 <MotiText
+                                    adjustsFontSizeToFit
+                                    numberOfLines={2}
                                     style={styles.loadingScreenText}
                                     from={{ translateY: -5 }}
                                     animate={{ translateY: 5 }}
@@ -564,8 +574,14 @@ const OnboardingWizard = ({ navigation }) => {
                                 key={`page${mealCountScreen}`}
                                 prevResponse={formResponses.mealCount}
                                 onSelectResponse={(value) => setFormResponses(val => ({ ...val, mealCount: value }))}
-                                onContinue={() => { formResponses.mealCount && formPage === mealCountScreen && setFormPage(mealCountScreen + 1) }}
+                                onContinue={() => { formResponses.mealCount && formPage === mealCountScreen && setFormPage('photoExplainer') }}
                                 disableAnimation={false}
+                            />
+                        }
+                        {formPage === 'photoExplainer' &&
+                            <MealPhotoExplainerPage 
+                                key={'photoExplainer'}
+                                onContinue={() => setFormPage(mealCountScreen + 1)}
                             />
                         }
                         {formPage === mealPickerScreen &&
@@ -582,9 +598,15 @@ const OnboardingWizard = ({ navigation }) => {
                                         setFormResponses(val => ({ ...val, mealTimes: newArr }))
                                     }
                                     // only go to next page (loading screen) if all the meal times have been selected
-                                    editingMealTime == formResponses.mealCount ? setFormPage('testimonialInterstitial2') : editingMealTime < formResponses.mealCount && setEditingMealTime(editingMealTime + 1)
+                                    editingMealTime == formResponses.mealCount ? setFormPage('photoPledge') : editingMealTime < formResponses.mealCount && setEditingMealTime(editingMealTime + 1)
                                 }}
                                 disableContainerAnimation={false}
+                            />
+                        }
+                        {formPage === 'photoPledge' && 
+                            <PhotoPledgePage
+                                key={'photoPledge'}
+                                onContinue={() => setFormPage('testimonialInterstitial2')}
                             />
                         }
                         {formPage === 'testimonialInterstitial2' && 
@@ -610,6 +632,8 @@ const OnboardingWizard = ({ navigation }) => {
                                 }}
                             >
                                 <MotiText
+                                    adjustsFontSizeToFit
+                                    numberOfLines={2}
                                     style={styles.loadingScreenText}
                                     from={{ translateY: -5 }}
                                     animate={{ translateY: 5 }}

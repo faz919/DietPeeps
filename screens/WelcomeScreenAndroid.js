@@ -48,7 +48,7 @@ const WelcomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
-      <ScrollView contentContainerStyle={styles.ScrollViewUJContent}>
+      <ScrollView contentContainerStyle={styles.ScrollViewUJContent} overScrollMode={'never'} bounces={false}>
         <View style={styles.ViewT7}>
           <Image
             style={styles.Imaget6}

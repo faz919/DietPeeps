@@ -1,6 +1,6 @@
-import { AnimatePresence, MotiText, MotiView } from 'moti';
+import { AnimatePresence, MotiImage, MotiText, MotiView } from 'moti';
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, ImageBackground, KeyboardAvoidingView, Linking, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Image, ImageBackground, KeyboardAvoidingView, Linking, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Easing } from 'react-native-reanimated'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -20,6 +20,11 @@ import ChatMessage from './ChatMessage';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
+// image assets
+import Stanford from '../assets/stanford-logo.png'
+import Oxford from '../assets/oxford-logo-hmm-yes-quite.png'
+import ClevelandClinic from '../assets/cleveland-clinic-logo.png'
+
 const IntroExplainerPage = ({ onContinue }) => {
 
     const firstPageScrollViewRef = useRef()
@@ -32,18 +37,24 @@ const IntroExplainerPage = ({ onContinue }) => {
     const pageChangeDelay = 700
 
     useEffect(() => {
-        setTimeout(() => {
+        const stepOne = setTimeout(() => {
             setAnimationStep(1)
         }, 5000)
-        setTimeout(() => {
+        const stepTwo = setTimeout(() => {
             setAnimationStep(2)
         }, 7000)
-        setTimeout(() => {
+        const stepThree = setTimeout(() => {
             setAnimationStep(3)
         }, 9000)
-        setTimeout(() => {
+        const stepFour = setTimeout(() => {
             setAnimationStep(4)
         }, 11000)
+        return () => {
+            clearTimeout(stepOne)
+            clearTimeout(stepTwo)
+            clearTimeout(stepThree)
+            clearTimeout(stepFour)
+        }
     }, [])
 
     return (
@@ -69,7 +80,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                         }}
                     >
                         <View style={styles.ViewD2}>
-                            <Text style={[styles.headline2, { color: '#202060', marginBottom: 0 }]}>
+                            <Text adjustsFontSizeToFit numberOfLines={2} style={[styles.headline2, { color: '#202060', marginBottom: 0, maxHeight: windowHeight / 8 }]}>
                                 {'Welcome to DietPeeps!'}
                             </Text>
                         </View>
@@ -81,6 +92,8 @@ const IntroExplainerPage = ({ onContinue }) => {
                     >
                         <View style={styles.ViewD2}>
                             <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={1}
                                 style={[
                                     styles.headline1,
                                     { color: '#202060', marginBottom: 0, marginTop: 5 },
@@ -97,6 +110,8 @@ const IntroExplainerPage = ({ onContinue }) => {
                     >
                         <View style={styles.ViewD2}>
                             <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={1}
                                 style={[
                                     styles.headline1,
                                     { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844) },
@@ -126,7 +141,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                                 item={{
                                     img: [
                                         {
-                                            url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/640px-Good_Food_Display_-_NCI_Visuals_Online.jpg'
+                                            url: 'https://firebasestorage.googleapis.com/v0/b/firstproject-b3f4a.appspot.com/o/chat-pictures%2Fonboarding_sample_image.jpg?alt=media&token=21a973a9-c7f1-4b1f-9e51-07090787a6f5'
                                         }
                                     ]
                                 }}
@@ -143,7 +158,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                         >
                             <ChatMessage
                                 item={{
-                                    msg: `Hey coach! Here's what I had for lunch today.`
+                                    msg: `Hey coach! Today I had spaghetti bolognese for dinner.`
                                 }}
                                 outgoingMessage
                                 disablePress
@@ -160,16 +175,15 @@ const IntroExplainerPage = ({ onContinue }) => {
                                 item={{
                                     img: [
                                         {
-                                            url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/640px-Good_Food_Display_-_NCI_Visuals_Online.jpg',
+                                            url: 'https://firebasestorage.googleapis.com/v0/b/firstproject-b3f4a.appspot.com/o/chat-pictures%2Fonboarding_sample_image.jpg?alt=media&token=21a973a9-c7f1-4b1f-9e51-07090787a6f5',
                                             graded: true,
                                             grade: 82,
                                             red: 0.75,
                                             yellow: 3,
-                                            green: 8.5,
-                                            comment: `A healthy meal overall! Try to cut down on the sugar.`
+                                            green: 8.5
                                         }
                                     ],
-                                    msg: `A healthy meal overall! Try to cut down on the sugar.`
+                                    msg: `A healthy meal overall! Try to add more vegetables to your next meal.`
                                 }}
                                 user={{
                                     uid: '000000000000'
@@ -201,6 +215,8 @@ const IntroExplainerPage = ({ onContinue }) => {
                     >
                         <View style={styles.ViewD2}>
                             <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={2}
                                 style={[
                                     styles.headline1,
                                     { color: '#202060', fontSize: windowHeight * (25 / 844) },
@@ -232,6 +248,8 @@ const IntroExplainerPage = ({ onContinue }) => {
                 <MotiView key={`introPage2`} from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing', delay: pageChangeDelay }} exitTransition={{ type: 'timing', delay: 0 }} style={{ marginHorizontal: 20 }}>
                     <View style={styles.ViewD2}>
                         <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={2}
                             style={[
                                 styles.headline1,
                                 { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844) },
@@ -294,7 +312,7 @@ const WeightGoalSelectorPage = ({ containerStyle, onSelectResponse, disableAnima
                 }}
             >
                 <View style={styles.ViewD2}>
-                    <Text style={[styles.headline2, { color: '#202060', marginBottom: 0 }]}>
+                    <Text adjustsFontSizeToFit numberOfLines={2} style={[styles.headline2, { color: '#202060', marginBottom: 0 }]}>
                         {'Tell us about yourself!'}
                     </Text>
                 </View>
@@ -350,6 +368,80 @@ const WeightGoalSelectorPage = ({ containerStyle, onSelectResponse, disableAnima
     )
 }
 
+const GoalExplainerPage = ({ onContinue }) => {
+    return (
+        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+            <View style={styles.ViewD2}>
+                <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={2}
+                    style={[
+                        styles.headline1,
+                        { color: '#202060', textAlign: 'left' },
+                    ]}
+                >
+                    {'A goal without a plan is only a dream...'}
+                </Text>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                <MotiImage from={{ translateY: 20, opacity: 0 }} animate={{ translateY: 0, opacity: 1 }} transition={{ type: 'timing' }} source={Stanford} style={{ width: windowWidth / 5, height: windowWidth / 5, marginRight: 10 }} />
+                <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={6}
+                    style={[
+                        styles.headline1,
+                        { color: '#202060', fontSize: 20, fontWeight: '500', maxWidth: windowWidth * 0.75 - 74, textAlign: 'left' },
+                    ]}
+                >
+                    <Text style={{ fontWeight: '700' }}>Stanford University </Text>
+                    reports that short-term goals serve as a great motivator when setting out to attain an ultimate goal.
+                </Text>
+            </View>
+            <Text
+                adjustsFontSizeToFit
+                numberOfLines={3}
+                style={[
+                    styles.headline1,
+                    { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                ]}
+            >
+                Small goals reinforce achievability and keep you motivated.
+            </Text>
+            <Text
+                adjustsFontSizeToFit
+                numberOfLines={2}
+                style={[
+                    styles.headline1,
+                    { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                ]}
+            >
+                Understanding your goals helps us design a plan specific to you.
+            </Text>
+            <Text
+                adjustsFontSizeToFit
+                numberOfLines={2}
+                style={[
+                    styles.headline1,
+                    { color: '#202060', fontSize: 22, fontWeight: '600', textAlign: 'left' },
+                ]}
+            >
+                Are you ready to take the first step to the rest of your life?
+            </Text>
+            <View style={styles.View_4v}>
+                <TouchableOpacity
+                    onPress={onContinue}
+                    style={[
+                        styles.ButtonSolidQB,
+                        { backgroundColor: '#4C44D4', marginTop: 20 },
+                    ]}
+                >
+                    <Text style={styles.panelButtonText}>{'Yes!'}</Text>
+                </TouchableOpacity>
+            </View>
+        </MotiView>
+    )
+}
+
 const OtherGoalSelectorPage = ({ selectedGoals, onSelectGoal, onContinue, disableAnimation }) => {
 
     const goals = [
@@ -388,7 +480,7 @@ const OtherGoalSelectorPage = ({ selectedGoals, onSelectGoal, onContinue, disabl
     return (
         <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }} style={{ justifyContent: 'space-around', marginHorizontal: 32 }}>
             <View style={styles.ViewD2}>
-                <Text style={[styles.headline1, { color: '#202060', marginBottom: 20 }]}>
+                <Text adjustsFontSizeToFit numberOfLines={2} style={[styles.headline1, { color: '#202060', marginBottom: 20 }]}>
                     What are some of your goals?
                 </Text>
             </View>
@@ -400,7 +492,7 @@ const OtherGoalSelectorPage = ({ selectedGoals, onSelectGoal, onContinue, disabl
                 <View style={{ height: 'auto', width: '100%', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
                     {goals.map((goal, index) =>
                         <TouchableOpacity key={goal} onPress={() => onSelectGoal(goal)} style={{ flexDirection: 'row', alignItems: 'center', margin: 3, padding: 5, borderRadius: 10, backgroundColor: selectedGoals.includes(goal) ? '#43CD3F' : '#fff' }}>
-                            <Text style={{ fontSize: windowHeight * (18 / 844), textAlign: 'center', color: selectedGoals.includes(goal) ? '#fff' : '#202060', marginRight: 5 }}>
+                            <Text adjustsFontSizeToFit numberOfLines={2} style={{ maxWidth: windowWidth / 2, fontSize: windowHeight * (18 / 844), textAlign: 'center', color: selectedGoals.includes(goal) ? '#fff' : '#202060', marginRight: 5 }}>
                                 {goal}
                             </Text>
                             <Icon
@@ -448,7 +540,7 @@ const GenderSelectorPage = ({ onSelectResponse, disableAnimation, showTitle }) =
                 }}
             >
                 <View style={styles.ViewD2}>
-                    <Text style={[styles.headline2, { color: '#202060', marginBottom: 0 }]}>
+                    <Text adjustsFontSizeToFit numberOfLines={2} style={[styles.headline2, { color: '#202060', marginBottom: 0, maxHeight: windowHeight / 8 }]}>
                         {'Tell us about yourself!'}
                     </Text>
                 </View>
@@ -460,6 +552,8 @@ const GenderSelectorPage = ({ onSelectResponse, disableAnimation, showTitle }) =
             >
                 <View style={styles.ViewD2}>
                     <Text
+                        adjustsFontSizeToFit
+                        numberOfLines={1}
                         style={[
                             styles.headline1,
                             { color: '#202060', marginBottom: 20 },
@@ -517,6 +611,8 @@ const DateOfBirthSelectorPage = ({ prevResponse, onSelectResponse, onContinue, d
         <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }} style={{ marginHorizontal: 32 }}>
             <View style={styles.ViewD2}>
                 <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={2}
                     style={[
                         styles.headline1,
                         { color: '#202060', marginBottom: 20 },
@@ -614,6 +710,8 @@ const MealCountSelectorPage = ({ prevResponse, onSelectResponse, onContinue, dis
         <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }} style={{ marginHorizontal: 32 }}>
             <View style={styles.ViewD2}>
                 <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={2}
                     style={[
                         styles.headline1,
                         { color: '#202060' },
@@ -653,6 +751,24 @@ const MealCountSelectorPage = ({ prevResponse, onSelectResponse, onContinue, dis
     )
 }
 
+const MealPhotoExplainerPage = ({ onContinue }) => {
+    return (
+        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+            <View style={styles.View_4v}>
+                <TouchableOpacity
+                    onPress={onContinue}
+                    style={[
+                        styles.ButtonSolidQB,
+                        { backgroundColor: '#4C44D4', marginTop: 20 },
+                    ]}
+                >
+                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                </TouchableOpacity>
+            </View>
+        </MotiView>
+    )
+}
+
 const MealTimesSelectorPage = ({ editingMealTime, mealCount, prevResponse, onSelectResponse, onContinue, disableContainerAnimation }) => {
 
     const meals = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'last']
@@ -664,7 +780,7 @@ const MealTimesSelectorPage = ({ editingMealTime, mealCount, prevResponse, onSel
                     editingMealTime - 1 === index &&
                     <MotiView key={`editingMealTime${index + 1}`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         <View style={styles.ViewD2}>
-                            <Text style={[styles.title1, { color: '#202060' }]}>
+                            <Text adjustsFontSizeToFit numberOfLines={3} style={[styles.title1, { color: '#202060' }]}>
                                 {mealCount == 1 ? 'What time do you usually eat your daily meal?' : `What time do you usually eat your ${index === mealCount - 1 ? 'last' : meals[index]} meal of the day?`}
                             </Text>
                         </View>
@@ -691,6 +807,24 @@ const MealTimesSelectorPage = ({ editingMealTime, mealCount, prevResponse, onSel
     )
 }
 
+const PhotoPledgePage = ({ onContinue }) => {
+    return (
+        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+            <View style={styles.View_4v}>
+                <TouchableOpacity
+                    onPress={onContinue}
+                    style={[
+                        styles.ButtonSolidQB,
+                        { backgroundColor: '#4C44D4', marginTop: 20 },
+                    ]}
+                >
+                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                </TouchableOpacity>
+            </View>
+        </MotiView>
+    )
+}
+
 const ReferralCodePage = ({ partnerInfo, onContinueWithReferral, onContinueNoReferral, disableAnimation }) => {
 
     const [code, setCode] = useState('')
@@ -704,6 +838,8 @@ const ReferralCodePage = ({ partnerInfo, onContinueWithReferral, onContinueNoRef
         <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }} style={{ marginHorizontal: 32 }}>
             <View style={styles.ViewD2}>
                 <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={2}
                     style={[
                         styles.headline1,
                         { color: '#202060' },
@@ -740,14 +876,16 @@ const ReferralCodePage = ({ partnerInfo, onContinueWithReferral, onContinueNoRef
                     <TextInput
                         style={{ 
                             backgroundColor: '#fff',
-                            height: 50,
+                            minHeight: 50,
                             width: windowWidth - 60,
                             textAlign: 'center',
                             fontSize: 32,
                             borderRadius: 10,
                             borderWidth: 1,
                             borderColor: '#bdb9db',
-                            marginBottom: 10
+                            marginBottom: 10,
+                            color: '#202060',
+                            fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal'
                         }}
                         autoCapitalize='none'
                         autoComplete='off'
@@ -793,7 +931,7 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
     return (
         <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <View style={{ width: windowWidth, paddingHorizontal: 32 }}>
-                <Text style={[styles.loadingScreenText, { marginVertical: 20 }]}>
+                <Text adjustsFontSizeToFit numberOfLines={interstitialNumber === 1 ? 3 : 2} style={[styles.loadingScreenText, { marginVertical: 20 }]}>
                     {targetWeight === currentWeight ? 
                         `You're on track to maintain your current weight!` : 
                         interstitialNumber === 1 ?
@@ -801,7 +939,7 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
                             `You're already making progress!`
                     }
                 </Text>
-                {interstitialNumber === 2 && <Text style={[styles.loadingScreenText, { marginTop: -15, marginBottom: 15, fontSize: 22, fontWeight: '600' }]}>
+                {interstitialNumber === 2 && <Text adjustsFontSizeToFit numberOfLines={1} style={[styles.loadingScreenText, { marginTop: -15, marginBottom: 15, fontSize: 22, fontWeight: '600' }]}>
                     {`In ${numWeeks} weeks, you'll ${loseWeightGoal ? 'lose' : 'gain'} ${Math.abs(currentWeight - targetWeight)} ${usesImperial ? 'lbs' : 'kgs'}!`}
                 </Text>}
             </View>
@@ -857,7 +995,7 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
             </MotiView>
             {interstitialNumber === 2 &&
                 <View style={{ width: windowWidth, paddingHorizontal: 32 }}>
-                    <Text style={[styles.loadingScreenText, { marginTop: 20, marginBottom: 0, fontSize: 20, fontWeight: '600' }]}>
+                    <Text adjustsFontSizeToFit numberOfLines={2} style={[styles.loadingScreenText, { marginTop: 20, marginBottom: 0, fontSize: 20, fontWeight: '600' }]}>
                         Continue to reach your weight goal even sooner!
                     </Text>
                 </View>
@@ -918,11 +1056,11 @@ const TestimonialInterstitial = ({ batchNumber, usesImperial, onContinue }) => {
                                     paddingVertical: 10
                                 }}
                             >
-                                <Text adjustsFontSizeToFit style={{ marginTop: 5, fontWeight: '500', fontSize: 22, color: '#202060' }}>{item.testimonial}</Text>
+                                <Text adjustsFontSizeToFit numberOfLines={100} style={{ maxHeight: windowHeight / 3, marginTop: 5, fontWeight: '500', fontSize: 22, color: '#202060' }}>{item.testimonial}</Text>
                                 {item.weightStats && <View style={{ justifyContent: 'flex-end', flex: 1, marginBottom: 20 }}>
-                                    <Text adjustsFontSizeToFit style={{ marginTop: 8, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Initial Weight: </Text>{usesImperial ? item.weightStats?.initial?.lbs : item.weightStats?.initial?.kgs}</Text>
-                                    <Text adjustsFontSizeToFit style={{ marginTop: 3, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Target Weight: </Text>{usesImperial ? item.weightStats?.target?.lbs : item.weightStats?.target?.kgs}</Text>
-                                    <Text adjustsFontSizeToFit style={{ marginTop: 3, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Weight Goal Reached: </Text>{item.weightStats?.numDays}</Text>
+                                    <Text adjustsFontSizeToFit numberOfLines={1} style={{ marginTop: 8, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Initial Weight: </Text>{usesImperial ? item.weightStats?.initial?.lbs : item.weightStats?.initial?.kgs}</Text>
+                                    <Text adjustsFontSizeToFit numberOfLines={1} style={{ marginTop: 3, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Target Weight: </Text>{usesImperial ? item.weightStats?.target?.lbs : item.weightStats?.target?.kgs}</Text>
+                                    <Text adjustsFontSizeToFit numberOfLines={1} style={{ marginTop: 3, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Weight Goal Reached: </Text>{item.weightStats?.numDays}</Text>
                                 </View>}
                             </ScrollView>
                         </View>
@@ -952,85 +1090,89 @@ const CoachProfilePage = ({ coachData, disableAnimation, onContinue }) => {
     const [loading, setLoading] = useState(true)
     return (
         <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }}>
-            <View style={styles.ViewD2}>
-                <Text
-                    style={[
-                        styles.headline1,
-                        { color: '#202060' },
-                    ]}
-                >
-                    Meet your personal coach!
-                </Text>
-            </View>
-            <View style={styles.ViewWi}>
-                <ImageBackground onLoad={() => setLoading(false)} style={[styles.Image_9l, { backgroundColor: '#e6e7fa' }]}
-                    source={{ uri: coachData?.photoURLHighRes ? coachData?.photoURLHighRes : coachData?.photoURL }}
-                >
-                    {loading &&
-                        <SkeletonPlaceholder backgroundColor='#BDB9DB' highlightColor='#e6e7fa' speed={1000}>
-                            <View style={styles.Image_9l} />
-                        </SkeletonPlaceholder>}
-                    <LinearGradient style={{ height: 50, flex: 1 }} colors={['rgba(230,231,250,1)', 'rgba(230,231,250,0)', 'rgba(230,231,250,0)', 'rgba(230,231,250,0)', 'rgba(230,231,250,1)']} />
-                </ImageBackground>
-            </View>
-            <View style={styles.ViewmY}>
-                <View style={styles.ViewvG}>
-                    <Text style={[styles.TextOd, { color: '#202060' }]}>
-                        {coachData?.displayName}
+            <ScrollView overScrollMode='never' bounces={false} contentContainerStyle={{ width: windowWidth, height: windowHeight, marginTop: -20 }}>
+                <View style={[styles.ViewD2, { marginHorizontal: 20 }]}>
+                    <Text
+                        adjustsFontSizeToFit
+                        numberOfLines={1}
+                        style={[
+                            styles.headline1,
+                            { color: '#202060', maxHeight: windowHeight / 8 },
+                        ]}
+                    >
+                        Meet your personal coach!
                     </Text>
-                    <MaterialCommunityIcons
-                        color={'#202060'}
-                        size={20}
-                        name='check-decagram'
-                    />
                 </View>
-                <Text style={[styles.Textra, { color: '#202060' }]}>
-                    {'About Me'}
-                </Text>
-
-                <Text style={[styles.TextBM, { color: '#202060' }]}>
-                    {coachData.coachInfo?.bio || `Hey! I'm ${coachData.displayName}. Welcome to DietPeeps!`}
-                </Text>
-
-                {coachData.coachInfo?.interests &&
-                    <>
-                        <Text style={[styles.TextO5, { color: '#202060' }]}>
-                            {'Interests'}
+                <View style={styles.ViewWi}>
+                    <ImageBackground onLoad={() => setLoading(false)} style={[styles.Image_9l, { backgroundColor: '#e6e7fa' }]}
+                        source={{ uri: coachData?.photoURLHighRes ? coachData?.photoURLHighRes : coachData?.photoURL }}
+                    >
+                        {loading &&
+                            <SkeletonPlaceholder backgroundColor='#BDB9DB' highlightColor='#e6e7fa' speed={1000}>
+                                <View style={styles.Image_9l} />
+                            </SkeletonPlaceholder>}
+                        <LinearGradient style={{ height: 50, flex: 1 }} colors={['rgba(230,231,250,1)', 'rgba(230,231,250,0)', 'rgba(230,231,250,0)', 'rgba(230,231,250,0)', 'rgba(230,231,250,1)']} />
+                    </ImageBackground>
+                </View>
+                <View style={styles.ViewmY}>
+                    <View style={styles.ViewvG}>
+                        <Text style={[styles.TextOd, { color: '#202060' }]}>
+                            {coachData?.displayName}
                         </Text>
+                        <MaterialCommunityIcons
+                            color={'#202060'}
+                            size={20}
+                            name='check-decagram'
+                        />
+                    </View>
+                    <Text style={[styles.Textra, { color: '#202060' }]}>
+                        {'About Me'}
+                    </Text>
 
-                        <View style={styles.ViewuK}>
-                            {coachData.coachInfo?.interests.map((interest, index) => (
-                                <View
-                                    key={index}
-                                    style={[
-                                        styles.ViewIr,
-                                        {
-                                            backgroundColor: '#202060',
-                                            borderRadius: 10,
-                                        },
-                                    ]}
-                                >
-                                    <Text
-                                        style={[styles.TextG2, { color: '#fff' }]}
+                    <Text style={[styles.TextBM, { color: '#202060' }]}>
+                        {coachData.coachInfo?.bio || `Hey! I'm ${coachData.displayName}. Welcome to DietPeeps!`}
+                    </Text>
+
+                    {coachData.coachInfo?.interests &&
+                        <>
+                            <Text style={[styles.TextO5, { color: '#202060' }]}>
+                                {'Interests'}
+                            </Text>
+
+                            <View style={styles.ViewuK}>
+                                {coachData.coachInfo?.interests.map((interest, index) => (
+                                    <View
+                                        key={index}
+                                        style={[
+                                            styles.ViewIr,
+                                            {
+                                                backgroundColor: '#202060',
+                                                borderRadius: 10,
+                                            },
+                                        ]}
                                     >
-                                        {interest}
-                                    </Text>
-                                </View>
-                            ))}
-                        </View>
-                    </>}
-            </View>
-            <MotiView style={styles.View_4v} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <TouchableOpacity
-                    onPress={onContinue}
-                    style={[
-                        styles.ButtonSolidQB,
-                        { backgroundColor: '#4C44D4', marginTop: 20 },
-                    ]}
-                >
-                    <Text style={styles.panelButtonText}>{'Awesome!'}</Text>
-                </TouchableOpacity>
-            </MotiView>
+                                        <Text
+                                            style={[styles.TextG2, { color: '#fff' }]}
+                                        >
+                                            {interest}
+                                        </Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </>}
+                </View>
+                <MotiView style={styles.View_4v} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                    <TouchableOpacity
+                        onPress={onContinue}
+                        style={[
+                            styles.ButtonSolidQB,
+                            { backgroundColor: '#4C44D4', marginTop: 20 },
+                        ]}
+                    >
+                        <Text style={styles.panelButtonText}>{'Awesome!'}</Text>
+                    </TouchableOpacity>
+                </MotiView>
+            </ScrollView>
         </MotiView>
     )
 }
@@ -1041,9 +1183,11 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
         <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
             <View style={styles.ViewD2}>
                 <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={9}
                     style={[
                         styles.headline1,
-                        { color: '#202060', fontSize: 20 },
+                        { color: '#202060', fontSize: 20, maxHeight: windowHeight / 3 },
                     ]}
                 >
                     In light of the global health crisis, we are offering the option to try DietPeeps for only {trialPrices[0].product.price_string}.
@@ -1089,10 +1233,10 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                                     alignItems: 'center'
                                 }}
                             >
-                                <Text adjustsFontSizeToFit style={{ color: '#202060', fontSize: 22 }}>{option.product.price_string}</Text>
+                                <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: '#202060', fontSize: 22 }}>{option.product.price_string}</Text>
                             </TouchableOpacity>
                         </MotiView>
-                        {index === trialPrices.length - 1 && 
+                        {/* {index === trialPrices.length - 1 && 
                             <Text
                                 adjustsFontSizeToFit
                                 numberOfLines={2}
@@ -1100,7 +1244,7 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                             >
                                 Most popular option
                             </Text>
-                        }
+                        } */}
                     </View>
                 ))}
                 {paidForTrial && 
@@ -1171,8 +1315,8 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
             answer: `We do not track calories. However, we offer support to users that are counting calories by helping them clean up their diet and offer low-calorie alternatives which help them stay within their calorie limits.`
         },
         {
-            question: 'How do I know u guyz rnt scaming me?',
-            answer: 'Idk lolz you figure that out'
+            question: 'How does the scoring system work?',
+            answer: 'The score is based on clean eating guidelines. For every meal, you will receive a chart that shows the composition of allowed foods (green), foods allowed in moderation (yellow), and foods to avoid (white).'
         }
     ]
 
@@ -1198,8 +1342,6 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
             ]
         }
     ]
-
-    const [selectedOffer, setSelectedOffer] = useState(1)
 
     return (
         <>
@@ -1331,12 +1473,12 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                         <View style={{ justifyContent: 'center' }}>
                             <Text style={{ fontSize: 18, color: '#202060', textAlign: 'center' }}>helped with reaching their weight loss goals.</Text>
                         </View>
-                        <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginVertical: 5 }} />
-                        <Text style={[styles.loadingScreenText, { marginVertical: 20 }]}>
+                        {/* <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginVertical: 5 }} /> */}
+                        {/* <Text adjustsFontSizeToFit numberOfLines={2} style={[styles.loadingScreenText, { marginVertical: 20 }]}>
                             But don't just take our word for it!
-                        </Text>
+                        </Text> */}
                     </View>
-                    <FlatList
+                    {/* <FlatList
                         style={{ marginVertical: 10 }}
                         horizontal
                         showsHorizontalScrollIndicator={false}
@@ -1354,14 +1496,14 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                             </View>
                         )}
                         keyExtractor={(item) => item.displayName}
-                    />
-                    <View style={{ width: windowWidth, alignItems: 'center', justifyContent: 'center' }}>
+                    /> */}
+                    {/* <View style={{ width: windowWidth, alignItems: 'center', justifyContent: 'center' }}>
                         <View style={{ padding: 10, width: 110, justifyContent: 'center', flexDirection: 'row', backgroundColor: '#fff', borderRadius: 15, borderWidth: 1, borderColor: '#202060' }}>
                             {testimonialsSecondBatch.map((item, index) => (
                                 <MotiView key={index} from={{ scale: 0, width: 10, backgroundColor: '#BDB9DB' }} animate={{ scale: 1, width: index === visibleT ? 20 : 10, backgroundColor: index === visibleT ? '#4C44D4' : '#BDB9DB' }} transition={{ type: 'timing' }} style={{ height: 10, borderRadius: 5, marginHorizontal: 5 }} />
                             ))}
                         </View>
-                    </View>
+                    </View> */}
                     <View style={{ width: windowWidth, paddingHorizontal: 20 }}>
                         <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginTop: 10, marginBottom: 5 }} />
                         <Text style={[styles.loadingScreenText, { marginVertical: 20 }]}>
@@ -1484,7 +1626,10 @@ export {
     TrialPricePage,
     WizardFinalPage,
     TestimonialInterstitial,
-    UnitToggler
+    UnitToggler,
+    GoalExplainerPage,
+    MealPhotoExplainerPage,
+    PhotoPledgePage
 }
 
 const styles = StyleSheet.create({

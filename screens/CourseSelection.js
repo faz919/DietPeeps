@@ -121,7 +121,7 @@ const CourseSelection = ({ navigation, route }) => {
                     <View style={styles.View_92}>
                       <TouchableOpacity disabled={item.UniqueCourseNumber - userCourseData.latestCourseCompleted > 1} onPress={() => handleCourseSelect(item)}>
                         <View>
-                          <Text style={styles.TexthV}>
+                          <Text adjustsFontSizeToFit numberOfLines={2} style={styles.TexthV}>
                             {item.Title}
                           </Text>
                           <Text style={{ color: '#202060' }}>

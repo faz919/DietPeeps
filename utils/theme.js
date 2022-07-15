@@ -1,8 +1,10 @@
 export default theme = {
     background: '#E6E7FA',
+    background_alt: '#fff',
     primary: '#202060',
     button: {
         background: '#4C44D4',
+        background_alt: '#6BE29B',
         text: '#fff',
         text_no_background: '#4D43BD',
         toggle_row: {
@@ -70,5 +72,9 @@ export default theme = {
         instagram: '#4c68d7',
         youtube: '#FF0000',
         twitter: '#1D9BF0'
+    },
+    dietpeeps_logo: {
+        main: '#6BE29B',
+        alt: '#1BEC56'
     }
 }

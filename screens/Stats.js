@@ -181,10 +181,10 @@ const Stats = ({ navigation }) => {
                                 tooltipComponent={<Tooltip />} />
                         </Chart>
                     </View>
-                    <Text style={{ fontSize: 26, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
+                    <Text adjustsFontSizeToFit numberOfLines={1} style={{ maxWidth: '80%', fontSize: 26, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
                         {'No graded photo data'}
                     </Text>
-                    <Text style={{ fontSize: 18, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
+                    <Text adjustsFontSizeToFit numberOfLines={1} style={{ maxWidth: '80%', fontSize: 18, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
                         {graphPage === 1 && 'Send in your first photo today!'}
                     </Text>
                 </View>
@@ -287,10 +287,10 @@ const Stats = ({ navigation }) => {
                                 tooltipComponent={<Tooltip />} />
                         </Chart>
                     </View>
-                    <Text style={{ fontSize: 26, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
+                    <Text adjustsFontSizeToFit numberOfLines={1} style={{ maxWidth: '80%', fontSize: 26, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
                         {'No weight history'}
                     </Text>
-                    <Text style={{ fontSize: 18, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
+                    <Text adjustsFontSizeToFit numberOfLines={1} style={{ maxWidth: '80%', fontSize: 18, alignSelf: 'center', color: '#202060', textAlign: 'center' }}>
                         {graphPage === 1 && 'Tap the scale icon in the chat box to weigh yourself today!'}
                     </Text>
                 </View>
@@ -354,21 +354,21 @@ const Stats = ({ navigation }) => {
                         <ActivityIndicator style={{ alignSelf: 'center', top: 100 }} size={35} color="#202060" />
                     </View> :
                     <View>
-                        <View style={{ backgroundColor: '#fff', borderRadius: 20, width: windowWidth - 30, minHeight: windowHeight / 8, marginTop: 20, alignSelf: 'center', alignItems: 'center', justifyContent: 'space-evenly', flexDirection: 'row', paddingVertical: (windowHeight / 8 - windowHeight / 10) / 2 }}>
+                        <View style={{ backgroundColor: '#fff', borderRadius: 20, width: windowWidth - 30, minHeight: windowHeight / 8, marginTop: 20, alignSelf: 'center', alignItems: 'center', justifyContent: 'space-evenly', flexDirection: 'row', padding: 5 }}>
                             <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowWidth / 4, minHeight: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{globalVars.userData?.streak}</Text>
-                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>Streak</Text>
+                                <Text adjustsFontSizeToFit numberOfLines={1} style={{ maxWidth: windowWidth / 4, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{globalVars.userData?.streak}</Text>
+                                <Text adjustsFontSizeToFit numberOfLines={1} style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>Streak</Text>
                             </View>
-                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowWidth / 4, minHeight: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayAvg()}</Text>
-                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Meal Score Avg</Text>
+                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowWidth / 4, minHeight: windowHeight / 10, alignItems: 'center', justifyContent: 'center', padding: 5 }}>
+                                <Text adjustsFontSizeToFit numberOfLines={1} style={{ maxWidth: windowWidth / 4, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayAvg()}</Text>
+                                <Text adjustsFontSizeToFit numberOfLines={2} style={{ maxWidth: windowWidth / 4 - 20, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Meal Score Avg</Text>
                             </View>
-                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowWidth / 4, minHeight: windowHeight / 10, alignItems: 'center', justifyContent: 'center' }}>
-                                <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                                    <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 10, color: '#202060' }}>{SevenDayWeightAvg()}</Text>
+                            <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, width: windowWidth / 4, minHeight: windowHeight / 10, alignItems: 'center', justifyContent: 'center', padding: 5 }}>
+                                <Text adjustsFontSizeToFit numberOfLines={1} style={{ flexDirection: 'row', alignItems: 'baseline', maxWidth: windowWidth / 4, fontSize: windowWidth / 10 }}>
+                                    <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',  color: '#202060' }}>{SevenDayWeightAvg()}</Text>
                                     <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060' }}>{SevenDayWeightAvg() !== '-' ? globalVars.userData.usesImperial ? 'lbs' : 'kgs' : ''}</Text>
-                                </View>
-                                <Text style={{ fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Weight Avg</Text>
+                                </Text>
+                                <Text adjustsFontSizeToFit numberOfLines={2} style={{ maxWidth: windowWidth / 4 - 20, fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', fontSize: windowWidth / 30, color: '#202060', textAlign: 'center' }}>7 Day Weight Avg</Text>
                             </View>
                         </View>
                         {/* <View style={{ width: windowWidth, minHeight: 300, justifyContent: 'center', alignItems: 'center' }}>
@@ -404,7 +404,7 @@ const Stats = ({ navigation }) => {
                             {/* only allow user to toggle between last 7 days and last 30 days if they're on the most recent page, because otherwise the logic would be hell */}
                             {graphPage !== 1 ?
                             <View style={{ height: 45, padding: 5, justifyContent: 'center', alignItems: 'center' }}>
-                                <Text adjustsFontSizeToFit={true} numberOfLines={1} style={{ maxWidth: windowWidth - 120, fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                                <Text adjustsFontSizeToFit numberOfLines={1} style={{ maxHeight: 40, maxWidth: windowWidth - 120, fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
                                     {moment(new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * graphPage)).format('l')} - {moment(new Date(new Date() - 60 * 60 * 24 * 1000 * lastXDays * (graphPage - 1))).format('l')}
                                 </Text>
                             </View>
@@ -412,18 +412,18 @@ const Stats = ({ navigation }) => {
                             <View>
                                 <AnimatePresence>
                                     {lastXDaysModal &&
-                                        <MotiView key='yo' from={{ translateY: 0, borderTopLeftRadius: 10, borderTopRightRadius: 10 }} animate={{ translateY: 45, borderTopLeftRadius: 0, borderTopRightRadius: 0 }} exit={{ translateY: 0, borderTopLeftRadius: 10, borderTopRightRadius: 10 }} transition={{ type: 'timing', duration: 300 }} style={styles.lastXDaysModal}>
+                                        <MotiView key='lastXDaysModal' from={{ translateY: 0, borderTopLeftRadius: 10, borderTopRightRadius: 10 }} animate={{ translateY: 40, borderTopLeftRadius: 0, borderTopRightRadius: 0 }} exit={{ translateY: 0, borderTopLeftRadius: 10, borderTopRightRadius: 10 }} transition={{ type: 'timing', duration: 300 }} style={styles.lastXDaysModal}>
                                             <TouchableOpacity onPress={() => lastXDays === 7 ? handleLastXModalSelection(30) : handleLastXModalSelection(7)} style={{ width: windowWidth * 0.6 }}>
-                                                <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                                                <Text adjustsFontSizeToFit numberOfLines={1} style={{ maxHeight: 30, fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
                                                     Last {lastXDays === 7 ? '30' : '7'} Days
                                                 </Text>
                                             </TouchableOpacity>
                                         </MotiView>
                                     }
                                 </AnimatePresence>
-                                <MotiView from={{ borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} animate={{ borderBottomLeftRadius: lastXDaysModal ? 0 : 10, borderBottomRightRadius: lastXDaysModal ? 0 : 10 }} transition={{ type: 'timing', duration: 100 }} style={{ width: windowWidth * 0.6, minHeight: 45, padding: 5, backgroundColor: '#fff', borderRadius: 10, justifyContent: 'center' }} >
+                                <MotiView from={{ borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }} animate={{ borderBottomLeftRadius: lastXDaysModal ? 0 : 10, borderBottomRightRadius: lastXDaysModal ? 0 : 10 }} transition={{ type: 'timing', duration: 100 }} style={{ width: windowWidth * 0.6, minHeight: 40, padding: 5, backgroundColor: '#fff', borderRadius: 10, justifyContent: 'center' }} >
                                     <TouchableOpacity style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly' }} onPress={() => lastXDaysModal ? showLastXDaysModal(false) : showLastXDaysModal(true)}>
-                                        <Text style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
+                                        <Text adjustsFontSizeToFit numberOfLines={1} style={{ maxHeight: 30, fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', textAlign: 'center' }}>
                                             Last {lastXDays} Days
                                         </Text>
                                         <View>
@@ -462,7 +462,7 @@ const Stats = ({ navigation }) => {
                             Weight History
                         </Text>
                         <WeightHistoryGraph />
-                        <Text onLayout={(event) => { const { y } = event.nativeEvent.layout; setCalendarInfoIcon(y) }} style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center' }}>
+                        <Text adjustsFontSizeToFit numberOfLines={1} onLayout={(event) => { const { y } = event.nativeEvent.layout; setCalendarInfoIcon(y) }} style={{ fontSize: 26, color: '#202060', fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal', alignSelf: 'center', maxWidth: windowWidth - 100 }}>
                             Meal Photo Calendar
                         </Text>
                         <Calendar
@@ -517,7 +517,7 @@ const Stats = ({ navigation }) => {
                                                 color='black'
                                             />
                                         </TouchableOpacity> */}
-                                            <Text adjustsFontSizeToFit={true} style={{ color: '#202060' }}>{'This calendar displays the number of photos sent on each day.'}</Text>
+                                            <Text adjustsFontSizeToFit style={{ color: '#202060' }}>{'This calendar displays the number of photos sent on each day.'}</Text>
                                             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
                                                 <View style={{ width: 20, height: 20, borderRadius: 5, backgroundColor: '#c1efc0' }} />
                                                 <Text style={{ color: '#202060', textAlign: 'right', maxWidth: '75%' }}>
@@ -536,7 +536,7 @@ const Stats = ({ navigation }) => {
                                                     Indicates 3+ meal photos were sent
                                                 </Text>
                                             </View>
-                                            <Text adjustsFontSizeToFit={true} style={{ color: '#202060', fontSize: 12, alignSelf: 'center', marginTop: 5 }}>{'(Hide)'}</Text>
+                                            <Text adjustsFontSizeToFit style={{ color: '#202060', fontSize: 12, alignSelf: 'center', marginTop: 5 }}>{'(Hide)'}</Text>
                                         </TouchableOpacity>
                                     </MotiView>}
                             </AnimatePresence>
@@ -673,7 +673,7 @@ const styles = StyleSheet.create({
     lastXDaysModal: {
         position: 'absolute',
         width: windowWidth * 0.6,
-        minHeight: 45, 
+        minHeight: 40, 
         padding: 5,
         backgroundColor: '#fff',
         borderRadius: 10,

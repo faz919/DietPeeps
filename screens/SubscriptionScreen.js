@@ -144,10 +144,11 @@ const SubscriptionScreen = ({ navigation, route }) => {
                 borderRadius: 20
             }}>
                 <View style={styles.ViewT7}>
-                    <View style={{ borderRadius: windowHeight / 20, borderWidth: 1, borderColor: '#202060', justifyContent: 'center', flexDirection: 'row', alignItems: 'baseline', height: windowHeight / 10, minWidth: windowWidth / 2, paddingTop: windowHeight / 40, paddingHorizontal: 20, marginVertical: windowHeight > 700 ? 0 : windowHeight / 20 }}>
-                        {/* <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>$</Text> */}
-                        {subscription && <Text style={{ color: '#202060', fontSize: windowHeight / 15, lineHeight: windowHeight / 15 }}>{(subscription.product?.price_string)}</Text>}
-                        <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>/month</Text>
+                    <View style={{ borderRadius: windowHeight / 20, borderWidth: 1, borderColor: '#202060', justifyContent: 'center', alignItems: 'center', height: windowHeight / 10, minWidth: windowWidth / 2, paddingHorizontal: 20, marginVertical: windowHeight > 700 ? 0 : windowHeight / 20 }}>
+                        <View style={{ justifyContent: 'flex-end', alignItems: 'center', flexDirection: 'row', height: windowHeight / 10 }}>
+                            {subscription && <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: '#202060', fontSize: windowHeight / 15, maxHeight: windowHeight / 15 }}>{(subscription.product?.price_string)}</Text>}
+                            <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>/month</Text>
+                        </View>
                     </View>
                     <View style={styles.ViewsW}>
                         {trialReminder > 0 && trialReminder !== 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Hey there! You have {14 - trialReminder} days remaining in your free trial. Become a DietPeeps Subscriber to receive:</Text>
@@ -166,6 +167,8 @@ const SubscriptionScreen = ({ navigation, route }) => {
                                 />
                                 <View style={styles.ViewZZ}>
                                     <Text
+                                        adjustsFontSizeToFit
+                                        numberOfLines={3}
                                         style={[
                                             styles.subtitle1,
                                             { color: '#202060', fontWeight: '400' },
@@ -297,7 +300,6 @@ const styles = StyleSheet.create({
     subtitle1: {
         fontSize: 16,
         letterSpacing: 0,
-        lineHeight: 26,
         top: -5,
     },
     panelButtonText: {
