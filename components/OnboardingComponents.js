@@ -24,6 +24,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Stanford from '../assets/stanford-logo.png'
 import Oxford from '../assets/oxford-logo-hmm-yes-quite.png'
 import ClevelandClinic from '../assets/cleveland-clinic-logo.png'
+import FirstPageBackground from '../assets/first-page-background.jpeg'
 
 const IntroExplainerPage = ({ onContinue }) => {
 
@@ -32,34 +33,126 @@ const IntroExplainerPage = ({ onContinue }) => {
     
     const [animationStep, setAnimationStep] = useState(0)
 
-    const [introPage, setIntroPage] = useState(1)
+    const [introPage, setIntroPage] = useState(0)
 
     const pageChangeDelay = 700
 
     useEffect(() => {
-        const stepOne = setTimeout(() => {
-            setAnimationStep(1)
-        }, 5000)
-        const stepTwo = setTimeout(() => {
-            setAnimationStep(2)
-        }, 7000)
-        const stepThree = setTimeout(() => {
-            setAnimationStep(3)
-        }, 9000)
-        const stepFour = setTimeout(() => {
-            setAnimationStep(4)
-        }, 11000)
-        return () => {
-            clearTimeout(stepOne)
-            clearTimeout(stepTwo)
-            clearTimeout(stepThree)
-            clearTimeout(stepFour)
+        if (introPage === 1) {
+            const stepOne = setTimeout(() => {
+                setAnimationStep(1)
+            }, 5000)
+            const stepTwo = setTimeout(() => {
+                setAnimationStep(2)
+            }, 7000)
+            const stepThree = setTimeout(() => {
+                setAnimationStep(3)
+            }, 9000)
+            const stepFour = setTimeout(() => {
+                setAnimationStep(4)
+            }, 11000)
+            return () => {
+                clearTimeout(stepOne)
+                clearTimeout(stepTwo)
+                clearTimeout(stepThree)
+                clearTimeout(stepFour)
+            }
         }
-    }, [])
+    }, [introPage])
 
     return (
-        <MotiView from={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <MotiView style={{ flex: 1 }} from={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <AnimatePresence exitBeforeEnter>
+                {introPage === 0 && 
+                    <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} key={`introPage0`} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <MotiImage 
+                            from={{ scale: 1 }} 
+                            animate={{ scale: 1.1 }} 
+                            transition={{
+                                scale: {
+                                    duration: 1500,
+                                    easing: Easing.bezier(0, 0.55, 0.45, 1),
+                                    type: 'timing'
+                                }
+                            }}
+                            source={FirstPageBackground} 
+                            style={{ position: 'absolute', resizeMode: 'cover', height: windowHeight, width: windowWidth }} 
+                        />
+                        <MotiView
+                            from={{ translateY: -125 }}
+                            animate={{ translateY: 0 }}
+                            transition={{ 
+                                duration: 500,
+                                delay: 2000,
+                                type: 'timing'
+                            }}
+                            style={{
+                                position: 'absolute',
+                                top: -97,
+                                left: 22,
+                                width: 212,
+                                height: 222,
+                                borderRadius: 111,
+                                backgroundColor: '#6BE29B'
+                            }}
+                        />
+                        <MotiView
+                            from={{ translateY: -204 }}
+                            animate={{ translateY: 0 }}
+                            transition={{ 
+                                duration: 500,
+                                delay: 2400,
+                                type: 'timing'
+                            }}
+                            style={{
+                                position: 'absolute',
+                                top: -18,
+                                left: -106,
+                                width: 212,
+                                height: 222,
+                                borderRadius: 111,
+                                backgroundColor: '#6BE29B'
+                            }}
+                        />
+                        <View style={{ top: windowHeight / 3 }}>
+                            <MotiView
+                                from={{ opacity: 0, translateY: 20 }}
+                                animate={{ opacity: 1, translateY: 0 }}
+                                transition={{ type: 'timing' }}
+                                delay={1500}
+                                style={styles.ViewD2}
+                            >
+                                <Text
+                                    adjustsFontSizeToFit
+                                    numberOfLines={1}
+                                    style={[
+                                        styles.headline1,
+                                        { color: '#000', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844), maxWidth: windowWidth - 64 },
+                                    ]}
+                                >
+                                    {`A human diet coach in your pocket.`}
+                                </Text>
+                            </MotiView>
+                            <MotiView
+                                from={{ opacity: 0, translateY: 20 }}
+                                animate={{ opacity: 1, translateY: 0 }}
+                                transition={{ type: 'timing' }}
+                                delay={2000}
+                                style={styles.View_4v}
+                            >
+                                <TouchableOpacity
+                                    onPress={() => setIntroPage(1)}
+                                    style={[
+                                        styles.ButtonSolidQB,
+                                        { backgroundColor: '#6BE29B', marginTop: 0 },
+                                    ]}
+                                >
+                                    <Text style={[styles.panelButtonText, { fontSize: 20 }]}>{'Get Started'}</Text>
+                                </TouchableOpacity>
+                            </MotiView>
+                        </View>
+                    </MotiView>
+                }
                 {introPage === 1 && 
                 <MotiView key={`introPage1`} from={{ opacity: 0, translateY: 0 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing' }} style={{ marginHorizontal: 20 }}>
                     <MotiView
@@ -752,19 +845,82 @@ const MealCountSelectorPage = ({ prevResponse, onSelectResponse, onContinue, dis
 }
 
 const MealPhotoExplainerPage = ({ onContinue }) => {
+
+    const [page, setPage] = useState(1)
+
     return (
-        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
-            <View style={styles.View_4v}>
-                <TouchableOpacity
-                    onPress={onContinue}
-                    style={[
-                        styles.ButtonSolidQB,
-                        { backgroundColor: '#4C44D4', marginTop: 20 },
-                    ]}
-                >
-                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
-                </TouchableOpacity>
-            </View>
+        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <AnimatePresence exitBeforeEnter>
+                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+                    <View style={styles.ViewD2}>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={2}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', textAlign: 'left' },
+                            ]}
+                        >
+                            {'A goal without a plan is only a dream...'}
+                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                        <MotiImage from={{ translateY: 20, opacity: 0 }} animate={{ translateY: 0, opacity: 1 }} transition={{ type: 'timing' }} source={Stanford} style={{ width: windowWidth / 5, height: windowWidth / 5, marginRight: 10 }} />
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={6}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 20, fontWeight: '500', maxWidth: windowWidth * 0.75 - 74, textAlign: 'left' },
+                            ]}
+                        >
+                            <Text style={{ fontWeight: '700' }}>Stanford University </Text>
+                            reports that short-term goals serve as a great motivator when setting out to attain an ultimate goal.
+                        </Text>
+                    </View>
+                    <Text
+                        adjustsFontSizeToFit
+                        numberOfLines={3}
+                        style={[
+                            styles.headline1,
+                            { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                        ]}
+                    >
+                        Small goals reinforce achievability and keep you motivated.
+                    </Text>
+                    <Text
+                        adjustsFontSizeToFit
+                        numberOfLines={2}
+                        style={[
+                            styles.headline1,
+                            { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                        ]}
+                    >
+                        Understanding your goals helps us design a plan specific to you.
+                    </Text>
+                    <Text
+                        adjustsFontSizeToFit
+                        numberOfLines={2}
+                        style={[
+                            styles.headline1,
+                            { color: '#202060', fontSize: 22, fontWeight: '600', textAlign: 'left' },
+                        ]}
+                    >
+                        Are you ready to take the first step to the rest of your life?
+                    </Text>
+                    <View style={styles.View_4v}>
+                        <TouchableOpacity
+                            onPress={onContinue}
+                            style={[
+                                styles.ButtonSolidQB,
+                                { backgroundColor: '#4C44D4', marginTop: 20 },
+                            ]}
+                        >
+                            <Text style={styles.panelButtonText}>{'Yes!'}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </MotiView>
+            </AnimatePresence>
         </MotiView>
     )
 }
