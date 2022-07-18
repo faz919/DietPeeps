@@ -30,7 +30,8 @@ import {
     TrialPricePage,
     GoalExplainerPage,
     MealPhotoExplainerPage,
-    PhotoPledgePage
+    PhotoPledgePage,
+    DetailedExplainerPage
 } from '../components/OnboardingComponents.js'
 import Purchases from 'react-native-purchases'
 
@@ -110,10 +111,6 @@ const OnboardingWizard = ({ navigation }) => {
             setTrialPaymentLoading(false)
         }
     }
-
-    useEffect(() => {
-        console.log(trialPaymentLoading)
-    }, [trialPaymentLoading])
 
     // get the user's coach info
     const [coachInfo, setCoachInfo] = useState(null)
@@ -520,8 +517,14 @@ const OnboardingWizard = ({ navigation }) => {
                                             key={`page${otherGoalScreen}`}
                                             selectedGoals={formResponses.goals}
                                             onSelectGoal={(goal) => toggleSelectGoal(goal)}
-                                            onContinue={() => { formPage === otherGoalScreen && setFormPage(otherGoalScreen + 0.5) }}
+                                            onContinue={() => { formPage === otherGoalScreen && setFormPage('detailedExplainer') }}
                                             disableAnimation={false}
+                                        />
+                                    }
+                                    {formPage === 'detailedExplainer' &&
+                                        <DetailedExplainerPage
+                                            key={'detailedExplainer'}
+                                            onContinue={() => setFormPage(otherGoalScreen + 0.5)}
                                         />
                                     }
                                     {formPage === otherGoalScreen + 0.5 &&

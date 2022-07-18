@@ -1,4 +1,4 @@
-import { AnimatePresence, MotiImage, MotiText, MotiView } from 'moti';
+import { AnimatePresence, MotiImage, MotiText, MotiView } from 'moti'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Image, ImageBackground, KeyboardAvoidingView, Linking, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Easing } from 'react-native-reanimated'
@@ -25,6 +25,7 @@ import Stanford from '../assets/stanford-logo.png'
 import Oxford from '../assets/oxford-logo-hmm-yes-quite.png'
 import ClevelandClinic from '../assets/cleveland-clinic-logo.png'
 import FirstPageBackground from '../assets/first-page-background.jpeg'
+import PieChartCartoon from '../assets/onboarding-pie-chart.png'
 
 const IntroExplainerPage = ({ onContinue }) => {
 
@@ -101,7 +102,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                             animate={{ translateY: 0 }}
                             transition={{ 
                                 duration: 500,
-                                delay: 2400,
+                                delay: 2500,
                                 type: 'timing'
                             }}
                             style={{
@@ -127,7 +128,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                                     numberOfLines={1}
                                     style={[
                                         styles.headline1,
-                                        { color: '#000', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844), maxWidth: windowWidth - 64 },
+                                        { color: '#000', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (20 / 844), maxWidth: windowWidth - 64 },
                                     ]}
                                 >
                                     {`A human diet coach in your pocket.`}
@@ -137,7 +138,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                                 from={{ opacity: 0, translateY: 20 }}
                                 animate={{ opacity: 1, translateY: 0 }}
                                 transition={{ type: 'timing' }}
-                                delay={2000}
+                                delay={3000}
                                 style={styles.View_4v}
                             >
                                 <TouchableOpacity
@@ -464,18 +465,16 @@ const WeightGoalSelectorPage = ({ containerStyle, onSelectResponse, disableAnima
 const GoalExplainerPage = ({ onContinue }) => {
     return (
         <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
-            <View style={styles.ViewD2}>
-                <Text
-                    adjustsFontSizeToFit
-                    numberOfLines={2}
-                    style={[
-                        styles.headline1,
-                        { color: '#202060', textAlign: 'left' },
-                    ]}
-                >
-                    {'A goal without a plan is only a dream...'}
-                </Text>
-            </View>
+            <Text
+                adjustsFontSizeToFit
+                numberOfLines={2}
+                style={[
+                    styles.headline1,
+                    { color: '#202060' },
+                ]}
+            >
+                {'A goal without a plan is only a dream...'}
+            </Text>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                 <MotiImage from={{ translateY: 20, opacity: 0 }} animate={{ translateY: 0, opacity: 1 }} transition={{ type: 'timing' }} source={Stanford} style={{ width: windowWidth / 5, height: windowWidth / 5, marginRight: 10 }} />
                 <Text
@@ -483,7 +482,7 @@ const GoalExplainerPage = ({ onContinue }) => {
                     numberOfLines={6}
                     style={[
                         styles.headline1,
-                        { color: '#202060', fontSize: 20, fontWeight: '500', maxWidth: windowWidth * 0.75 - 74, textAlign: 'left' },
+                        { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth * 0.75 - 74, textAlign: 'left' },
                     ]}
                 >
                     <Text style={{ fontWeight: '700' }}>Stanford University </Text>
@@ -608,6 +607,134 @@ const OtherGoalSelectorPage = ({ selectedGoals, onSelectGoal, onContinue, disabl
                     <Text style={styles.panelButtonText}>{'Continue'}</Text>
                 </TouchableOpacity>
             </View>
+        </MotiView>
+    )
+}
+
+const DetailedExplainerPage = ({ onContinue }) => {
+
+    const [page, setPage] = useState(1)
+
+    const items = [
+        <>
+            A <Text style={{ fontWeight: '700' }}>personalized coach. </Text>You get assigned to a human coach who keeps you accountable. {`\n\n`}They will score your meals and suggest healthy tweaks to your diet, provide you with new strategies to draw you closer to your goal, and cheer you on!
+        </>,
+        <>
+            <Text style={{ fontWeight: '700' }}>Nutritional </Text>know-how from renowned diet experts and nutritionists compressed into daily bite-sized <Text style={{ fontWeight: '700' }}>courses</Text>. {`\n\n`}The courses are in the form of engaging and interactive stories.
+        </>,
+        <>
+            Keep up with your <Text style={{ fontWeight: '700' }}>stats</Text>. {`\n\n`}We provide you with weekly and monthly averages of your meal scores and weight, and a consistency streak.
+        </>
+    ]
+
+    return (
+        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <AnimatePresence exitBeforeEnter>
+                {page === 1 &&
+                    <MotiView key={`detailedExplainerPage1`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={2}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', maxHeight: 70 },
+                            ]}
+                        >
+                            {'What you get with DietPeeps:'}
+                        </Text>
+                        {items.map((item, index) => (
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start' }}>
+                                <Icon
+                                    name={'checkmark-circle'}
+                                    size={30}
+                                    color={'#202060'}
+                                    style={{ bottom: 3 }}
+                                />
+                                <Text
+                                    adjustsFontSizeToFit
+                                    style={[
+                                        styles.headline1,
+                                        { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth - 104, textAlign: 'left', marginTop: 0, marginLeft: 10 },
+                                    ]}
+                                >
+                                    {item}
+                                </Text>
+                            </View>
+                        ))}
+                        <View style={styles.View_4v}>
+                            <TouchableOpacity
+                                onPress={() => setPage(2)}
+                                style={{
+                                    width: 70,
+                                    height: 70,
+                                    backgroundColor: '#202060',
+                                    borderColor: '#fff',
+                                    borderWidth: 3,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: 35,
+                                    elevation: 5,
+                                    shadowColor: '#000000',
+                                    shadowOffset: { width: 0, height: 5 },
+                                    shadowRadius: 5,
+                                    shadowOpacity: 0.3
+                                }}
+                            >
+                                <Icon
+                                    name={'md-arrow-forward-sharp'}
+                                    size={35}
+                                    color={'#fff'}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                    </MotiView>}
+                {page === 2 && 
+                    <MotiView key={`detailedExplainerPage2`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={7}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                            ]}
+                        >
+                            For every meal, you will receive a number score and a chart that shows the composition of allowed foods (green), foods allowed in moderation (yellow), and foods allowed occasionally (white).
+                        </Text>
+                        <MotiImage
+                            from={{ translateY: 20, opacity: 0 }} 
+                            animate={{ translateY: 0, opacity: 1 }} 
+                            transition={{ type: 'timing' }}
+                            source={PieChartCartoon}
+                            style={{ 
+                                width: windowWidth - 64,
+                                resizeMode: 'contain',
+                                height: windowHeight / 4
+                            }}
+                        />
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={7}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                            ]}
+                        >
+                            The score is based on the ratios of green, yellow and white foods on your plate. If you eat only ‘green’ foods, you will get 100, if you eat only ‘yellow’ foods you will get 50, and if you eat only ‘white’ foods you will get 0.
+                        </Text>
+                        <View style={styles.View_4v}>
+                            <TouchableOpacity
+                                onPress={onContinue}
+                                style={[
+                                    styles.ButtonSolidQB,
+                                    { backgroundColor: '#4C44D4', marginTop: 20 },
+                                ]}
+                            >
+                                <Text style={styles.panelButtonText}>{'Got it!'}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </MotiView>
+                }
+            </AnimatePresence>
         </MotiView>
     )
 }
@@ -851,75 +978,145 @@ const MealPhotoExplainerPage = ({ onContinue }) => {
     return (
         <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <AnimatePresence exitBeforeEnter>
-                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
-                    <View style={styles.ViewD2}>
+                {page === 1 &&
+                    <MotiView key={`photoExplainerPage1`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
                         <Text
                             adjustsFontSizeToFit
                             numberOfLines={2}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', textAlign: 'left' },
+                                { color: '#202060', textAlign: 'left', maxHeight: 70 },
                             ]}
                         >
-                            {'A goal without a plan is only a dream...'}
+                            {'Why send a photo of my meal?'}
                         </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                        <MotiImage from={{ translateY: 20, opacity: 0 }} animate={{ translateY: 0, opacity: 1 }} transition={{ type: 'timing' }} source={Stanford} style={{ width: windowWidth / 5, height: windowWidth / 5, marginRight: 10 }} />
+                        <MotiImage from={{ translateY: 20, opacity: 0 }} animate={{ translateY: 0, opacity: 1 }} transition={{ type: 'timing' }} source={ClevelandClinic} style={{ width: 60, height: 60 }} />
                         <Text
                             adjustsFontSizeToFit
-                            numberOfLines={6}
+                            numberOfLines={7}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 20, fontWeight: '500', maxWidth: windowWidth * 0.75 - 74, textAlign: 'left' },
+                                { color: '#202060', fontSize: 16, fontWeight: '500', width: windowWidth - 64, textAlign: 'left', marginBottom: 10 },
                             ]}
                         >
-                            <Text style={{ fontWeight: '700' }}>Stanford University </Text>
-                            reports that short-term goals serve as a great motivator when setting out to attain an ultimate goal.
+                            <Text style={{ fontWeight: '700' }}>Cleveland Clinic </Text>
+                            found that it took about 15 minutes a day for the participants to log their meals. It was noted that participants who consistently logged their meals experienced more weight loss than those who didn't.
                         </Text>
-                    </View>
-                    <Text
-                        adjustsFontSizeToFit
-                        numberOfLines={3}
-                        style={[
-                            styles.headline1,
-                            { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
-                        ]}
-                    >
-                        Small goals reinforce achievability and keep you motivated.
-                    </Text>
-                    <Text
-                        adjustsFontSizeToFit
-                        numberOfLines={2}
-                        style={[
-                            styles.headline1,
-                            { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
-                        ]}
-                    >
-                        Understanding your goals helps us design a plan specific to you.
-                    </Text>
-                    <Text
-                        adjustsFontSizeToFit
-                        numberOfLines={2}
-                        style={[
-                            styles.headline1,
-                            { color: '#202060', fontSize: 22, fontWeight: '600', textAlign: 'left' },
-                        ]}
-                    >
-                        Are you ready to take the first step to the rest of your life?
-                    </Text>
-                    <View style={styles.View_4v}>
-                        <TouchableOpacity
-                            onPress={onContinue}
+                        <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, padding: 15, justifyContent: 'flex-start', alignItems: 'center' }}>
+                            <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={7}
+                                style={[
+                                    styles.headline1,
+                                    { color: '#202060', fontSize: 16, fontWeight: '500', textAlign: 'left', marginVertical: 0 },
+                                ]}
+                            >
+                                {`“The people who had the most weight-loss success - losing 10 percent or more of their body weight - were the ones most likely to log, log multiple times a day, and keep it up throughout the entire six months.” \n~ Dr Leslie Heinberg.`}
+                            </Text>
+                        </View>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={2}
                             style={[
-                                styles.ButtonSolidQB,
-                                { backgroundColor: '#4C44D4', marginTop: 20 },
+                                styles.headline1,
+                                { color: '#202060', fontSize: 18, fontWeight: '500', textAlign: 'left', marginTop: 10, marginBottom: 5, maxHeight: 50 },
                             ]}
                         >
-                            <Text style={styles.panelButtonText}>{'Yes!'}</Text>
-                        </TouchableOpacity>
-                    </View>
-                </MotiView>
+                            Meal logging is clinically proven to be an effective weight loss strategy.
+                        </Text>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={3}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 18, fontWeight: '500', textAlign: 'left', marginVertical: 5, maxHeight: 70 },
+                            ]}
+                        >
+                            Writing down everything you eat can be laboring, but DietPeeps makes it easy.
+                        </Text>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={2}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 18, fontWeight: '500', textAlign: 'left', marginVertical: 5, maxHeight: 50 },
+                            ]}
+                        >
+                            All you have to do is send us a photo of your meal.
+                        </Text>
+                        <View style={styles.View_4v}>
+                            <TouchableOpacity
+                                onPress={() => setPage(2)}
+                                style={{
+                                    width: 70,
+                                    height: 70,
+                                    backgroundColor: '#202060',
+                                    borderColor: '#fff',
+                                    borderWidth: 3,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: 35,
+                                    elevation: 5,
+                                    shadowColor: '#000000',
+                                    shadowOffset: { width: 0, height: 5 },
+                                    shadowRadius: 5,
+                                    shadowOpacity: 0.3,
+                                }}
+                            >
+                                <Icon
+                                    name={'md-arrow-forward-sharp'}
+                                    size={35}
+                                    color={'#fff'}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                    </MotiView>}
+                {page === 2 && 
+                    <MotiView key={`photoExplainerPage2`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={7}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                            ]}
+                        >
+                            For every meal, you will receive a number score and a chart that shows the composition of allowed foods (green), foods allowed in moderation (yellow), and foods allowed occasionally (white).
+                        </Text>
+                        <MotiImage
+                            from={{ translateY: 20, opacity: 0 }} 
+                            animate={{ translateY: 0, opacity: 1 }} 
+                            transition={{ type: 'timing' }}
+                            source={PieChartCartoon}
+                            style={{ 
+                                width: windowWidth - 64,
+                                resizeMode: 'contain',
+                                height: windowHeight / 4
+                            }}
+                        />
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={7}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                            ]}
+                        >
+                            The score is based on the ratios of green, yellow and white foods on your plate. If you eat only ‘green’ foods, you will get 100, if you eat only ‘yellow’ foods you will get 50, and if you eat only ‘white’ foods you will get 0.
+                        </Text>
+                        <View style={styles.View_4v}>
+                            <TouchableOpacity
+                                onPress={onContinue}
+                                style={[
+                                    styles.ButtonSolidQB,
+                                    { backgroundColor: '#4C44D4', marginTop: 20 },
+                                ]}
+                            >
+                                <Text style={styles.panelButtonText}>{'Got it!'}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </MotiView>
+                }
             </AnimatePresence>
         </MotiView>
     )
@@ -1785,7 +1982,8 @@ export {
     UnitToggler,
     GoalExplainerPage,
     MealPhotoExplainerPage,
-    PhotoPledgePage
+    PhotoPledgePage,
+    DetailedExplainerPage
 }
 
 const styles = StyleSheet.create({

@@ -109,8 +109,10 @@ const App = () => {
     initialRoute = 'Onboarding Wizard'
   }
 
+  // initialRoute = 'Onboarding Wizard'
+
   return (
-    <AppStack.Navigator initialRouteName={initialRoute} >
+    <AppStack.Navigator initialRouteName={initialRoute}>
       <AppStack.Screen name="Main Menu" component={MainMenu} options={{ headerShown: false }} />
       {/* <AppStack.Screen name="Photo Gallery" component={PhotoGallery} options={{ headerShown: false }} /> */}
       <AppStack.Screen name="Enable Notifs" component={EnableNotifsScreen} options={{ 
