@@ -1,6 +1,6 @@
 import { AnimatePresence, MotiImage, MotiText, MotiView } from 'moti'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Image, ImageBackground, KeyboardAvoidingView, Linking, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Image, ImageBackground, KeyboardAvoidingView, Linking, Modal, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Easing } from 'react-native-reanimated'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import Icon from 'react-native-vector-icons/Ionicons'
@@ -26,6 +26,9 @@ import Oxford from '../assets/oxford-logo-hmm-yes-quite.png'
 import ClevelandClinic from '../assets/cleveland-clinic-logo.png'
 import FirstPageBackground from '../assets/first-page-background.jpeg'
 import PieChartCartoon from '../assets/onboarding-pie-chart.png'
+import PhotoPledge from '../assets/photo-pledge.png'
+import PlatePhoto from '../assets/onboarding-plate-optional.png'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const IntroExplainerPage = ({ onContinue }) => {
 
@@ -42,16 +45,16 @@ const IntroExplainerPage = ({ onContinue }) => {
         if (introPage === 1) {
             const stepOne = setTimeout(() => {
                 setAnimationStep(1)
-            }, 5000)
+            }, 2000)
             const stepTwo = setTimeout(() => {
                 setAnimationStep(2)
-            }, 7000)
+            }, 4000)
             const stepThree = setTimeout(() => {
                 setAnimationStep(3)
-            }, 9000)
+            }, 6000)
             const stepFour = setTimeout(() => {
                 setAnimationStep(4)
-            }, 11000)
+            }, 8000)
             return () => {
                 clearTimeout(stepOne)
                 clearTimeout(stepTwo)
@@ -60,6 +63,12 @@ const IntroExplainerPage = ({ onContinue }) => {
             }
         }
     }, [introPage])
+
+    useEffect(() => {
+
+    }, [])
+
+    const insets = useSafeAreaInsets()
 
     return (
         <MotiView style={{ flex: 1 }} from={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -154,232 +163,248 @@ const IntroExplainerPage = ({ onContinue }) => {
                         </View>
                     </MotiView>
                 }
-                {introPage === 1 && 
-                <MotiView key={`introPage1`} from={{ opacity: 0, translateY: 0 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing' }} style={{ marginHorizontal: 20 }}>
-                    <MotiView
-                        from={{ opacity: 0, scale: 0, translateY: 200 }}
-                        animate={{ opacity: 1, scale: 1, translateY: 0 }}
-                        transition={{
-                            translateY: {
-                                delay: 1000,
-                                duration: 1500,
-                                type: 'timing',
-                                easing: Easing.bezier(.69, 0, .01, .98)
-                            },
-                            scale: {
-                                duration: 1000,
-                                type: 'timing',
-                                easing: Easing.bezier(.69, 0, 0, 1.58)
-                            }
-                        }}
-                    >
-                        <View style={styles.ViewD2}>
-                            <Text adjustsFontSizeToFit numberOfLines={2} style={[styles.headline2, { color: '#202060', marginBottom: 0, maxHeight: windowHeight / 8 }]}>
-                                {'Welcome to DietPeeps!'}
-                            </Text>
-                        </View>
-                    </MotiView>
-                    <MotiView
-                        from={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        delay={1800}
-                    >
-                        <View style={styles.ViewD2}>
-                            <Text
-                                adjustsFontSizeToFit
-                                numberOfLines={1}
-                                style={[
-                                    styles.headline1,
-                                    { color: '#202060', marginBottom: 0, marginTop: 5 },
-                                ]}
+                {introPage === 1 &&
+                    <MotiView key={`introPage1`} from={{ opacity: 0, translateY: 0 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing' }} style={{ flex: 1 }}>
+                        <SafeAreaView style={{ flex: 1, marginHorizontal: 20, justifyContent: 'center', alignItems: 'center' }}>
+                            <MotiView
+                                from={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                delay={700}
                             >
-                                {`Here's how it works.`}
-                            </Text>
-                        </View>
-                    </MotiView>
-                    <MotiView
-                        from={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        delay={3800}
-                    >
-                        <View style={styles.ViewD2}>
-                            <Text
-                                adjustsFontSizeToFit
-                                numberOfLines={1}
-                                style={[
-                                    styles.headline1,
-                                    { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844) },
-                                ]}
+                                <View style={styles.ViewD2}>
+                                    <Text
+                                        adjustsFontSizeToFit
+                                        numberOfLines={2}
+                                        style={[
+                                            styles.headline1,
+                                            { color: '#202060', marginBottom: 20, marginTop: 5 },
+                                        ]}
+                                    >
+                                        {`DietPeeps gets you in touch with real human support. `}
+                                    </Text>
+                                </View>
+                            </MotiView>
+                            {/* <MotiView
+                                from={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                delay={3800}
                             >
-                                {`Send photos of your meals`}
-                            </Text>
-                        </View>
-                    </MotiView>
-                    <ScrollView
-                        ref={firstPageScrollViewRef}
-                        onContentSizeChange={() => firstPageScrollViewRef.current.scrollToEnd({ duration: 1500, animated: true })}
-                        overScrollMode={'never'}
-                        bounces={false}
-                        scrollEnabled
-                        showsVerticalScrollIndicator={false}
-                        style={{ overflow: 'hidden', height: windowHeight * 0.4 }}
-                    >
-                        {animationStep > 0 && <MotiView
-                            key={`step0`}
-                            from={{ opacity: 0, translateY: 20 }}
-                            animate={{ opacity: 1, translateY: 0 }}
-                            transition={{ type: 'timing' }}
-                        // delay={3000}
-                        >
-                            <ChatMessage
-                                item={{
-                                    img: [
-                                        {
-                                            url: 'https://firebasestorage.googleapis.com/v0/b/firstproject-b3f4a.appspot.com/o/chat-pictures%2Fonboarding_sample_image.jpg?alt=media&token=21a973a9-c7f1-4b1f-9e51-07090787a6f5'
-                                        }
-                                    ]
-                                }}
-                                outgoingMessage
-                                disablePress
-                            />
-                        </MotiView>}
-                        {animationStep > 1 && <MotiView
-                            key={`step1`}
-                            from={{ opacity: 0, translateY: 20 }}
-                            animate={{ opacity: 1, translateY: 0 }}
-                            transition={{ type: 'timing' }}
-                        // delay={4000}
-                        >
-                            <ChatMessage
-                                item={{
-                                    msg: `Hey coach! Today I had spaghetti bolognese for dinner.`
-                                }}
-                                outgoingMessage
-                                disablePress
-                            />
-                        </MotiView>}
-                        {animationStep > 2 && <MotiView
-                            key={`step2`}
-                            from={{ opacity: 0, translateY: 20 }}
-                            animate={{ opacity: 1, translateY: 0 }}
-                            transition={{ type: 'timing' }}
-                        // delay={6000}
-                        >
-                            <ChatMessage
-                                item={{
-                                    img: [
-                                        {
-                                            url: 'https://firebasestorage.googleapis.com/v0/b/firstproject-b3f4a.appspot.com/o/chat-pictures%2Fonboarding_sample_image.jpg?alt=media&token=21a973a9-c7f1-4b1f-9e51-07090787a6f5',
-                                            graded: true,
-                                            grade: 82,
-                                            red: 0.75,
-                                            yellow: 3,
-                                            green: 8.5
-                                        }
-                                    ],
-                                    msg: `A healthy meal overall! Try to add more vegetables to your next meal.`
-                                }}
-                                user={{
-                                    uid: '000000000000'
-                                }}
-                                outgoingMessage={false}
-                                disablePress
-                            />
-                        </MotiView>}
-                        {animationStep > 3 && <MotiView
-                            key={`step3`}
-                            from={{ opacity: 0, translateY: 20 }}
-                            animate={{ opacity: 1, translateY: 0 }}
-                            transition={{ type: 'timing' }}
-                        // delay={7000}
-                        >
-                            <ChatMessage
-                                item={{
-                                    msg: `Thanks so much!`
-                                }}
-                                outgoingMessage
-                                disablePress
-                            />
-                        </MotiView>}
-                    </ScrollView>
-                    <MotiView
-                        from={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        delay={10000}
-                    >
-                        <View style={styles.ViewD2}>
-                            <Text
-                                adjustsFontSizeToFit
-                                numberOfLines={2}
-                                style={[
-                                    styles.headline1,
-                                    { color: '#202060', fontSize: windowHeight * (25 / 844) },
-                                ]}
+                                <View style={styles.ViewD2}>
+                                    <Text
+                                        adjustsFontSizeToFit
+                                        numberOfLines={1}
+                                        style={[
+                                            styles.headline1,
+                                            { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844) },
+                                        ]}
+                                    >
+                                        {`Send photos of your meals`}
+                                    </Text>
+                                </View>
+                            </MotiView> */}
+                            <ScrollView
+                                ref={firstPageScrollViewRef}
+                                onContentSizeChange={() => firstPageScrollViewRef.current.scrollToEnd({ duration: 1500, animated: true })}
+                                overScrollMode={'never'}
+                                bounces={false}
+                                scrollEnabled
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                                horizontal={false}
+                                style={{ overflow: 'hidden', height: windowHeight * 0.4, width: windowWidth - 40 }}
                             >
-                                {`and receive feedback from your personal coach.`}
-                            </Text>
-                        </View>
-                    </MotiView>
-                    <MotiView
-                        from={{ opacity: 0, translateY: 20 }}
-                        animate={{ opacity: 1, translateY: 0 }}
-                        transition={{ type: 'timing' }}
-                        delay={13000}
-                        style={styles.View_4v}
-                    >
-                        <TouchableOpacity
-                            onPress={() => setIntroPage(2)}
-                            style={[
-                                styles.ButtonSolidQB,
-                                { backgroundColor: '#4C44D4', marginTop: 0 },
-                            ]}
-                        >
-                            <Text style={styles.panelButtonText}>{'Continue'}</Text>
-                        </TouchableOpacity>
-                    </MotiView>
-                </MotiView>}
-                {introPage === 2 && 
-                <MotiView key={`introPage2`} from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing', delay: pageChangeDelay }} exitTransition={{ type: 'timing', delay: 0 }} style={{ marginHorizontal: 20 }}>
-                    <View style={styles.ViewD2}>
-                        <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={2}
-                            style={[
-                                styles.headline1,
-                                { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844) },
-                            ]}
-                        >
-                            {`Take advantage of our daily course curriculum.`}
-                        </Text>
-                    </View>
-                    <ScrollView
-                        ref={secondPageScrollViewRef}
-                        overScrollMode={'never'}
-                        bounces={false}
-                        scrollEnabled
-                        showsVerticalScrollIndicator={false}
-                        style={{ overflow: 'hidden', height: windowHeight * 0.4 }}
-                    >
-
-                    </ScrollView>
-                    <MotiView
-                        from={{ opacity: 0, translateY: 20 }}
-                        animate={{ opacity: 1, translateY: 0 }}
-                        transition={{ type: 'timing' }}
-                        delay={pageChangeDelay + 1000}
-                        style={styles.View_4v}
-                    >
-                        <TouchableOpacity
-                            onPress={onContinue}
-                            style={[
-                                styles.ButtonSolidQB,
-                                { backgroundColor: '#4C44D4', marginTop: 0 },
-                            ]}
-                        >
-                            <Text style={styles.panelButtonText}>{'Continue'}</Text>
-                        </TouchableOpacity>
-                    </MotiView>
-                </MotiView>}
+                                {animationStep > 0 && <MotiView
+                                    key={`step0`}
+                                    from={{ opacity: 0, translateY: 20 }}
+                                    animate={{ opacity: 1, translateY: 0 }}
+                                    transition={{ type: 'timing' }}
+                                // delay={3000}
+                                >
+                                    <ChatMessage
+                                        item={{
+                                            img: [
+                                                {
+                                                    url: 'https://firebasestorage.googleapis.com/v0/b/firstproject-b3f4a.appspot.com/o/chat-pictures%2Fonboarding_sample_image.jpg?alt=media&token=21a973a9-c7f1-4b1f-9e51-07090787a6f5'
+                                                }
+                                            ]
+                                        }}
+                                        outgoingMessage
+                                        disablePress
+                                    />
+                                </MotiView>}
+                                {animationStep > 1 && <MotiView
+                                    key={`step1`}
+                                    from={{ opacity: 0, translateY: 20 }}
+                                    animate={{ opacity: 1, translateY: 0 }}
+                                    transition={{ type: 'timing' }}
+                                // delay={4000}
+                                >
+                                    <ChatMessage
+                                        item={{
+                                            msg: `Hey coach! Today I had spaghetti bolognese for dinner.`
+                                        }}
+                                        outgoingMessage
+                                        disablePress
+                                    />
+                                </MotiView>}
+                                {animationStep > 2 && <MotiView
+                                    key={`step2`}
+                                    from={{ opacity: 0, translateY: 20 }}
+                                    animate={{ opacity: 1, translateY: 0 }}
+                                    transition={{ type: 'timing' }}
+                                // delay={6000}
+                                >
+                                    <ChatMessage
+                                        item={{
+                                            img: [
+                                                {
+                                                    url: 'https://firebasestorage.googleapis.com/v0/b/firstproject-b3f4a.appspot.com/o/chat-pictures%2Fonboarding_sample_image.jpg?alt=media&token=21a973a9-c7f1-4b1f-9e51-07090787a6f5',
+                                                    graded: true,
+                                                    grade: 82,
+                                                    red: 0.75,
+                                                    yellow: 3,
+                                                    green: 8.5
+                                                }
+                                            ],
+                                            msg: `A healthy meal overall! Try to add more vegetables to your next meal.`
+                                        }}
+                                        user={{
+                                            uid: '000000000000'
+                                        }}
+                                        outgoingMessage={false}
+                                        disablePress
+                                    />
+                                </MotiView>}
+                                {animationStep > 3 && <MotiView
+                                    key={`step3`}
+                                    from={{ opacity: 0, translateY: 20 }}
+                                    animate={{ opacity: 1, translateY: 0 }}
+                                    transition={{ type: 'timing' }}
+                                // delay={7000}
+                                >
+                                    <ChatMessage
+                                        item={{
+                                            msg: `Thanks so much!`
+                                        }}
+                                        outgoingMessage
+                                        disablePress
+                                    />
+                                </MotiView>}
+                            </ScrollView>
+                            <MotiView
+                                from={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                delay={6000}
+                            >
+                                <View style={styles.ViewD2}>
+                                    <Text
+                                        adjustsFontSizeToFit
+                                        numberOfLines={5}
+                                        style={[
+                                            styles.headline1,
+                                            { color: '#202060', fontSize: windowHeight * (25 / 844) },
+                                        ]}
+                                    >
+                                        {`Your personalized coach will guide you through small gradual changes to build a sustainable healthy diet and attain your ultimate goal. `}
+                                    </Text>
+                                </View>
+                            </MotiView>
+                            <MotiView
+                                from={{ opacity: 0, translateY: 20 }}
+                                animate={{ opacity: 1, translateY: 0 }}
+                                transition={{ type: 'timing' }}
+                                delay={9000}
+                                style={styles.View_4v}
+                            >
+                                <TouchableOpacity
+                                    onPress={() => setIntroPage(2)}
+                                    style={[
+                                        styles.ButtonSolidQB,
+                                        { backgroundColor: '#4C44D4', marginTop: 0 },
+                                    ]}
+                                >
+                                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                                </TouchableOpacity>
+                            </MotiView>
+                        </SafeAreaView>
+                    </MotiView>}
+                {introPage === 2 &&
+                    <MotiView key={`introPage2`} from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing', delay: pageChangeDelay }} exitTransition={{ type: 'timing', delay: 0 }} style={{ flex: 1 }}>
+                        <View
+                            style={{
+                                position: 'absolute',
+                                top: -97,
+                                left: 22,
+                                width: 212,
+                                height: 222,
+                                borderRadius: 111,
+                                backgroundColor: '#6BE29B'
+                            }}
+                        />
+                        <View
+                            style={{
+                                position: 'absolute',
+                                top: -18,
+                                left: -106,
+                                width: 212,
+                                height: 222,
+                                borderRadius: 111,
+                                backgroundColor: '#6BE29B'
+                            }}
+                        />
+                        <SafeAreaView style={{ flex: 1, marginHorizontal: 20 }}>
+                            <View style={styles.ViewD2}>
+                                <Text
+                                    adjustsFontSizeToFit
+                                    numberOfLines={5}
+                                    style={[
+                                        styles.headline1,
+                                        { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: 20, marginTop: Platform.OS === 'ios' ? 204 - insets.top : 204 },
+                                    ]}
+                                >
+                                    {`We’re going to redefine your relationship with food. All you have to do is send a snap of your meal and receive real-time feedback on what’s on your plate.`}
+                                </Text>
+                                <MotiImage from={{ translateY: 20, opacity: 0 }} animate={{ translateY: 0, opacity: 1 }} transition={{ type: 'timing' }} source={PlatePhoto} style={{ resizeMode: 'contain', width: windowWidth - 40, height: windowHeight / 4 }} />
+                                <Text
+                                    adjustsFontSizeToFit
+                                    numberOfLines={2}
+                                    style={[
+                                        styles.headline1,
+                                        { color: '#202060', marginBottom: 20, fontSize: 20 },
+                                    ]}
+                                >
+                                    {`Wondering how to complement your diet? `}
+                                </Text>
+                                <Text
+                                    adjustsFontSizeToFit
+                                    numberOfLines={1}
+                                    style={[
+                                        styles.headline1,
+                                        { color: '#202060', marginBottom: 20, fontSize: 20 },
+                                    ]}
+                                >
+                                    {`Your coach is a text away! `}
+                                </Text>
+                            </View>
+                            <MotiView
+                                from={{ opacity: 0, translateY: 20 }}
+                                animate={{ opacity: 1, translateY: 0 }}
+                                transition={{ type: 'timing' }}
+                                delay={pageChangeDelay + 1000}
+                                style={styles.View_4v}
+                            >
+                                <TouchableOpacity
+                                    onPress={onContinue}
+                                    style={[
+                                        styles.ButtonSolidQB,
+                                        { backgroundColor: '#4C44D4', marginTop: 0 },
+                                    ]}
+                                >
+                                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                                </TouchableOpacity>
+                            </MotiView>
+                        </SafeAreaView>
+                    </MotiView>}
             </AnimatePresence>
         </MotiView>
     )
@@ -627,6 +652,11 @@ const DetailedExplainerPage = ({ onContinue }) => {
         </>
     ]
 
+    const secondPageItems = [
+        `find and maintain a healthy balance`,
+        `master moderation`
+    ]
+
     return (
         <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <AnimatePresence exitBeforeEnter>
@@ -634,7 +664,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                     <MotiView key={`detailedExplainerPage1`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
                         <Text
                             adjustsFontSizeToFit
-                            numberOfLines={2}
+                            numberOfLines={1}
                             style={[
                                 styles.headline1,
                                 { color: '#202060', maxHeight: 70 },
@@ -643,7 +673,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                             {'What you get with DietPeeps:'}
                         </Text>
                         {items.map((item, index) => (
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start' }}>
+                            <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start' }}>
                                 <Icon
                                     name={'checkmark-circle'}
                                     size={30}
@@ -692,41 +722,85 @@ const DetailedExplainerPage = ({ onContinue }) => {
                     <MotiView key={`detailedExplainerPage2`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
                         <Text
                             adjustsFontSizeToFit
-                            numberOfLines={7}
+                            numberOfLines={1}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                                { color: '#202060', maxHeight: 70, marginBottom: 10 },
                             ]}
                         >
-                            For every meal, you will receive a number score and a chart that shows the composition of allowed foods (green), foods allowed in moderation (yellow), and foods allowed occasionally (white).
+                            {'Restrictive diets are set to fail.'}
                         </Text>
-                        <MotiImage
-                            from={{ translateY: 20, opacity: 0 }} 
-                            animate={{ translateY: 0, opacity: 1 }} 
-                            transition={{ type: 'timing' }}
-                            source={PieChartCartoon}
-                            style={{ 
-                                width: windowWidth - 64,
-                                resizeMode: 'contain',
-                                height: windowHeight / 4
-                            }}
-                        />
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                            <MotiImage from={{ translateY: 20, opacity: 0 }} animate={{ translateY: 0, opacity: 1 }} transition={{ type: 'timing' }} source={Oxford} style={{ width: windowWidth / 4, height: windowWidth / 4, marginRight: 10 }} />
+                            <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={5}
+                                style={[
+                                    styles.headline1,
+                                    { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth * 0.75 - 74, textAlign: 'left' },
+                                ]}
+                            >
+                                <Text style={{ fontWeight: '700' }}>Oxford Academia </Text>
+                                found that restrictive diets cause a decrease in muscle mass which means a slowed metabolism.
+                            </Text>
+                        </View>
                         <Text
                             adjustsFontSizeToFit
-                            numberOfLines={7}
+                            numberOfLines={5}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0 },
                             ]}
                         >
-                            The score is based on the ratios of green, yellow and white foods on your plate. If you eat only ‘green’ foods, you will get 100, if you eat only ‘yellow’ foods you will get 50, and if you eat only ‘white’ foods you will get 0.
+                            9/10 times, they result in weight gain and don’t instil habits that are sustainable in the long-term - especially when you have to cut out your favourite foods.
+                        </Text>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={3}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0 },
+                            ]}
+                        >
+                            The primal and healthy human diet is centered around whole foods. Our plan is set to make you:
+                        </Text>
+                        {secondPageItems.map((item, index) => (
+                            <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 10 }}>
+                                <View style={{
+                                    borderColor: '#202060',
+                                    borderWidth: 3,
+                                    width: 14,
+                                    height: 14,
+                                    borderRadius: 7
+                                }} />
+                                <Text
+                                    adjustsFontSizeToFit
+                                    numberOfLines={1}
+                                    style={[
+                                        styles.headline1,
+                                        { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth - 104, textAlign: 'left', marginTop: 0, marginLeft: 10, marginBottom: 0 },
+                                    ]}
+                                >
+                                    {item}
+                                </Text>
+                            </View>
+                        ))}
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={6}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginTop: 0, marginBottom: 10 },
+                            ]}
+                        >
+                            This means having more green foods <Text style={{ fontWeight: '700' }}>(whole foods)</Text>, having yellow foods <Text style={{ fontWeight: '700' }}>(minimally processed)</Text> in moderation, and having white foods <Text style={{ fontWeight: '700' }}>(heavily processed)</Text> occasionally.
                         </Text>
                         <View style={styles.View_4v}>
                             <TouchableOpacity
                                 onPress={onContinue}
                                 style={[
                                     styles.ButtonSolidQB,
-                                    { backgroundColor: '#4C44D4', marginTop: 20 },
+                                    { backgroundColor: '#4C44D4', marginTop: 10 },
                                 ]}
                             >
                                 <Text style={styles.panelButtonText}>{'Got it!'}</Text>
@@ -743,8 +817,8 @@ const GenderSelectorPage = ({ onSelectResponse, disableAnimation, showTitle }) =
     return (
         <MotiView from={{ opacity: disableAnimation ? 1 : 0 }} animate={{ opacity: 1 }} exit={{ opacity: disableAnimation ? 1 : 0 }} style={{ marginHorizontal: 32 }}>
             {showTitle && <MotiView
-                from={{ opacity: disableAnimation ? 1 : 0, scale: disableAnimation ? 1 : 0, translateY: disableAnimation ? 0 : 200 }}
-                animate={{ opacity: 1, scale: 1, translateY: 0 }}
+                from={{ opacity: 0, scale: 0, translateY: 0 }}
+                animate={{ opacity: 1, scale: 1, translateY: -200 }}
                 transition={{
                     translateY: {
                         delay: 1000,
@@ -758,6 +832,7 @@ const GenderSelectorPage = ({ onSelectResponse, disableAnimation, showTitle }) =
                         easing: Easing.bezier(.69, 0, 0, 1.58)
                     }
                 }}
+                style={{ top: 200 }}
             >
                 <View style={styles.ViewD2}>
                     <Text adjustsFontSizeToFit numberOfLines={2} style={[styles.headline2, { color: '#202060', marginBottom: 0, maxHeight: windowHeight / 8 }]}>
@@ -1161,19 +1236,89 @@ const MealTimesSelectorPage = ({ editingMealTime, mealCount, prevResponse, onSel
 }
 
 const PhotoPledgePage = ({ onContinue }) => {
+
+    const [page, setPage] = useState(1)
+
     return (
-        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
-            <View style={styles.View_4v}>
-                <TouchableOpacity
-                    onPress={onContinue}
-                    style={[
-                        styles.ButtonSolidQB,
-                        { backgroundColor: '#4C44D4', marginTop: 20 },
-                    ]}
-                >
-                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
-                </TouchableOpacity>
-            </View>
+        <MotiView from={{ opacity: 0, backgroundColor: '#e6e7fa' }} animate={{ opacity: 1, backgroundColor: page === 1 ? '#e6e7fa' : '#030303' }} exit={{ opacity: 0, backgroundColor: '#e6e7fa' }} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <AnimatePresence exitBeforeEnter>
+                {page === 1 &&
+                    <MotiView key={`photoPledgePage1`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, justifyContent: 'space-evenly', marginHorizontal: 32 }}>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={2}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginTop: 10, marginBottom: 5 },
+                            ]}
+                        >
+                            You can lose weight solely by <Text style={{ fontWeight: '700' }}>fixing your diet.</Text> 
+                        </Text>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={5}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginVertical: 5 },
+                            ]}
+                        >
+                            You probably know what you need to do, but it’s easier said than done. <Text style={{ fontWeight: '700' }}>Sending photos of your meal </Text>is an incentive to do and be better. 
+                        </Text>
+                        <Text
+                            adjustsFontSizeToFit
+                            numberOfLines={3}
+                            style={[
+                                styles.headline1,
+                                { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginVertical: 5 },
+                            ]}
+                        >
+                            We promise that we are not here to judge you. We've got your best interests at heart.
+                        </Text>
+                        <View style={styles.View_4v}>
+                            <TouchableOpacity
+                                onPress={() => setPage(2)}
+                                style={{
+                                    width: 70,
+                                    height: 70,
+                                    backgroundColor: '#202060',
+                                    borderColor: '#fff',
+                                    borderWidth: 3,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: 35,
+                                    elevation: 5,
+                                    shadowColor: '#000000',
+                                    shadowOffset: { width: 0, height: 5 },
+                                    shadowRadius: 5,
+                                    shadowOpacity: 0.3,
+                                }}
+                            >
+                                <Icon
+                                    name={'md-arrow-forward-sharp'}
+                                    size={35}
+                                    color={'#fff'}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                    </MotiView>}
+                {page === 2 && 
+                    <MotiView key={`photoPledgePage2`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, position: 'absolute', width: windowWidth, height: windowHeight, justifyContent: 'center', alignItems: 'center' }}>
+                        <ImageBackground style={{ flex: 1, paddingHorizontal: 32 }} imageStyle={{ resizeMode: 'cover' }} source={PhotoPledge}>
+                            <View style={[styles.View_4v, { top: windowHeight * 0.8 }]}>
+                                <TouchableOpacity
+                                    onPress={onContinue}
+                                    style={[
+                                        styles.ButtonSolidQB,
+                                        { backgroundColor: '#4C44D4', marginTop: 20 },
+                                    ]}
+                                >
+                                    <Text adjustsFontSizeToFit numberOfLines={1} style={[styles.panelButtonText, { maxWidth: windowWidth - 84 }]}>{'I pledge to send photos of all my meals'}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </ImageBackground>
+                    </MotiView>
+                }
+            </AnimatePresence>
         </MotiView>
     )
 }
@@ -1296,7 +1441,7 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
                     {`In ${numWeeks} weeks, you'll ${loseWeightGoal ? 'lose' : 'gain'} ${Math.abs(currentWeight - targetWeight)} ${usesImperial ? 'lbs' : 'kgs'}!`}
                 </Text>}
             </View>
-            <MotiView from={{ opacity: 0, translateY: 50 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: 50 }} transition={{ delay: 350, type: 'timing', duration: 500 }} style={{ width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
+            <MotiView from={{ opacity: 0, translateY: 50 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: 50 }} transition={{ type: 'timing', duration: 500 }} style={{ width: windowWidth, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 30 }}>
                     <LineChart
                         data={{
                             labels: Array(4).fill(null).map((w, index) => {
@@ -1409,7 +1554,7 @@ const TestimonialInterstitial = ({ batchNumber, usesImperial, onContinue }) => {
                                     paddingVertical: 10
                                 }}
                             >
-                                <Text adjustsFontSizeToFit numberOfLines={100} style={{ maxHeight: windowHeight / 3, marginTop: 5, fontWeight: '500', fontSize: 22, color: '#202060' }}>{item.testimonial}</Text>
+                                <Text adjustsFontSizeToFit numberOfLines={100} style={{ marginTop: 5, fontWeight: '500', fontSize: 22, color: '#202060' }}>{item.testimonial}</Text>
                                 {item.weightStats && <View style={{ justifyContent: 'flex-end', flex: 1, marginBottom: 20 }}>
                                     <Text adjustsFontSizeToFit numberOfLines={1} style={{ marginTop: 8, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Initial Weight: </Text>{usesImperial ? item.weightStats?.initial?.lbs : item.weightStats?.initial?.kgs}</Text>
                                     <Text adjustsFontSizeToFit numberOfLines={1} style={{ marginTop: 3, fontWeight: '500', fontSize: 14, color: '#BDB9DB' }}><Text style={{ fontWeight: '700' }}>Target Weight: </Text>{usesImperial ? item.weightStats?.target?.lbs : item.weightStats?.target?.kgs}</Text>
@@ -1537,15 +1682,15 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
             <View style={styles.ViewD2}>
                 <Text
                     adjustsFontSizeToFit
-                    numberOfLines={9}
+                    numberOfLines={13}
                     style={[
                         styles.headline1,
-                        { color: '#202060', fontSize: 20, maxHeight: windowHeight / 3 },
+                        { color: '#202060', fontSize: 20 },
                     ]}
                 >
-                    In light of the global health crisis, we are offering the option to try DietPeeps for only {trialPrices[0].product.price_string}.
-                    Money shouldn't stand in the way of finding a plan that really works. So, choose an amount that you think is reasonable to try us out.
-                    It costs us {trialPrices[3].product.price_string} to compensate our DietPeeps employees for the trial, but please choose the amount you are comfortable with.
+                    We hope that you're enjoying your DietPeeps free trial. Your coach is working hard to help you reach your wellness goals and is rooting for you!
+                    {`\n\n`}
+                    Would you like to tip your coach for the trial? It costs us {trialPrices[trialPrices.length - 1].product.price_string} to compensate our DietPeeps employees for the trial, but please choose the amount you are comfortable with.
                 </Text>
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 20 }}>

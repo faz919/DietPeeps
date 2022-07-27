@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity, TextInput, Platform, Alert } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity, TextInput, Platform, Alert, SafeAreaView } from 'react-native'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { windowHeight, windowWidth } from '../utils/Dimensions.js'
 import { AuthContext } from '../navigation/AuthProvider.js'
@@ -266,476 +266,501 @@ const OnboardingWizard = ({ navigation }) => {
         finishForm()
     }
 
+    useEffect(() => {
+        console.log('form page is', formPage)
+    }, [formPage])
+
     return (
         <AnimatePresence exitBeforeEnter>
-            {formPage === introScreen ?
+            <MotiView key={'wizard'} from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ flex: 1 }}>
+                <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
+                    <AnimatePresence>
+                        {typeof formPage === 'number' && formPage < formLength + 1 && formPage > 0 &&
+                            <MotiView key={'progress-bar'} from={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 10 }} exit={{ opacity: 0, height: 0 }} transition={{ type: 'timing' }} style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, marginTop: Platform.OS === 'ios' ? 0 : 10, flexDirection: 'row' }}>
+                                {/* progress bar square thingies at the top of the screen */}
+                                {Array.apply(null, { length: formLength }).map((i, index) =>
+                                    <AnimatePresence exitBeforeEnter key={index}>
+                                        {formPage > index ?
+                                            <MotiView
+                                                key='completed'
+                                                from={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                style={{ borderRadius: 10, height: 10, width: ((windowWidth - 20) / formLength) - 5, backgroundColor: '#4C44D4', marginHorizontal: 2.5 }}
+                                            />
+                                            :
+                                            <MotiView
+                                                key='not-completed'
+                                                from={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                style={{ borderRadius: 10, height: 10, width: ((windowWidth - 20) / formLength) - 5, backgroundColor: '#BDB9DB', marginHorizontal: 2.5 }}
+                                            />}
+                                    </AnimatePresence>)}
+                            </MotiView>
+                        }
+                    </AnimatePresence>
+                    <KeyboardAwareScrollView contentContainerStyle={{ flex: 2 }} bounces={false} overScrollMode='never'>
+                        <View style={styles.ViewT7}>
+                            <AnimatePresence exitBeforeEnter>
+                                {/* {formPage === introScreen &&
+                                    <IntroExplainerPage
+                                        key={`page${introScreen}`}
+                                        onContinue={() => setFormPage('testimonialInterstitial1')}
+                                    />} */}
+                                {formPage === 'testimonialInterstitial1' &&
+                                    <TestimonialInterstitial
+                                        key={'testimonialInterstitial1'}
+                                        batchNumber={1}
+                                        onContinue={() => setFormPage(genderScreen)}
+                                    />
+                                }
+                                {formPage === genderScreen &&
+                                    <GenderSelectorPage
+                                        key={`page${genderScreen}`}
+                                        onSelectResponse={(response) => { setFormResponses(val => ({ ...val, gender: response })); setFormPage(genderScreen + 1) }}
+                                        disableAnimation={false}
+                                        showTitle
+                                    />
+                                }
+                                {formPage === dobScreen &&
+                                    <DateOfBirthSelectorPage
+                                        key={`page${dobScreen}`}
+                                        prevResponse={new Date(formResponses.dob)}
+                                        onSelectResponse={(date) => setFormResponses(val => ({ ...val, dob: date }))}
+                                        onContinue={() => { formResponses.dob && formPage === dobScreen && setFormPage(dobScreen + 1) }}
+                                        disableAnimation={false}
+                                    />
+                                }
+                                {formPage === heightWeightScreen &&
+                                    <MotiView key={`page${heightWeightScreen}`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+                                        <View style={styles.ViewD2}>
+                                            <Text
+                                                adjustsFontSizeToFit
+                                                numberOfLines={2}
+                                                style={[
+                                                    styles.headline1,
+                                                    { color: '#202060' },
+                                                ]}
+                                            >
+                                                {'What is your current height?'}
+                                            </Text>
+                                        </View>
+                                        <HeightSelector
+                                            usesImperial={imperial.height}
+                                            prevResponse={formResponses.height}
+                                            onToggleImperial={() => useImperial(val => ({ ...val, height: imperial.height ? false : true }))}
+                                            onSelectLargeUnit={(value) => setFormResponses(val => ({
+                                                ...val, height: {
+                                                    ...formResponses.height,
+                                                    ft: imperial.height ? value : Math.floor((value + (formResponses.height.mm * 0.1)) * 0.0328084),
+                                                    in: imperial.height ? formResponses.height.in : Math.round((((value + (formResponses.height.mm * 0.1)) * 0.0328084) - Math.floor((value + (formResponses.height.mm * 0.1)) * 0.0328084)) * 12),
+                                                    cm: imperial.height ? Math.floor((value + (formResponses.height.in / 12)) * 30.48) : value,
+                                                    mm: imperial.height ? Math.round((((value + (formResponses.height.in / 12)) * 30.48) - Math.floor((value + (formResponses.height.in / 12)) * 30.48)) * 10) : formResponses.height.mm
+                                                }
+                                            }))}
+                                            onSelectSmallUnit={(value) => setFormResponses(val => ({
+                                                ...val, height: {
+                                                    ...formResponses.height,
+                                                    ft: imperial.height ? formResponses.height.ft : Math.floor((formResponses.height.cm + (value * 0.1)) * 0.0328084),
+                                                    in: imperial.height ? value : Math.round((((formResponses.height.cm + (value * 0.1)) * 0.0328084) - Math.floor((formResponses.height.cm + (value * 0.1)) * 0.0328084)) * 12),
+                                                    cm: imperial.height ? Math.floor((formResponses.height.ft + (value / 12)) * 30.48) : formResponses.height.cm,
+                                                    mm: imperial.height ? Math.round((((formResponses.height.ft + (value / 12)) * 30.48) - Math.floor((formResponses.height.ft + (value / 12)) * 30.48)) * 10) : value
+                                                }
+                                            }))}
+                                        />
+                                        <View style={styles.ViewD2}>
+                                            <Text
+                                                adjustsFontSizeToFit
+                                                numberOfLines={1}
+                                                style={[
+                                                    styles.headline1,
+                                                    { color: '#202060' },
+                                                ]}
+                                            >
+                                                {'...and weight?'}
+                                            </Text>
+                                        </View>
+                                        <WeightSelector
+                                            usesImperial={imperial.weight}
+                                            prevResponse={formResponses.weight}
+                                            onToggleImperial={() => useImperial(val => ({ ...val, weight: imperial.weight ? false : true }))}
+                                            onSelectResponse={(value) => setFormResponses(val => ({
+                                                ...val, weight: {
+                                                    ...formResponses.weight,
+                                                    lbs: imperial.weight ? value : Math.round(value * 2.20462),
+                                                    kgs: imperial.weight ? Math.round(value * 0.453592) : value
+                                                }
+                                            }))}
+                                        />
+                                        <View style={styles.View_4v}>
+                                            <TouchableOpacity
+                                                onPress={() => { formResponses.weight && formResponses.height && formPage === heightWeightScreen && setFormPage(heightWeightScreen + 1) }}
+                                                style={[
+                                                    styles.ButtonSolidQB,
+                                                    { backgroundColor: '#4C44D4', marginTop: 20 },
+                                                ]}
+                                            >
+                                                <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </MotiView>}
+                                {formPage === targetWeightScreen &&
+                                    <MotiView key={`page${targetWeightScreen}`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+                                        <View style={styles.ViewD2}>
+                                            <Text
+                                                style={[
+                                                    styles.headline1,
+                                                    { color: '#202060' },
+                                                ]}
+                                            >
+                                                {'What is your target weight?'}
+                                            </Text>
+                                        </View>
+                                        <WeightSelector
+                                            usesImperial={imperial.weight}
+                                            prevResponse={formResponses.targetWeight}
+                                            onToggleImperial={() => useImperial(val => ({ ...val, weight: imperial.weight ? false : true }))}
+                                            onSelectResponse={(value) => setFormResponses(val => ({
+                                                ...val, targetWeight: {
+                                                    ...formResponses.targetWeight,
+                                                    lbs: imperial.weight ? value : Math.round(value * 2.20462),
+                                                    kgs: imperial.weight ? Math.round(value * 0.453592) : value
+                                                }
+                                            }))}
+                                        />
+                                        <View style={styles.View_4v}>
+                                            <TouchableOpacity
+                                                onPress={() => { formResponses.targetWeight && formPage === targetWeightScreen && setFormPage(targetWeightScreen + 0.5) }}
+                                                style={[
+                                                    styles.ButtonSolidQB,
+                                                    { backgroundColor: '#4C44D4', marginTop: 20 },
+                                                ]}
+                                            >
+                                                <Text style={styles.panelButtonText}>{'Continue'}</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </MotiView>}
+                                {formPage === targetWeightScreen + 0.5 &&
+                                    <MotiView
+                                        key={'loadingScreen1'}
+                                        style={styles.loadingScreen}
+                                        from={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0 }}
+                                        transition={{
+                                            duration: 500
+                                        }}
+                                        exitTransition={{
+                                            duration: 300
+                                        }}
+                                    >
+                                        <MotiText
+                                            adjustsFontSizeToFit
+                                            numberOfLines={2}
+                                            style={styles.loadingScreenText}
+                                            from={{ translateY: -5 }}
+                                            animate={{ translateY: 5 }}
+                                            transition={{ duration: 500, loop: true, type: 'timing' }}
+                                        >
+                                            Configuring your optimal settings...
+                                        </MotiText>
+                                        <MotiView
+                                            style={{
+                                                position: 'absolute',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                            from={{ rotate: '0deg' }}
+                                            animate={{ rotate: '360deg' }}
+                                            transition={{ loop: Platform.OS === 'ios' ? true : false, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
+                                        >
+                                            <Icon
+                                                name='settings-sharp'
+                                                size={windowWidth / 3}
+                                                color={'#5A5A5A'}
+                                            />
+                                        </MotiView>
+                                        <MotiView
+                                            style={{
+                                                position: 'absolute',
+                                                bottom: windowHeight / 3.3,
+                                                right: windowWidth / 5
+                                            }}
+                                            from={{ rotate: '0deg' }}
+                                            animate={{ rotate: '-360deg' }}
+                                            transition={{ loop: Platform.OS === 'ios' ? true : false, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
+                                        >
+                                            <Icon
+                                                name='settings-sharp'
+                                                size={windowWidth / 5}
+                                                color={'#5A5A5A'}
+                                            />
+                                        </MotiView>
+                                    </MotiView>
+                                }
+                                {formPage === 'interstitial1' &&
+                                    <WeightChartInterstitial
+                                        key={`interstitial1`}
+                                        currentWeight={imperial.weight ? formResponses.weight.lbs : formResponses.weight.kgs}
+                                        targetWeight={imperial.weight ? formResponses.targetWeight.lbs : formResponses.targetWeight.kgs}
+                                        usesImperial={imperial.weight}
+                                        interstitialNumber={1}
+                                        onContinue={() => { formPage === 'interstitial1' && setFormPage('goalExplainer') }}
+                                    />
+                                }
+                                {formPage === 'goalExplainer' &&
+                                    <GoalExplainerPage
+                                        key={'goalExplainer'}
+                                        onContinue={() => setFormPage(targetWeightScreen + 1)}
+                                    />
+                                }
+                                {formPage === otherGoalScreen &&
+                                    <OtherGoalSelectorPage
+                                        key={`page${otherGoalScreen}`}
+                                        selectedGoals={formResponses.goals}
+                                        onSelectGoal={(goal) => toggleSelectGoal(goal)}
+                                        onContinue={() => { formPage === otherGoalScreen && setFormPage('detailedExplainer') }}
+                                        disableAnimation={false}
+                                    />
+                                }
+                                {formPage === 'detailedExplainer' &&
+                                    <DetailedExplainerPage
+                                        key={'detailedExplainer'}
+                                        onContinue={() => setFormPage(otherGoalScreen + 0.5)}
+                                    />
+                                }
+                                {formPage === otherGoalScreen + 0.5 &&
+                                    <MotiView
+                                        key={'loadingScreen2'}
+                                        style={styles.loadingScreen}
+                                        from={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0 }}
+                                        transition={{
+                                            duration: 500
+                                        }}
+                                        exitTransition={{
+                                            duration: 300
+                                        }}
+                                    >
+                                        <MotiText
+                                            adjustsFontSizeToFit
+                                            numberOfLines={2}
+                                            style={styles.loadingScreenText}
+                                            from={{ translateY: -5 }}
+                                            animate={{ translateY: 5 }}
+                                            transition={{ duration: 500, loop: true, type: 'timing' }}
+                                        >
+                                            Analyzing your data...
+                                        </MotiText>
+                                        <MotiImage
+                                            from={{ scale: 0.95 }}
+                                            animate={{ scale: 1.05 }}
+                                            transition={{ duration: 1400, delay: 500, loop: true, type: 'timing' }}
+                                            style={{ position: 'absolute', bottom: windowHeight / 5, alignSelf: 'center', width: windowWidth, height: windowHeight / 4, resizeMode: 'contain' }}
+                                            source={require('../assets/scientist.png')}
+                                        />
+                                    </MotiView>
+                                }
+                                {formPage === 'interstitial2' &&
+                                    <WeightChartInterstitial
+                                        key={`interstitial2`}
+                                        currentWeight={imperial.weight ? formResponses.weight.lbs : formResponses.weight.kgs}
+                                        targetWeight={imperial.weight ? formResponses.targetWeight.lbs : formResponses.targetWeight.kgs}
+                                        usesImperial={imperial.weight}
+                                        interstitialNumber={2}
+                                        onContinue={() => { formPage === 'interstitial2' && setFormPage(otherGoalScreen + 1) }}
+                                    />
+                                }
+                                {formPage === mealCountScreen &&
+                                    <MealCountSelectorPage
+                                        key={`page${mealCountScreen}`}
+                                        prevResponse={formResponses.mealCount}
+                                        onSelectResponse={(value) => setFormResponses(val => ({ ...val, mealCount: value }))}
+                                        onContinue={() => { formResponses.mealCount && formPage === mealCountScreen && setFormPage('photoExplainer') }}
+                                        disableAnimation={false}
+                                    />
+                                }
+                                {formPage === 'photoExplainer' &&
+                                    <MealPhotoExplainerPage
+                                        key={'photoExplainer'}
+                                        onContinue={() => setFormPage(mealCountScreen + 1)}
+                                    />
+                                }
+                                {formPage === mealPickerScreen &&
+                                    <MealTimesSelectorPage
+                                        editingMealTime={editingMealTime}
+                                        mealCount={formResponses.mealCount}
+                                        prevResponse={formResponses.mealTimes}
+                                        onSelectResponse={(v, index) => { let newArr = formResponses.mealTimes || []; newArr[index] = v; setFormResponses(val => ({ ...val, mealTimes: newArr })) }}
+                                        onContinue={() => {
+                                            // update meal times with the value at the current index
+                                            if (formResponses.mealTimes[editingMealTime - 1] == null) {
+                                                let newArr = formResponses.mealTimes || []
+                                                newArr[editingMealTime - 1] = new Date()
+                                                setFormResponses(val => ({ ...val, mealTimes: newArr }))
+                                            }
+                                            // only go to next page (loading screen) if all the meal times have been selected
+                                            editingMealTime == formResponses.mealCount ? setFormPage('photoPledge') : editingMealTime < formResponses.mealCount && setEditingMealTime(editingMealTime + 1)
+                                        }}
+                                        disableContainerAnimation={false}
+                                    />
+                                }
+                                {/* {formPage === 'photoPledge' &&
+                                    <PhotoPledgePage
+                                        key={'photoPledge'}
+                                        onContinue={() => setFormPage('testimonialInterstitial2')}
+                                    />} */}
+                                {formPage === 'testimonialInterstitial2' &&
+                                    <TestimonialInterstitial
+                                        key={'testimonialInterstitial2'}
+                                        batchNumber={2}
+                                        usesImperial={imperial.weight}
+                                        onContinue={() => setFormPage('signup')}
+                                    />
+                                }
+                                {formPage === mealPickerScreen + 0.5 &&
+                                    <MotiView
+                                        key={'loadingScreen3'}
+                                        style={styles.loadingScreen}
+                                        from={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0 }}
+                                        transition={{
+                                            duration: 500
+                                        }}
+                                        exitTransition={{
+                                            duration: 300
+                                        }}
+                                    >
+                                        <MotiText
+                                            adjustsFontSizeToFit
+                                            numberOfLines={2}
+                                            style={styles.loadingScreenText}
+                                            from={{ translateY: -5 }}
+                                            animate={{ translateY: 5 }}
+                                            transition={{ duration: 500, loop: true, type: 'timing' }}
+                                        >
+                                            Finding the best possible coach for you...
+                                        </MotiText>
+                                        <View
+                                            style={{
+                                                position: 'absolute',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                        >
+                                            <Icon
+                                                name='chatbox-outline'
+                                                size={windowWidth / 5}
+                                                color={'#202060'}
+                                            />
+                                        </View>
+                                        <MotiView
+                                            style={{
+                                                position: 'absolute',
+                                                justifyContent: 'center',
+                                                alignItems: 'center'
+                                            }}
+                                            from={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ loop: true, duration: 800 }}
+                                        >
+                                            <Icon
+                                                name='chatbox-ellipses-outline'
+                                                size={windowWidth / 5}
+                                                color={'#202060'}
+                                            />
+                                        </MotiView>
+                                    </MotiView>
+                                }
+                                {formPage === 'coachProfile' &&
+                                    <CoachProfilePage
+                                        key={`coachProfile`}
+                                        coachData={coachInfo}
+                                        disableAnimation={false}
+                                        onContinue={() => setFormPage(mealPickerScreen + 1)}
+                                    />
+                                }
+                                {formPage === referralCodeScreen &&
+                                    <ReferralCodePage
+                                        key={`page${referralCodeScreen}`}
+                                        partnerInfo={partnerInfo}
+                                        onContinueWithReferral={(code) => { setFormResponses(val => ({ ...val, referralCode: code })); formPage === referralCodeScreen && setFormPage('trialPrice') }}
+                                        onContinueNoReferral={() => setFormPage('trialPrice')}
+                                        disableAnimation={false}
+                                    />
+                                }
+                                {formPage === 'trialPrice' &&
+                                    <TrialPricePage
+                                        key={'trialPrice'}
+                                        trialPrices={optionalTrialPriceChoices}
+                                        purchaseTrial={handleTrialPay}
+                                        paidForTrial={globalVars.userData?.paidForTrial}
+                                        loading={trialPaymentLoading}
+                                        onContinue={() => setFormPage(referralCodeScreen + 1)}
+                                    />
+                                }
+                                {formPage === formLength &&
+                                    <WizardFinalPage
+                                        key={`page${formLength}`}
+                                        handleSubButtonPress={handleSubButtonPress}
+                                        finishForm={finishForm}
+                                    />
+                                }
+                            </AnimatePresence>
+                        </View>
+                    </KeyboardAwareScrollView>
+                    <AnimatePresence>
+                        {/* back button */}
+                        {formPage > 0 && Number.isSafeInteger(formPage) &&
+                            <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 20 : 20, left: 20 }}>
+                                {/* either go back to previous meal time picker, or go back to previous page */}
+                                <TouchableOpacity onPress={() => {
+                                    if (formPage > 0 && Number.isSafeInteger(formPage)) {
+                                        if (formPage === mealPickerScreen && editingMealTime > 1) {
+                                            setEditingMealTime(editingMealTime - 1)
+                                        } else {
+                                            setFormPage(formPage - 1)
+                                            setLoadingScreen(1)
+                                        }
+                                    }
+                                }}>
+                                    <Ionicons
+                                        name='ios-arrow-back-circle-outline'
+                                        size={30}
+                                        color={'#202060'}
+                                    />
+                                </TouchableOpacity>
+                            </MotiView>}
+                    </AnimatePresence>
+                </SafeAreaView>
+                <View pointerEvents={(formPage === introScreen || formPage === 'photoPledge') ? 'auto' : 'none'} style={{ flex: 1, position: 'absolute', width: windowWidth, height: windowHeight }}>
+                    <AnimatePresence exitBeforeEnter>
+                        {formPage === introScreen &&
+                            <IntroExplainerPage
+                                key={`page${introScreen}`}
+                                onContinue={() => setFormPage('testimonialInterstitial1')}
+                            />}
+                        {formPage === 'photoPledge' &&
+                            <PhotoPledgePage
+                                key={'photoPledge'}
+                                onContinue={() => setFormPage('testimonialInterstitial2')}
+                            />}
+                    </AnimatePresence>
+                </View>
+            </MotiView>
+            {/* {formPage === introScreen &&
                 <IntroExplainerPage
                     key={`page${introScreen}`}
                     onContinue={() => setFormPage('testimonialInterstitial1')}
-                />
-                :
-                <MotiView key={'wizard'} from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ flex: 1 }}>
-                    <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
-                        <AnimatePresence>
-                            {typeof formPage === 'number' && formPage < formLength + 1 && formPage > 0 &&
-                                <MotiView key={'progress-bar'} from={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 10 }} exit={{ opacity: 0, height: 0 }} transition={{ type: 'timing' }} style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10, marginTop: Platform.OS === 'ios' ? 0 : 10, flexDirection: 'row' }}>
-                                    {/* progress bar square thingies at the top of the screen */}
-                                    {Array.apply(null, { length: formLength }).map((i, index) =>
-                                        <AnimatePresence exitBeforeEnter key={index}>
-                                            {formPage > index ?
-                                                <MotiView
-                                                    key='completed'
-                                                    from={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                    style={{ borderRadius: 10, height: 10, width: ((windowWidth - 20) / formLength) - 5, backgroundColor: '#4C44D4', marginHorizontal: 2.5 }}
-                                                />
-                                                :
-                                                <MotiView
-                                                    key='not-completed'
-                                                    from={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                    style={{ borderRadius: 10, height: 10, width: ((windowWidth - 20) / formLength) - 5, backgroundColor: '#BDB9DB', marginHorizontal: 2.5 }}
-                                                />}
-                                        </AnimatePresence>)}
-                                </MotiView>
-                            }
-                        </AnimatePresence>
-                        <KeyboardAwareScrollView contentContainerStyle={{ flex: 2 }} bounces={false} overScrollMode='never'>
-                            <View style={styles.ViewT7}>
-                                <AnimatePresence exitBeforeEnter>
-                                    {formPage === 'testimonialInterstitial1' &&
-                                        <TestimonialInterstitial
-                                            key={'testimonialInterstitial1'}
-                                            batchNumber={1}
-                                            onContinue={() => setFormPage(genderScreen)}
-                                        />
-                                    }
-                                    {formPage === genderScreen &&
-                                        <GenderSelectorPage
-                                            key={`page${genderScreen}`}
-                                            onSelectResponse={(response) => { setFormResponses(val => ({ ...val, gender: response })); setFormPage(genderScreen + 1) }}
-                                            disableAnimation={false}
-                                            showTitle
-                                        />
-                                    }
-                                    {formPage === dobScreen &&
-                                        <DateOfBirthSelectorPage
-                                            key={`page${dobScreen}`}
-                                            prevResponse={new Date(formResponses.dob)}
-                                            onSelectResponse={(date) => setFormResponses(val => ({ ...val, dob: date }))}
-                                            onContinue={() => { formResponses.dob && formPage === dobScreen && setFormPage(dobScreen + 1) }}
-                                            disableAnimation={false}
-                                        />
-                                    }
-                                    {formPage === heightWeightScreen &&
-                                        <MotiView key={`page${heightWeightScreen}`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
-                                            <View style={styles.ViewD2}>
-                                                <Text
-                                                    adjustsFontSizeToFit
-                                                    numberOfLines={2}
-                                                    style={[
-                                                        styles.headline1,
-                                                        { color: '#202060' },
-                                                    ]}
-                                                >
-                                                    {'What is your current height?'}
-                                                </Text>
-                                            </View>
-                                            <HeightSelector
-                                                usesImperial={imperial.height}
-                                                prevResponse={formResponses.height}
-                                                onToggleImperial={() => useImperial(val => ({ ...val, height: imperial.height ? false : true }))}
-                                                onSelectLargeUnit={(value) => setFormResponses(val => ({
-                                                    ...val, height: {
-                                                        ...formResponses.height,
-                                                        ft: imperial.height ? value : Math.floor((value + (formResponses.height.mm * 0.1)) * 0.0328084),
-                                                        in: imperial.height ? formResponses.height.in : Math.round((((value + (formResponses.height.mm * 0.1)) * 0.0328084) - Math.floor((value + (formResponses.height.mm * 0.1)) * 0.0328084)) * 12),
-                                                        cm: imperial.height ? Math.floor((value + (formResponses.height.in / 12)) * 30.48) : value,
-                                                        mm: imperial.height ? Math.round((((value + (formResponses.height.in / 12)) * 30.48) - Math.floor((value + (formResponses.height.in / 12)) * 30.48)) * 10) : formResponses.height.mm
-                                                    }
-                                                }))}
-                                                onSelectSmallUnit={(value) => setFormResponses(val => ({
-                                                    ...val, height: {
-                                                        ...formResponses.height,
-                                                        ft: imperial.height ? formResponses.height.ft : Math.floor((formResponses.height.cm + (value * 0.1)) * 0.0328084),
-                                                        in: imperial.height ? value : Math.round((((formResponses.height.cm + (value * 0.1)) * 0.0328084) - Math.floor((formResponses.height.cm + (value * 0.1)) * 0.0328084)) * 12),
-                                                        cm: imperial.height ? Math.floor((formResponses.height.ft + (value / 12)) * 30.48) : formResponses.height.cm,
-                                                        mm: imperial.height ? Math.round((((formResponses.height.ft + (value / 12)) * 30.48) - Math.floor((formResponses.height.ft + (value / 12)) * 30.48)) * 10) : value
-                                                    }
-                                                }))}
-                                            />
-                                            <View style={styles.ViewD2}>
-                                                <Text
-                                                    adjustsFontSizeToFit
-                                                    numberOfLines={1}
-                                                    style={[
-                                                        styles.headline1,
-                                                        { color: '#202060' },
-                                                    ]}
-                                                >
-                                                    {'...and weight?'}
-                                                </Text>
-                                            </View>
-                                            <WeightSelector
-                                                usesImperial={imperial.weight}
-                                                prevResponse={formResponses.weight}
-                                                onToggleImperial={() => useImperial(val => ({ ...val, weight: imperial.weight ? false : true }))}
-                                                onSelectResponse={(value) => setFormResponses(val => ({
-                                                    ...val, weight: {
-                                                        ...formResponses.weight,
-                                                        lbs: imperial.weight ? value : Math.round(value * 2.20462),
-                                                        kgs: imperial.weight ? Math.round(value * 0.453592) : value
-                                                    }
-                                                }))}
-                                            />
-                                            <View style={styles.View_4v}>
-                                                <TouchableOpacity
-                                                    onPress={() => { formResponses.weight && formResponses.height && formPage === heightWeightScreen && setFormPage(heightWeightScreen + 1) }}
-                                                    style={[
-                                                        styles.ButtonSolidQB,
-                                                        { backgroundColor: '#4C44D4', marginTop: 20 },
-                                                    ]}
-                                                >
-                                                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </MotiView>}
-                                    {formPage === targetWeightScreen &&
-                                        <MotiView key={`page${targetWeightScreen}`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
-                                            <View style={styles.ViewD2}>
-                                                <Text
-                                                    style={[
-                                                        styles.headline1,
-                                                        { color: '#202060' },
-                                                    ]}
-                                                >
-                                                    {'What is your target weight?'}
-                                                </Text>
-                                            </View>
-                                            <WeightSelector
-                                                usesImperial={imperial.weight}
-                                                prevResponse={formResponses.targetWeight}
-                                                onToggleImperial={() => useImperial(val => ({ ...val, weight: imperial.weight ? false : true }))}
-                                                onSelectResponse={(value) => setFormResponses(val => ({
-                                                    ...val, targetWeight: {
-                                                        ...formResponses.targetWeight,
-                                                        lbs: imperial.weight ? value : Math.round(value * 2.20462),
-                                                        kgs: imperial.weight ? Math.round(value * 0.453592) : value
-                                                    }
-                                                }))}
-                                            />
-                                            <View style={styles.View_4v}>
-                                                <TouchableOpacity
-                                                    onPress={() => { formResponses.targetWeight && formPage === targetWeightScreen && setFormPage(targetWeightScreen + 0.5) }}
-                                                    style={[
-                                                        styles.ButtonSolidQB,
-                                                        { backgroundColor: '#4C44D4', marginTop: 20 },
-                                                    ]}
-                                                >
-                                                    <Text style={styles.panelButtonText}>{'Continue'}</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        </MotiView>}
-                                    {formPage === targetWeightScreen + 0.5 &&
-                                        <MotiView
-                                            key={'loadingScreen1'}
-                                            style={styles.loadingScreen}
-                                            from={{ opacity: 0, scale: 0 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0 }}
-                                            transition={{
-                                                duration: 500
-                                            }}
-                                            exitTransition={{
-                                                duration: 300
-                                            }}
-                                        >
-                                            <MotiText
-                                                adjustsFontSizeToFit
-                                                numberOfLines={2}
-                                                style={styles.loadingScreenText}
-                                                from={{ translateY: -5 }}
-                                                animate={{ translateY: 5 }}
-                                                transition={{ duration: 500, loop: true, type: 'timing' }}
-                                            >
-                                                Configuring your optimal settings...
-                                            </MotiText>
-                                            <MotiView
-                                                style={{
-                                                    position: 'absolute',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center'
-                                                }}
-                                                from={{ rotate: '0deg' }}
-                                                animate={{ rotate: '360deg' }}
-                                                transition={{ loop: Platform.OS === 'ios' ? true : false, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
-                                            >
-                                                <Icon
-                                                    name='settings-sharp'
-                                                    size={windowWidth / 3}
-                                                    color={'#5A5A5A'}
-                                                />
-                                            </MotiView>
-                                            <MotiView
-                                                style={{
-                                                    position: 'absolute',
-                                                    bottom: windowHeight / 3.3,
-                                                    right: windowWidth / 5
-                                                }}
-                                                from={{ rotate: '0deg' }}
-                                                animate={{ rotate: '-360deg' }}
-                                                transition={{ loop: Platform.OS === 'ios' ? true : false, type: 'timing', easing: Easing.linear, duration: 3000, repeatReverse: false }}
-                                            >
-                                                <Icon
-                                                    name='settings-sharp'
-                                                    size={windowWidth / 5}
-                                                    color={'#5A5A5A'}
-                                                />
-                                            </MotiView>
-                                        </MotiView>
-                                    }
-                                    {formPage === 'interstitial1' &&
-                                        <WeightChartInterstitial
-                                            key={`interstitial1`}
-                                            currentWeight={imperial.weight ? formResponses.weight.lbs : formResponses.weight.kgs}
-                                            targetWeight={imperial.weight ? formResponses.targetWeight.lbs : formResponses.targetWeight.kgs}
-                                            usesImperial={imperial.weight}
-                                            interstitialNumber={1}
-                                            onContinue={() => { formPage === 'interstitial1' && setFormPage('goalExplainer') }}
-                                        />
-                                    }
-                                    {formPage === 'goalExplainer' &&
-                                        <GoalExplainerPage
-                                            key={'goalExplainer'}
-                                            onContinue={() => setFormPage(targetWeightScreen + 1)}
-                                        />
-                                    }
-                                    {formPage === otherGoalScreen &&
-                                        <OtherGoalSelectorPage
-                                            key={`page${otherGoalScreen}`}
-                                            selectedGoals={formResponses.goals}
-                                            onSelectGoal={(goal) => toggleSelectGoal(goal)}
-                                            onContinue={() => { formPage === otherGoalScreen && setFormPage('detailedExplainer') }}
-                                            disableAnimation={false}
-                                        />
-                                    }
-                                    {formPage === 'detailedExplainer' &&
-                                        <DetailedExplainerPage
-                                            key={'detailedExplainer'}
-                                            onContinue={() => setFormPage(otherGoalScreen + 0.5)}
-                                        />
-                                    }
-                                    {formPage === otherGoalScreen + 0.5 &&
-                                        <MotiView
-                                            key={'loadingScreen2'}
-                                            style={styles.loadingScreen}
-                                            from={{ opacity: 0, scale: 0 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0 }}
-                                            transition={{
-                                                duration: 500
-                                            }}
-                                            exitTransition={{
-                                                duration: 300
-                                            }}
-                                        >
-                                            <MotiText
-                                                adjustsFontSizeToFit
-                                                numberOfLines={2}
-                                                style={styles.loadingScreenText}
-                                                from={{ translateY: -5 }}
-                                                animate={{ translateY: 5 }}
-                                                transition={{ duration: 500, loop: true, type: 'timing' }}
-                                            >
-                                                Analyzing your data...
-                                            </MotiText>
-                                            <MotiImage
-                                                from={{ scale: 0.95 }}
-                                                animate={{ scale: 1.05 }}
-                                                transition={{ duration: 1400, delay: 500, loop: true, type: 'timing' }}
-                                                style={{ position: 'absolute', bottom: windowHeight / 5, alignSelf: 'center', width: windowWidth, height: windowHeight / 4, resizeMode: 'contain' }}
-                                                source={require('../assets/scientist.png')}
-                                            />
-                                        </MotiView>
-                                    }
-                                    {formPage === 'interstitial2' &&
-                                        <WeightChartInterstitial
-                                            key={`interstitial2`}
-                                            currentWeight={imperial.weight ? formResponses.weight.lbs : formResponses.weight.kgs}
-                                            targetWeight={imperial.weight ? formResponses.targetWeight.lbs : formResponses.targetWeight.kgs}
-                                            usesImperial={imperial.weight}
-                                            interstitialNumber={2}
-                                            onContinue={() => { formPage === 'interstitial2' && setFormPage(otherGoalScreen + 1) }}
-                                        />
-                                    }
-                                    {formPage === mealCountScreen &&
-                                        <MealCountSelectorPage
-                                            key={`page${mealCountScreen}`}
-                                            prevResponse={formResponses.mealCount}
-                                            onSelectResponse={(value) => setFormResponses(val => ({ ...val, mealCount: value }))}
-                                            onContinue={() => { formResponses.mealCount && formPage === mealCountScreen && setFormPage('photoExplainer') }}
-                                            disableAnimation={false}
-                                        />
-                                    }
-                                    {formPage === 'photoExplainer' &&
-                                        <MealPhotoExplainerPage
-                                            key={'photoExplainer'}
-                                            onContinue={() => setFormPage(mealCountScreen + 1)}
-                                        />
-                                    }
-                                    {formPage === mealPickerScreen &&
-                                        <MealTimesSelectorPage
-                                            editingMealTime={editingMealTime}
-                                            mealCount={formResponses.mealCount}
-                                            prevResponse={formResponses.mealTimes}
-                                            onSelectResponse={(v, index) => { let newArr = formResponses.mealTimes || []; newArr[index] = v; setFormResponses(val => ({ ...val, mealTimes: newArr })) }}
-                                            onContinue={() => {
-                                                // update meal times with the value at the current index
-                                                if (formResponses.mealTimes[editingMealTime - 1] == null) {
-                                                    let newArr = formResponses.mealTimes || []
-                                                    newArr[editingMealTime - 1] = new Date()
-                                                    setFormResponses(val => ({ ...val, mealTimes: newArr }))
-                                                }
-                                                // only go to next page (loading screen) if all the meal times have been selected
-                                                editingMealTime == formResponses.mealCount ? setFormPage('photoPledge') : editingMealTime < formResponses.mealCount && setEditingMealTime(editingMealTime + 1)
-                                            }}
-                                            disableContainerAnimation={false}
-                                        />
-                                    }
-                                    {formPage === 'photoPledge' &&
-                                        <PhotoPledgePage
-                                            key={'photoPledge'}
-                                            onContinue={() => setFormPage('testimonialInterstitial2')}
-                                        />
-                                    }
-                                    {formPage === 'testimonialInterstitial2' &&
-                                        <TestimonialInterstitial
-                                            key={'testimonialInterstitial2'}
-                                            batchNumber={2}
-                                            usesImperial={imperial.weight}
-                                            onContinue={() => setFormPage('signup')}
-                                        />
-                                    }
-                                    {formPage === mealPickerScreen + 0.5 &&
-                                        <MotiView
-                                            key={'loadingScreen3'}
-                                            style={styles.loadingScreen}
-                                            from={{ opacity: 0, scale: 0 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0 }}
-                                            transition={{
-                                                duration: 500
-                                            }}
-                                            exitTransition={{
-                                                duration: 300
-                                            }}
-                                        >
-                                            <MotiText
-                                                adjustsFontSizeToFit
-                                                numberOfLines={2}
-                                                style={styles.loadingScreenText}
-                                                from={{ translateY: -5 }}
-                                                animate={{ translateY: 5 }}
-                                                transition={{ duration: 500, loop: true, type: 'timing' }}
-                                            >
-                                                Finding the best possible coach for you...
-                                            </MotiText>
-                                            <View
-                                                style={{
-                                                    position: 'absolute',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center'
-                                                }}
-                                            >
-                                                <Icon
-                                                    name='chatbox-outline'
-                                                    size={windowWidth / 5}
-                                                    color={'#202060'}
-                                                />
-                                            </View>
-                                            <MotiView
-                                                style={{
-                                                    position: 'absolute',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center'
-                                                }}
-                                                from={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                transition={{ loop: true, duration: 800 }}
-                                            >
-                                                <Icon
-                                                    name='chatbox-ellipses-outline'
-                                                    size={windowWidth / 5}
-                                                    color={'#202060'}
-                                                />
-                                            </MotiView>
-                                        </MotiView>
-                                    }
-                                    {formPage === 'coachProfile' &&
-                                        <CoachProfilePage
-                                            key={`coachProfile`}
-                                            coachData={coachInfo}
-                                            disableAnimation={false}
-                                            onContinue={() => setFormPage(mealPickerScreen + 1)}
-                                        />
-                                    }
-                                    {formPage === referralCodeScreen &&
-                                        <ReferralCodePage
-                                            key={`page${referralCodeScreen}`}
-                                            partnerInfo={partnerInfo}
-                                            onContinueWithReferral={(code) => { setFormResponses(val => ({ ...val, referralCode: code })); formPage === referralCodeScreen && setFormPage('trialPrice') }}
-                                            onContinueNoReferral={() => setFormPage('trialPrice')}
-                                            disableAnimation={false}
-                                        />
-                                    }
-                                    {formPage === 'trialPrice' &&
-                                        <TrialPricePage
-                                            key={'trialPrice'}
-                                            trialPrices={optionalTrialPriceChoices}
-                                            purchaseTrial={handleTrialPay}
-                                            paidForTrial={globalVars.userData?.paidForTrial}
-                                            loading={trialPaymentLoading}
-                                            onContinue={() => setFormPage(referralCodeScreen + 1)}
-                                        />
-                                    }
-                                    {formPage === formLength &&
-                                        <WizardFinalPage
-                                            key={`page${formLength}`}
-                                            handleSubButtonPress={handleSubButtonPress}
-                                            finishForm={finishForm}
-                                        />
-                                    }
-                                </AnimatePresence>
-                            </View>
-                        </KeyboardAwareScrollView>
-                        <AnimatePresence>
-                            {/* back button */}
-                            {formPage > 0 && Number.isSafeInteger(formPage) &&
-                                <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 20 : 20, left: 20 }}>
-                                    {/* either go back to previous meal time picker, or go back to previous page */}
-                                    <TouchableOpacity onPress={() => {
-                                        if (formPage > 0 && Number.isSafeInteger(formPage)) {
-                                            if (formPage === mealPickerScreen && editingMealTime > 1) {
-                                                setEditingMealTime(editingMealTime - 1)
-                                            } else {
-                                                setFormPage(formPage - 1)
-                                                setLoadingScreen(1)
-                                            }
-                                        }
-                                    }}>
-                                        <Ionicons
-                                            name='ios-arrow-back-circle-outline'
-                                            size={30}
-                                            color={'#202060'}
-                                        />
-                                    </TouchableOpacity>
-                                </MotiView>}
-                        </AnimatePresence>
-                    </SafeAreaView>
-                </MotiView>
-            }
+                />}
+            {formPage === 'photoPledge' &&
+                <PhotoPledgePage
+                    key={'photoPledge'}
+                    onContinue={() => setFormPage('testimonialInterstitial2')}
+                />} */}
         </AnimatePresence>
     )
 }
