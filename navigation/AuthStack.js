@@ -10,11 +10,12 @@ import IntroVideo from '../screens/IntroVideo'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { GoogleSignin } from '@react-native-google-signin/google-signin'
 import { GOOGLE_SIGNIN_CONFIG_ANDROID, GOOGLE_SIGNIN_CONFIG_IOS } from '../constants/constants'
+import IntroExplainerScreen from '../screens/IntroExplainerScreen'
 
 const Stack = createStackNavigator()
 
 const AuthStack = () => {
-  const [completedWizard, setCompletedWizard] = useState(null)
+  const [firstLogon, setFirstLogon] = useState(null)
   let routeName
 
   useEffect(() => {
@@ -22,9 +23,9 @@ const AuthStack = () => {
     AsyncStorage.getItem('alreadyLaunched').then((value) => {
       if (value == null) {
         AsyncStorage.setItem('alreadyLaunched', 'true') 
-        setCompletedWizard(true)
+        setFirstLogon(true)
       } else {
-        setCompletedWizard(false)
+        setFirstLogon(false)
       }
     }) 
   
@@ -37,13 +38,15 @@ const AuthStack = () => {
   }, [])
 
   // change initial route name depending on first login
-  if (completedWizard === null) {
+  if (firstLogon === null) {
     return null 
-  } else if (completedWizard == true) {
-    routeName = 'Onboarding'
+  } else if (firstLogon == true) {
+    routeName = 'Intro'
   } else {
     routeName = 'Login'
   }
+
+  // routeName = 'Intro'
 
   return (
     <Stack.Navigator initialRouteName={routeName}>
@@ -60,6 +63,10 @@ const AuthStack = () => {
       <Stack.Screen
         name="Onboarding"
         component={OnboardingWizard}
+        options={{header: () => null}}
+      />
+      <Stack.Screen 
+        name="Intro" component={IntroExplainerScreen} 
         options={{header: () => null}}
       />
       <Stack.Screen

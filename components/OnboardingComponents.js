@@ -64,14 +64,15 @@ const IntroExplainerPage = ({ onContinue }) => {
         }
     }, [introPage])
 
-    useEffect(() => {
-
-    }, [])
-
     const insets = useSafeAreaInsets()
 
     return (
-        <MotiView style={{ flex: 1 }} from={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <MotiView 
+            style={{ flex: 1, backgroundColor: '#E6E7FA' }} 
+            from={{ opacity: 1 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+        >
             <AnimatePresence exitBeforeEnter>
                 {introPage === 0 && 
                     <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} key={`introPage0`} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -80,7 +81,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                             animate={{ scale: 1.1 }} 
                             transition={{
                                 scale: {
-                                    duration: 1500,
+                                    duration: 1000,
                                     easing: Easing.bezier(0, 0.55, 0.45, 1),
                                     type: 'timing'
                                 }
@@ -93,7 +94,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                             animate={{ translateY: 0 }}
                             transition={{ 
                                 duration: 500,
-                                delay: 2000,
+                                delay: 1500,
                                 type: 'timing'
                             }}
                             style={{
@@ -111,7 +112,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                             animate={{ translateY: 0 }}
                             transition={{ 
                                 duration: 500,
-                                delay: 2500,
+                                delay: 1800,
                                 type: 'timing'
                             }}
                             style={{
@@ -129,7 +130,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                                 from={{ opacity: 0, translateY: 20 }}
                                 animate={{ opacity: 1, translateY: 0 }}
                                 transition={{ type: 'timing' }}
-                                delay={1500}
+                                delay={1000}
                                 style={styles.ViewD2}
                             >
                                 <Text
@@ -137,7 +138,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                                     numberOfLines={1}
                                     style={[
                                         styles.headline1,
-                                        { color: '#000', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (20 / 844), maxWidth: windowWidth - 64 },
+                                        { color: '#3F3D53', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (20 / 844), maxWidth: windowWidth - 64 },
                                     ]}
                                 >
                                     {`A human diet coach in your pocket.`}
@@ -147,8 +148,8 @@ const IntroExplainerPage = ({ onContinue }) => {
                                 from={{ opacity: 0, translateY: 20 }}
                                 animate={{ opacity: 1, translateY: 0 }}
                                 transition={{ type: 'timing' }}
-                                delay={3000}
-                                style={styles.View_4v}
+                                delay={2500}
+                                style={styles.ViewD2}
                             >
                                 <TouchableOpacity
                                     onPress={() => setIntroPage(1)}
@@ -164,12 +165,19 @@ const IntroExplainerPage = ({ onContinue }) => {
                     </MotiView>
                 }
                 {introPage === 1 &&
-                    <MotiView key={`introPage1`} from={{ opacity: 0, translateY: 0 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing' }} style={{ flex: 1 }}>
+                    <MotiView 
+                        key={`introPage1`} 
+                        from={{ opacity: 0, translateY: 0 }} 
+                        animate={{ opacity: 1, translateY: 0 }} 
+                        exit={{ opacity: 0, translateY: -20 }} 
+                        transition={{ type: 'timing' }} 
+                        style={{ flex: 1 }}
+                    >
                         <SafeAreaView style={{ flex: 1, marginHorizontal: 20, justifyContent: 'center', alignItems: 'center' }}>
                             <MotiView
                                 from={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                delay={700}
+                                delay={pageChangeDelay}
                             >
                                 <View style={styles.ViewD2}>
                                     <Text
@@ -314,7 +322,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                                 animate={{ opacity: 1, translateY: 0 }}
                                 transition={{ type: 'timing' }}
                                 delay={9000}
-                                style={styles.View_4v}
+                                style={styles.ViewD2}
                             >
                                 <TouchableOpacity
                                     onPress={() => setIntroPage(2)}
@@ -329,7 +337,15 @@ const IntroExplainerPage = ({ onContinue }) => {
                         </SafeAreaView>
                     </MotiView>}
                 {introPage === 2 &&
-                    <MotiView key={`introPage2`} from={{ opacity: 0, translateY: 20 }} animate={{ opacity: 1, translateY: 0 }} exit={{ opacity: 0, translateY: -20 }} transition={{ type: 'timing', delay: pageChangeDelay }} exitTransition={{ type: 'timing', delay: 0 }} style={{ flex: 1 }}>
+                    <MotiView 
+                        key={`introPage2`} 
+                        from={{ opacity: 0, translateY: 20 }} 
+                        animate={{ opacity: 1, translateY: 0 }} 
+                        exit={{ opacity: 0, translateY: -20 }} 
+                        transition={{ type: 'timing', delay: pageChangeDelay }} 
+                        exitTransition={{ type: 'timing', delay: 0 }} 
+                        style={{ flex: 1 }}
+                    >
                         <View
                             style={{
                                 position: 'absolute',
@@ -391,7 +407,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                                 animate={{ opacity: 1, translateY: 0 }}
                                 transition={{ type: 'timing' }}
                                 delay={pageChangeDelay + 1000}
-                                style={styles.View_4v}
+                                style={styles.ViewD2}
                             >
                                 <TouchableOpacity
                                     onPress={onContinue}
@@ -544,7 +560,7 @@ const GoalExplainerPage = ({ onContinue }) => {
             >
                 Are you ready to take the first step to the rest of your life?
             </Text>
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinue}
                     style={[
@@ -621,7 +637,7 @@ const OtherGoalSelectorPage = ({ selectedGoals, onSelectGoal, onContinue, disabl
                     )}
                 </View>
             </ScrollView>
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinue}
                     style={[
@@ -691,7 +707,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                                 </Text>
                             </View>
                         ))}
-                        <View style={styles.View_4v}>
+                        <View style={styles.ViewD2}>
                             <TouchableOpacity
                                 onPress={() => setPage(2)}
                                 style={{
@@ -795,7 +811,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                         >
                             This means having more green foods <Text style={{ fontWeight: '700' }}>(whole foods)</Text>, having yellow foods <Text style={{ fontWeight: '700' }}>(minimally processed)</Text> in moderation, and having white foods <Text style={{ fontWeight: '700' }}>(heavily processed)</Text> occasionally.
                         </Text>
-                        <View style={styles.View_4v}>
+                        <View style={styles.ViewD2}>
                             <TouchableOpacity
                                 onPress={onContinue}
                                 style={[
@@ -932,7 +948,7 @@ const DateOfBirthSelectorPage = ({ prevResponse, onSelectResponse, onContinue, d
                     <Text allowFontScaling={true} style={{ fontWeight: '700', fontSize: 18, color: '#DA302C', textAlign: 'center' }}>Unfortunately, we are unable to serve users under the age of 18. Although our coaches cannot help you, you may feel free to complete our daily courses.</Text>
                 </MotiView>}
             </AnimatePresence>
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinue}
                     style={[
@@ -1031,7 +1047,7 @@ const MealCountSelectorPage = ({ prevResponse, onSelectResponse, onContinue, dis
                     </View>
                 </View>
             </View>
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinue}
                     style={[
@@ -1119,7 +1135,7 @@ const MealPhotoExplainerPage = ({ onContinue }) => {
                         >
                             All you have to do is send us a photo of your meal.
                         </Text>
-                        <View style={styles.View_4v}>
+                        <View style={styles.ViewD2}>
                             <TouchableOpacity
                                 onPress={() => setPage(2)}
                                 style={{
@@ -1179,7 +1195,7 @@ const MealPhotoExplainerPage = ({ onContinue }) => {
                         >
                             The score is based on the ratios of green, yellow and white foods on your plate. If you eat only ‘green’ foods, you will get 100, if you eat only ‘yellow’ foods you will get 50, and if you eat only ‘white’ foods you will get 0.
                         </Text>
-                        <View style={styles.View_4v}>
+                        <View style={styles.ViewD2}>
                             <TouchableOpacity
                                 onPress={onContinue}
                                 style={[
@@ -1224,7 +1240,7 @@ const MealTimesSelectorPage = ({ editingMealTime, mealCount, prevResponse, onSel
                     </MotiView>
                 )}
             </AnimatePresence>
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinue}
                     style={[styles.ButtonSolidQB, { backgroundColor: '#4C44D4', marginTop: 20 }]}>
@@ -1274,7 +1290,7 @@ const PhotoPledgePage = ({ onContinue }) => {
                         >
                             We promise that we are not here to judge you. We've got your best interests at heart.
                         </Text>
-                        <View style={styles.View_4v}>
+                        <View style={styles.ViewD2}>
                             <TouchableOpacity
                                 onPress={() => setPage(2)}
                                 style={{
@@ -1304,7 +1320,7 @@ const PhotoPledgePage = ({ onContinue }) => {
                 {page === 2 && 
                     <MotiView key={`photoPledgePage2`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, position: 'absolute', width: windowWidth, height: windowHeight, justifyContent: 'center', alignItems: 'center' }}>
                         <ImageBackground style={{ flex: 1, paddingHorizontal: 32 }} imageStyle={{ resizeMode: 'cover' }} source={PhotoPledge}>
-                            <View style={[styles.View_4v, { top: windowHeight * 0.8 }]}>
+                            <View style={[styles.ViewD2, { top: windowHeight * 0.8 }]}>
                                 <TouchableOpacity
                                     onPress={onContinue}
                                     style={[
@@ -1396,7 +1412,7 @@ const ReferralCodePage = ({ partnerInfo, onContinueWithReferral, onContinueNoRef
                 </View>
             </KeyboardAvoidingView>
             {partner && 
-            <MotiView style={styles.View_4v} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <MotiView style={styles.ViewD2} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <TouchableOpacity
                     onPress={() => onContinueWithReferral(code)}
                     style={[
@@ -1407,7 +1423,7 @@ const ReferralCodePage = ({ partnerInfo, onContinueWithReferral, onContinueNoRef
                     <Text style={styles.panelButtonText}>{'Yes!'}</Text>
                 </TouchableOpacity>
             </MotiView>}
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinueNoReferral}
                 >
@@ -1498,7 +1514,7 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
                     </Text>
                 </View>
             }
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinue}
                     style={[styles.ButtonSolidQB, { backgroundColor: '#4C44D4', marginTop: 20 }]}>
@@ -1573,7 +1589,7 @@ const TestimonialInterstitial = ({ batchNumber, usesImperial, onContinue }) => {
                     ))}
                 </View>
             </View>
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinue}
                     style={[styles.ButtonSolidQB, { backgroundColor: '#4C44D4', marginTop: 20 }]}>
@@ -1659,7 +1675,7 @@ const CoachProfilePage = ({ coachData, disableAnimation, onContinue }) => {
                             </View>
                         </>}
                 </View>
-                <MotiView style={styles.View_4v} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <MotiView style={styles.ViewD2} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                     <TouchableOpacity
                         onPress={onContinue}
                         style={[
@@ -1688,9 +1704,9 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                         { color: '#202060', fontSize: 20 },
                     ]}
                 >
-                    We hope that you're enjoying your DietPeeps free trial. Your coach is working hard to help you reach your wellness goals and is rooting for you!
+                    We understand that times may be difficult as a result of the recent global pandemic. So, we are offering the option to try DietPeeps free of charge.
                     {`\n\n`}
-                    Would you like to tip your coach for the trial? It costs us {trialPrices[trialPrices.length - 1].product.price_string} to compensate our DietPeeps employees for the trial, but please choose the amount you are comfortable with.
+                    It costs us {trialPrices[trialPrices.length - 1].product.price_string} to compensate our DietPeeps employees for the trial, but please choose the amount you are comfortable with.
                 </Text>
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 20 }}>
@@ -1757,7 +1773,7 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                         </Text>
                 </View>}
             </View>
-            <MotiView style={styles.View_4v} from={{ opacity: 0 }} animate={{ opacity: loading ? 0.7 : 1 }}>
+            <MotiView style={styles.ViewD2} from={{ opacity: 0 }} animate={{ opacity: loading ? 0.7 : 1 }}>
                 <TouchableOpacity
                     disabled={loading}
                     onPress={() => selectedPrice != null && purchaseTrial(selectedPrice)}
@@ -1772,7 +1788,7 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                     }
                 </TouchableOpacity>
             </MotiView>
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinue}
                 >
@@ -1941,7 +1957,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                                 </LinearGradient>
                             </TouchableOpacity>
                             <Text style={{ fontSize: 18, color: '#202060', textAlign: 'center' }}>or</Text>
-                            <View style={styles.View_4v}>
+                            <View style={styles.ViewD2}>
                                 <TouchableOpacity
                                     onPress={finishForm}
                                     style={[
@@ -2223,9 +2239,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#4C44D4',
         alignItems: 'center',
         marginVertical: 7,
-    },
-    View_4v: {
-        alignItems: 'center',
     },
     headline2: {
         fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',

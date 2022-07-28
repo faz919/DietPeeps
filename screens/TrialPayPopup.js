@@ -1,11 +1,90 @@
 import { MotiView } from 'moti'
-import React, { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
+import { Alert, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import Purchases from 'react-native-purchases'
+import { AuthContext } from '../navigation/AuthProvider'
+import { windowWidth, windowHeight } from '../utils/Dimensions'
 
-const TrialPayPopup = ({ trialPrices, purchaseTrial, paidForTrial, loading, onContinue }) => {
+const TrialPayPopup = ({ navigation }) => {
+
+    const { mixpanel, updateInfo } = useContext(AuthContext)
+
+    const [trialPrices, setTrialPrices] = useState([])
     const [selectedPrice, setSelectedPrice] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [error, showError] = useState(false)
+
+    const fetchOfferings = async () => {
+        try {
+            const prices = await Purchases.getOfferings()
+            prices.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')) && setTrialPrices(prices.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')))
+        } catch (e) {
+            console.error('error while retrieving prices: ', e)
+            Alert.alert(
+                'Error while retrieving prices',
+                'Please try again later.'
+            )
+        }
+    }
+
+    useEffect(() => {
+        fetchOfferings()
+    }, [])
+
+    useEffect(() => {
+        if (selectedPrice != null) {
+            showError(false)
+        }
+    }, [selectedPrice])
+
+    // function that handles user attempting to pay for trial
+    const handleTrialPay = (option) => {
+        showError(false)
+        setLoading(true)
+        mixpanel.track('Attempted to Pay for Trial')
+        if (option == null) {
+            Alert.alert(
+                'Error while making purchase',
+                'Please try again.'
+            )
+            return
+        }
+        payForTrial(option)
+    }
+
+    // function that pays for trial, if user decides to
+    const payForTrial = async (option) => {
+        try {
+            const { purchaserInfo, productIdentifier } = await Purchases.purchasePackage(option)
+            // console.log(purchaserInfo)
+            if (typeof purchaserInfo.entitlements.active['Purchased Trial'] !== 'undefined') {
+                mixpanel.track('Paid for Trial', { 'PaymentInfo': JSON.stringify(purchaserInfo) })
+                mixpanel.getPeople().set('Paid For Trial', true)
+                console.log('Success!')
+                updateInfo({ paidForTrial: true, trialPaymentInfo: { purchaserInfo } })
+                setLoading(false)
+                navigation.navigate('Main Menu', { screen: 'Coach', params: { hasPaidForTrial: true } })
+            }
+            // else {
+            //     console.error('Unable to purchase subscription, or check subscription status. Please try again.')
+            //     setLoading(false)
+            // }
+        } catch (e) {
+            console.error('error while making purchase: ', e)
+            Alert.alert(
+                'Error while making purchase',
+                'Please try again.'
+            )
+            setLoading(false)
+        }
+    }
+
+    const onContinue = () => {
+        navigation.pop()
+    }
+
     return (
-        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, backgroundColor: '#E6E7FA', paddingHorizontal: 32 }}>
             <View style={styles.ViewD2}>
                 <Text
                     adjustsFontSizeToFit
@@ -17,12 +96,12 @@ const TrialPayPopup = ({ trialPrices, purchaseTrial, paidForTrial, loading, onCo
                 >
                     We hope that you're enjoying your DietPeeps free trial. Your coach is working hard to help you reach your wellness goals and is rooting for you!
                     {`\n\n`}
-                    Would you like to tip your coach for the trial? It costs us {trialPrices[trialPrices.length - 1].product.price_string} to compensate our DietPeeps employees for the trial, but please choose the amount you are comfortable with.
+                    Would you like to tip your coach for the trial? It costs us {trialPrices[trialPrices?.length - 1]?.product.price_string} to compensate our DietPeeps employees for the trial, but please choose the amount you are comfortable with.
                 </Text>
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 20 }}>
                 {trialPrices?.map((option, index) => (
-                    <View key={index} pointerEvents={paidForTrial ? 'none' : 'auto'} style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', opacity: paidForTrial ? 0.5 : 1 }}>
+                    <View key={index} style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', opacity: 1 }}>
                         <MotiView
                             key={index}
                             from={{ 
@@ -72,22 +151,15 @@ const TrialPayPopup = ({ trialPrices, purchaseTrial, paidForTrial, loading, onCo
                         } */}
                     </View>
                 ))}
-                {paidForTrial && 
-                <View style={{ position: 'absolute', justifyContent: 'center', alignItems: 'center' }}>
-                        <Text
-                            style={[
-                                styles.headline1,
-                                { color: '#202060', fontSize: 20, maxWidth: windowWidth * 0.6, textAlign: 'center' },
-                            ]}
-                        >
-                            Thanks so much for your support!
-                        </Text>
-                </View>}
             </View>
-            <MotiView style={styles.View_4v} from={{ opacity: 0 }} animate={{ opacity: loading ? 0.7 : 1 }}>
+            <MotiView style={styles.ViewD2} from={{ opacity: 0 }} animate={{ opacity: loading ? 0.7 : 1 }}>
+                {error && 
+                <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ type: 'timing' }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text allowFontScaling={true} style={{ fontWeight: '700', fontSize: 18, color: '#DA302C', textAlign: 'center' }}>Please select a payment amount.</Text>
+                </MotiView>}
                 <TouchableOpacity
                     disabled={loading}
-                    onPress={() => selectedPrice != null && purchaseTrial(selectedPrice)}
+                    onPress={() => selectedPrice == null ? showError(true) : handleTrialPay(selectedPrice)}
                     style={[
                         styles.ButtonSolidQB,
                         { backgroundColor: '#4C44D4', marginTop: 20 },
@@ -99,7 +171,7 @@ const TrialPayPopup = ({ trialPrices, purchaseTrial, paidForTrial, loading, onCo
                     }
                 </TouchableOpacity>
             </MotiView>
-            <View style={styles.View_4v}>
+            <View style={styles.ViewD2}>
                 <TouchableOpacity
                     onPress={onContinue}
                 >
@@ -113,5 +185,29 @@ const TrialPayPopup = ({ trialPrices, purchaseTrial, paidForTrial, loading, onCo
 export default TrialPayPopup
 
 const styles = StyleSheet.create({
-
+    ViewD2: {
+        alignItems: 'center'
+    },
+    headline1: {
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
+        fontSize: windowHeight * (30/844),
+        letterSpacing: 0,
+        textAlign: 'center',
+        marginVertical: 20
+    },
+    ButtonSolidQB: {
+        width: windowWidth - 64,
+        height: 50,
+        marginBottom: 12,
+        justifyContent: 'center',
+        borderRadius: 10,
+        backgroundColor: '#4C44D4',
+        alignItems: 'center',
+        marginVertical: 7,
+    },
+    panelButtonText: {
+        fontSize: windowHeight * (17/844),
+        fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
+        color: 'white',
+    },
 })

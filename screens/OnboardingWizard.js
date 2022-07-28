@@ -48,9 +48,9 @@ const OnboardingWizard = ({ navigation }) => {
             // console.log(trialPrices.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')))
             trialPrices.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')) && setOptionalTrialPriceChoices(trialPrices.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')))
         } catch (e) {
-            console.error('error while retrieving subscriptions: ', e)
+            console.error('error while retrieving prices: ', e)
             Alert.alert(
-                'Error while retrieving subscriptions',
+                'Error while retrieving prices',
                 'Please try again later.'
             )
         }
@@ -170,7 +170,7 @@ const OnboardingWizard = ({ navigation }) => {
     // on what page does the user pick meal times. important because the functionality of the continue button is different on this page
     const mealPickerScreen = 7
     const referralCodeScreen = 8
-    const [formPage, setFormPage] = useState(0)
+    const [formPage, setFormPage] = useState('testimonialInterstitial1')
     // is current wizard synced with responses fetched from asyncstorage
     const [synced, setSynced] = useState(false)
     const insets = useSafeAreaInsets()
@@ -303,11 +303,6 @@ const OnboardingWizard = ({ navigation }) => {
                     <KeyboardAwareScrollView contentContainerStyle={{ flex: 2 }} bounces={false} overScrollMode='never'>
                         <View style={styles.ViewT7}>
                             <AnimatePresence exitBeforeEnter>
-                                {/* {formPage === introScreen &&
-                                    <IntroExplainerPage
-                                        key={`page${introScreen}`}
-                                        onContinue={() => setFormPage('testimonialInterstitial1')}
-                                    />} */}
                                 {formPage === 'testimonialInterstitial1' &&
                                     <TestimonialInterstitial
                                         key={'testimonialInterstitial1'}
@@ -607,11 +602,6 @@ const OnboardingWizard = ({ navigation }) => {
                                         disableContainerAnimation={false}
                                     />
                                 }
-                                {/* {formPage === 'photoPledge' &&
-                                    <PhotoPledgePage
-                                        key={'photoPledge'}
-                                        onContinue={() => setFormPage('testimonialInterstitial2')}
-                                    />} */}
                                 {formPage === 'testimonialInterstitial2' &&
                                     <TestimonialInterstitial
                                         key={'testimonialInterstitial2'}
@@ -714,7 +704,7 @@ const OnboardingWizard = ({ navigation }) => {
                     </KeyboardAwareScrollView>
                     <AnimatePresence>
                         {/* back button */}
-                        {formPage > 0 && Number.isSafeInteger(formPage) &&
+                        {formPage > 1 && Number.isSafeInteger(formPage) &&
                             <MotiView from={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0 }} style={{ position: 'absolute', top: Platform.OS === 'ios' ? insets.top + 20 : 20, left: 20 }}>
                                 {/* either go back to previous meal time picker, or go back to previous page */}
                                 <TouchableOpacity onPress={() => {
@@ -738,11 +728,11 @@ const OnboardingWizard = ({ navigation }) => {
                 </SafeAreaView>
                 <View pointerEvents={(formPage === introScreen || formPage === 'photoPledge') ? 'auto' : 'none'} style={{ flex: 1, position: 'absolute', width: windowWidth, height: windowHeight }}>
                     <AnimatePresence exitBeforeEnter>
-                        {formPage === introScreen &&
+                        {/* {formPage === introScreen &&
                             <IntroExplainerPage
                                 key={`page${introScreen}`}
                                 onContinue={() => setFormPage('testimonialInterstitial1')}
-                            />}
+                            />} */}
                         {formPage === 'photoPledge' &&
                             <PhotoPledgePage
                                 key={'photoPledge'}
@@ -751,16 +741,6 @@ const OnboardingWizard = ({ navigation }) => {
                     </AnimatePresence>
                 </View>
             </MotiView>
-            {/* {formPage === introScreen &&
-                <IntroExplainerPage
-                    key={`page${introScreen}`}
-                    onContinue={() => setFormPage('testimonialInterstitial1')}
-                />}
-            {formPage === 'photoPledge' &&
-                <PhotoPledgePage
-                    key={'photoPledge'}
-                    onContinue={() => setFormPage('testimonialInterstitial2')}
-                />} */}
         </AnimatePresence>
     )
 }

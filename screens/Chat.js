@@ -43,7 +43,7 @@ import ChatMessage from '../components/ChatMessage'
 // accessed by default and by pressing the 'Coach' button on the tab navigator (the far left one)
 const Chat = ({ navigation, route }) => {
 
-    const { imageInfo, hasSubscribed } = route.params
+    const { imageInfo, hasPaidForTrial, hasSubscribed } = route.params
 
     const insets = useSafeAreaInsets()
     const bottomBarHeight = useBottomTabBarHeight()
@@ -99,10 +99,13 @@ const Chat = ({ navigation, route }) => {
 
     // give them a badge when they sub
     useEffect(() => {
+        if (hasPaidForTrial) {
+            navigation.navigate('Congrats', { congratsType: 'paidForTrial' })
+        }
         if (hasSubscribed) {
             navigation.navigate('Congrats', { congratsType: 'subscribed' })
         }
-    }, [hasSubscribed])
+    }, [hasPaidForTrial, hasSubscribed])
 
     // give them a badge when they weigh in
     useEffect(() => {
@@ -389,8 +392,8 @@ const Chat = ({ navigation, route }) => {
                             deviceID: DeviceInfo.getUniqueId()
                         }
                         const appInfo = {
-                            versionName: '1.04',
-                            versionCode: 16
+                            versionName: '1.05',
+                            versionCode: 19
                         }
                         // check if user has null display name, photo url, or email
                         usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })
@@ -816,7 +819,7 @@ const Chat = ({ navigation, route }) => {
                 .collection('chat-messages')
                 .where('userID', '==', user.uid)
                 .orderBy('timeSent', 'desc')
-                .onSnapshot((querySnapshot) => {
+                .onSnapshot(async (querySnapshot) => {
                     // get all the images the user has sent in their chat message. these will be used in the gallery, and for stat calculation on the stats page
                     querySnapshot.docs.forEach((doc) => {
                         if (doc.data().img != null) {
@@ -832,6 +835,12 @@ const Chat = ({ navigation, route }) => {
                             totalImageCount: imageList.length
                         })
                         setUpdated(true)
+                    }
+                    // check if user has already been prompted to pay for trial/has already paid for trial. if not, prompt them to do so
+                    const promptedForTrialPay = await AsyncStorage.getItem('promptedForTrialPay')
+                    if (imageList.length >= 12 && !globalVars.userData.subscribed && !globalVars.userData.paidForTrial && promptedForTrialPay != null) {
+                        await AsyncStorage.setItem('promptedForTrialPay', 'true')
+                        navigation.navigate('Trial Pay Popup')
                     }
                     imageList = []
                     if (loading) {

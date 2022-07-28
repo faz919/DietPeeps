@@ -24,6 +24,8 @@ import WeighInModal from "../screens/WeighInModal.js"
 import NotificationSettings from "../screens/NotificationSettings.js"
 import EditUserDataScreen from "../screens/EditUserDataScreen.js"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import TrialPayPopup from "../screens/TrialPayPopup.js"
+import IntroExplainerScreen from "../screens/IntroExplainerScreen.js"
 
 // screen navigator
 const AppStack = createStackNavigator()
@@ -66,7 +68,7 @@ const MainMenu = () => {
       tabBarShowLabel: true
     })}>
       {/* define each screen and their initial params */}
-      <Tab.Screen name="Coach" component={Chat} initialParams={{ imageInfo: null, hasSubscribed: null, hasWeighedIn: null }} />
+      <Tab.Screen name="Coach" component={Chat} initialParams={{ imageInfo: null, hasPaidForTrial: null, hasSubscribed: null, hasWeighedIn: null }} />
       <Tab.Screen name="Gallery" component={PhotoGallery} initialParams={{ imageInfo: null }} />
       <Tab.Screen name="Camera" component={CameraModal}
         listeners={(params) => ({
@@ -89,7 +91,7 @@ const App = () => {
   
   useEffect(() => {
     AsyncStorage.getItem('hasCompletedWizard').then((value) => {
-      console.log(value, typeof value)
+      // console.log(value, typeof value)
       if (value == null || value === 'false') {
         setCompletedWizard(false)
         return
@@ -109,7 +111,7 @@ const App = () => {
     initialRoute = 'Onboarding Wizard'
   }
 
-  // initialRoute = 'Onboarding Wizard'
+  // initialRoute = 'Intro Screen'
 
   return (
     <AppStack.Navigator initialRouteName={initialRoute}>
@@ -119,9 +121,12 @@ const App = () => {
         headerShown: false,
         ...TransitionPresets.ModalPresentationIOS,
       }} />
+      <AppStack.Screen name="Intro Screen" component={IntroExplainerScreen} options={{
+        headerShown: false,
+      }} />
       <AppStack.Screen name="Onboarding Wizard" component={OnboardingWizard} options={{
         headerShown: false,
-        ...TransitionPresets.SlideFromRightIOS,
+        ...TransitionPresets.SlideFromRightIOS 
       }} />
       {/* <AppStack.Screen name="Courses" component={CourseSelection} options={{ headerShown: false }} /> */}
       <AppStack.Screen name="CameraModal" component={CameraModal} options={{ presentation: 'transparentModal', headerShown: false }} />
@@ -188,6 +193,12 @@ const App = () => {
         ...TransitionPresets.SlideFromRightIOS,
         gestureEnabled: true,
         gestureDirection: "horizontal"
+      }} />
+      <AppStack.Screen name="Trial Pay Popup" component={TrialPayPopup} options={{
+        headerShown: false,
+        ...TransitionPresets.ModalPresentationIOS,
+        gestureEnabled: true,
+        gestureDirection: "vertical"
       }} />
     </AppStack.Navigator>
   );

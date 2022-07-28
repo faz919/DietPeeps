@@ -13,8 +13,9 @@ const Settings = ({ navigation }) => {
     
     const handleSubButtonPress = () => {
         mixpanel.track('Clicked Subscribe Button', { 'Screen': 'Settings' })
-        navigation.navigate('Onboarding Wizard')
-        // navigation.navigate('Subscription', { trialReminder: 'none' })
+        // navigation.navigate('Onboarding Wizard')
+        // navigation.navigate('Trial Pay Popup')
+        navigation.navigate('Subscription', { trialReminder: 'none' })
     }
 
     return (
@@ -178,7 +179,7 @@ const Settings = ({ navigation }) => {
             </View>
             <View style={styles.Viewrg} >
                 <View style={styles.Viewx8} >
-                    <TouchableOpacity onPress={() => logout()} style={styles.Viewx9}>
+                    <TouchableOpacity onPress={logout} style={styles.Viewx9}>
                         <MaterialIcons
                             name='logout'
                             size={20}

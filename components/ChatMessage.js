@@ -15,7 +15,7 @@ class ChatMessage extends PureComponent {
 
     render () {
         // take all data from params so no data has to be calculated on component side
-        const { style, item, handleLongPress, scrollToOriginal, SevenDayAvg, outgoingMessage, user, navigation, userCourseData, courseInfo, handleStatSummaryPress, msgTimeText, repliesToText, disablePress, disableItemReplyIndicator } = this.props
+        const { style, chatMessageStyle, item, handleLongPress, scrollToOriginal, SevenDayAvg, outgoingMessage, user, navigation, userCourseData, courseInfo, handleStatSummaryPress, msgTimeText, repliesToText, disablePress, disableItemReplyIndicator } = this.props
         return (
             <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} key={item.timeSent} style={{ ...style, alignItems: outgoingMessage ? 'flex-end' : 'flex-start' }}>
                 {/* if the message is a reply, show the reply indicator on top */}
@@ -31,7 +31,7 @@ class ChatMessage extends PureComponent {
                     </TouchableOpacity>
                 }
                 {/* actual message blurb */}
-                <Pressable onLongPress={handleLongPress} style={outgoingMessage ? styles.outgoingMsg : styles.incomingMsg}>
+                <Pressable onLongPress={handleLongPress} style={outgoingMessage ? [styles.outgoingMsg, chatMessageStyle] : [styles.incomingMsg, chatMessageStyle]}>
                     {/* show all meal images */}
                     {item.img != null &&
                         item.img.map((i) => (

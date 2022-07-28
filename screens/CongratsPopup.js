@@ -34,6 +34,9 @@ const CongratsPopup = ({ navigation, route }) => {
             congratsTitle = 'Way to go!'
             congratsMessage = 'Good job on weighing in today!'
             break
+        case 'paidForTrial':
+            congratsTitle = 'Thanks!'
+            congratsMessage = 'Thanks so much for supporting DietPeeps!'
         default:
             congratsTitle = 'Well done!'
             congratsMessage = "Keep up the good work!"
