@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, MotiImage, MotiView } from "moti"
 import FirstPageBackground from '../assets/first-page-background.jpeg'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import ChatMessage from '../components/ChatMessage'
 import PlatePhoto from '../assets/onboarding-plate-optional.png'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
@@ -19,25 +19,15 @@ const IntroExplainerScreen = ({ navigation }) => {
     const pageChangeDelay = 700
 
     useEffect(() => {
+        let stepInterval
+        console.log('intro page is', introPage)
         if (introPage === 1) {
-            const stepOne = setTimeout(() => {
-                setAnimationStep(1)
+            stepInterval = setInterval(() => {
+                setAnimationStep(val => val + 1)
             }, 2000)
-            const stepTwo = setTimeout(() => {
-                setAnimationStep(2)
-            }, 4000)
-            const stepThree = setTimeout(() => {
-                setAnimationStep(3)
-            }, 6000)
-            const stepFour = setTimeout(() => {
-                setAnimationStep(4)
-            }, 8000)
-            return () => {
-                clearTimeout(stepOne)
-                clearTimeout(stepTwo)
-                clearTimeout(stepThree)
-                clearTimeout(stepFour)
-            }
+        } else {
+            clearInterval(stepInterval)
+            setAnimationStep(0)
         }
     }, [introPage])
 
@@ -82,8 +72,8 @@ const IntroExplainerScreen = ({ navigation }) => {
                                 position: 'absolute',
                                 top: -97,
                                 left: 22,
-                                width: 212,
-                                height: 222,
+                                width: windowHeight * (212/844),
+                                height: windowHeight * (222/844),
                                 borderRadius: 111,
                                 backgroundColor: '#6BE29B'
                             }}
@@ -100,8 +90,8 @@ const IntroExplainerScreen = ({ navigation }) => {
                                 position: 'absolute',
                                 top: -18,
                                 left: -106,
-                                width: 212,
-                                height: 222,
+                                width: windowHeight * (212/844),
+                                height: windowHeight * (222/844),
                                 borderRadius: 111,
                                 backgroundColor: '#6BE29B'
                             }}
@@ -169,28 +159,10 @@ const IntroExplainerScreen = ({ navigation }) => {
                                             { color: '#202060', marginBottom: 20, marginTop: 5 },
                                         ]}
                                     >
-                                        {`DietPeeps gets you in touch with real human support. `}
+                                        {`DietPeeps gets you in touch with real human support.`}
                                     </Text>
                                 </View>
                             </MotiView>
-                            {/* <MotiView
-                                from={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                delay={3800}
-                            >
-                                <View style={styles.ViewD2}>
-                                    <Text
-                                        adjustsFontSizeToFit
-                                        numberOfLines={1}
-                                        style={[
-                                            styles.headline1,
-                                            { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: windowHeight * (25 / 844) },
-                                        ]}
-                                    >
-                                        {`Send photos of your meals`}
-                                    </Text>
-                                </View>
-                            </MotiView> */}
                             <ScrollView
                                 ref={firstPageScrollViewRef}
                                 onContentSizeChange={() => firstPageScrollViewRef.current.scrollToEnd({ duration: 1500, animated: true })}
@@ -294,7 +266,7 @@ const IntroExplainerScreen = ({ navigation }) => {
                                             { color: '#202060', fontSize: windowHeight * (25 / 844) },
                                         ]}
                                     >
-                                        {`Your personalized coach will guide you through small gradual changes to build a sustainable healthy diet and attain your ultimate goal. `}
+                                        {`Your personalized coach will guide you through small gradual changes to build a sustainable healthy diet and attain your ultimate goal.`}
                                     </Text>
                                 </View>
                             </MotiView>
@@ -332,8 +304,8 @@ const IntroExplainerScreen = ({ navigation }) => {
                                 position: 'absolute',
                                 top: -97,
                                 left: 22,
-                                width: 212,
-                                height: 222,
+                                width: windowHeight * (212/844),
+                                height: windowHeight * (222/844),
                                 borderRadius: 111,
                                 backgroundColor: '#6BE29B'
                             }}
@@ -343,8 +315,8 @@ const IntroExplainerScreen = ({ navigation }) => {
                                 position: 'absolute',
                                 top: -18,
                                 left: -106,
-                                width: 212,
-                                height: 222,
+                                width: windowHeight * (212/844),
+                                height: windowHeight * (222/844),
                                 borderRadius: 111,
                                 backgroundColor: '#6BE29B'
                             }}
@@ -356,7 +328,7 @@ const IntroExplainerScreen = ({ navigation }) => {
                                     numberOfLines={5}
                                     style={[
                                         styles.headline1,
-                                        { color: '#202060', marginBottom: 20, marginTop: 5, fontSize: 20, marginTop: Platform.OS === 'ios' ? 204 - insets.top : 204 },
+                                        { color: '#202060', marginBottom: 20, fontSize: 20, marginTop: Platform.OS === 'ios' ? windowHeight * (222/844) - 18 - insets.top : windowHeight * (222/844) - 18 },
                                     ]}
                                 >
                                     {`We’re going to redefine your relationship with food. All you have to do is send a snap of your meal and receive real-time feedback on what’s on your plate.`}
@@ -376,7 +348,7 @@ const IntroExplainerScreen = ({ navigation }) => {
                                         { color: '#202060', marginBottom: 20, fontSize: 20 },
                                     ]}
                                 >
-                                    {`Wondering how to complement your diet? `}
+                                    {`Wondering how to complement your diet?`}
                                 </Text>
                                 <Text
                                     adjustsFontSizeToFit
@@ -386,7 +358,7 @@ const IntroExplainerScreen = ({ navigation }) => {
                                         { color: '#202060', marginBottom: 20, fontSize: 20 },
                                     ]}
                                 >
-                                    {`Your coach is a text away! `}
+                                    {`Your coach is a text away!`}
                                 </Text>
                             </View>
                             <MotiView

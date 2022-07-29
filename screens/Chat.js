@@ -838,7 +838,7 @@ const Chat = ({ navigation, route }) => {
                     }
                     // check if user has already been prompted to pay for trial/has already paid for trial. if not, prompt them to do so
                     const promptedForTrialPay = await AsyncStorage.getItem('promptedForTrialPay')
-                    if (imageList.length >= 12 && !globalVars.userData.subscribed && !globalVars.userData.paidForTrial && promptedForTrialPay != null) {
+                    if (imageList.length >= 12 && !globalVars.userData?.subscribed && !globalVars.userData?.paidForTrial && promptedForTrialPay != null) {
                         await AsyncStorage.setItem('promptedForTrialPay', 'true')
                         navigation.navigate('Trial Pay Popup')
                     }
