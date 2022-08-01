@@ -34,7 +34,7 @@ const IntroExplainerScreen = ({ navigation }) => {
     const insets = useSafeAreaInsets()
 
     const onContinue = () => {
-        navigation.navigate('Onboarding Wizard')
+        navigation.navigate('Onboarding')
     }
 
     return (

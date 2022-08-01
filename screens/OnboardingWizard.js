@@ -121,17 +121,19 @@ const OnboardingWizard = ({ navigation }) => {
             .collection('user-info')
             .doc(user.uid)
             .onSnapshot((userDoc) => {  
-                const data = userDoc.data()
-                setGlobalVars(val => ({ ...val, userData: data }))
-                if (data.completedNewUserProcess || data.coachID) {
-                    if (coachInfo == null) {
-                        firestore()
-                            .collection('user-info')
-                            .doc(data.coachID)
-                            .get()
-                            .then((coachData) => {
-                                setCoachInfo({ ...coachData.data(), id: coachData.id })
-                            })
+                if (userDoc.exists) {
+                    const data = userDoc.data()
+                    setGlobalVars(val => ({ ...val, userData: data, loggingIn: !data.completedNewUserProcess }))
+                    if (data.completedNewUserProcess || data.coachID) {
+                        if (coachInfo == null) {
+                            firestore()
+                                .collection('user-info')
+                                .doc(data.coachID)
+                                .get()
+                                .then((coachData) => {
+                                    setCoachInfo({ ...coachData.data(), id: coachData.id })
+                                })
+                        }
                     }
                 }
             })
@@ -150,8 +152,8 @@ const OnboardingWizard = ({ navigation }) => {
             kgs: 62
         },
         targetWeight: {
-            lbs: 137,
-            kgs: 62
+            lbs: 132,
+            kgs: 60
         },
         dob: new Date(2000, 0, 1),
         mealCount: 3,
@@ -170,7 +172,7 @@ const OnboardingWizard = ({ navigation }) => {
     // on what page does the user pick meal times. important because the functionality of the continue button is different on this page
     const mealPickerScreen = 7
     const referralCodeScreen = 8
-    const [formPage, setFormPage] = useState('testimonialInterstitial1')
+    const [formPage, setFormPage] = useState(null)
     // is current wizard synced with responses fetched from asyncstorage
     const [synced, setSynced] = useState(false)
     const insets = useSafeAreaInsets()
@@ -206,6 +208,7 @@ const OnboardingWizard = ({ navigation }) => {
         if (!synced) {
             AsyncStorage.getItem('@onboarding_responses').then((value) => {
                 if (value == null) {
+                    setFormPage('testimonialInterstitial1')
                     setSynced(true)
                 } else {
                     setFormResponses(val => ({ ...val, ...JSON.parse(value) }))

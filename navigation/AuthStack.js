@@ -37,16 +37,16 @@ const AuthStack = () => {
   
   }, [])
 
-  // // change initial route name depending on first login
-  // if (firstLogon === null) {
-  //   return null 
-  // } else if (firstLogon == true) {
-  //   routeName = 'Intro'
-  // } else {
-  //   routeName = 'Login'
-  // }
+  // change initial route name depending on first login
+  if (firstLogon === null) {
+    return null 
+  } else if (firstLogon == true) {
+    routeName = 'Intro'
+  } else {
+    routeName = 'Login'
+  }
 
-  routeName = 'Intro'
+  // routeName = 'Intro'
 
   return (
     <Stack.Navigator initialRouteName={routeName}>

@@ -29,6 +29,7 @@ import PieChartCartoon from '../assets/onboarding-pie-chart.png'
 import PhotoPledge from '../assets/photo-pledge.png'
 import PlatePhoto from '../assets/onboarding-plate-optional.png'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import ForwardButton from './ForwardButton'
 
 const IntroExplainerPage = ({ onContinue }) => {
 
@@ -657,15 +658,30 @@ const DetailedExplainerPage = ({ onContinue }) => {
     const [page, setPage] = useState(1)
 
     const items = [
-        <>
-            A <Text style={{ fontWeight: '700' }}>personalized coach. </Text>You get assigned to a human coach who keeps you accountable. {`\n\n`}They will score your meals and suggest healthy tweaks to your diet, provide you with new strategies to draw you closer to your goal, and cheer you on!
-        </>,
-        <>
-            <Text style={{ fontWeight: '700' }}>Nutritional </Text>know-how from renowned diet experts and nutritionists compressed into daily bite-sized <Text style={{ fontWeight: '700' }}>courses</Text>. {`\n\n`}The courses are in the form of engaging and interactive stories.
-        </>,
-        <>
-            Keep up with your <Text style={{ fontWeight: '700' }}>stats</Text>. {`\n\n`}We provide you with weekly and monthly averages of your meal scores and weight, and a consistency streak.
-        </>
+        {
+            content:
+                <>
+                    A <Text style={{ fontWeight: '700' }}>personalized coach. </Text>You get assigned to a human coach who keeps you accountable. {`\n\n`}They will score your meals and suggest healthy tweaks to your diet, provide you with new strategies to draw you closer to your goal, and cheer you on!
+                </>,
+            numLines: 9,
+            maxHeight: windowHeight / 3
+        },
+        {
+            content:
+                <>
+                    <Text style={{ fontWeight: '700' }}>Nutritional </Text>know-how from renowned diet experts and nutritionists compressed into daily bite-sized <Text style={{ fontWeight: '700' }}>courses</Text>. {`\n\n`}The courses are in the form of engaging and interactive stories.
+                </>,
+            numLines: 7,
+            maxHeight: windowHeight / 4
+        },
+        {
+            content:
+                <>
+                    Keep up with your <Text style={{ fontWeight: '700' }}>stats</Text>. {`\n\n`}We provide you with weekly and monthly averages of your meal scores and weight, and a consistency streak.
+                </>,
+            numLines: 6,
+            maxHeight: windowHeight / 5
+        }
     ]
 
     const secondPageItems = [
@@ -683,7 +699,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                             numberOfLines={1}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', maxHeight: 70 },
+                                { color: '#202060', maxHeight: windowHeight * (70/844) },
                             ]}
                         >
                             {'What you get with DietPeeps:'}
@@ -698,40 +714,18 @@ const DetailedExplainerPage = ({ onContinue }) => {
                                 />
                                 <Text
                                     adjustsFontSizeToFit
+                                    numberOfLines={item.numLines}
                                     style={[
                                         styles.headline1,
-                                        { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth - 104, textAlign: 'left', marginTop: 0, marginLeft: 10 },
+                                        { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth - 104, maxHeight: item.maxHeight, textAlign: 'left', marginTop: 0, marginBottom: 10, marginLeft: 10 },
                                     ]}
                                 >
-                                    {item}
+                                    {item.content}
                                 </Text>
                             </View>
                         ))}
                         <View style={styles.ViewD2}>
-                            <TouchableOpacity
-                                onPress={() => setPage(2)}
-                                style={{
-                                    width: 70,
-                                    height: 70,
-                                    backgroundColor: '#202060',
-                                    borderColor: '#fff',
-                                    borderWidth: 3,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    borderRadius: 35,
-                                    elevation: 5,
-                                    shadowColor: '#000000',
-                                    shadowOffset: { width: 0, height: 5 },
-                                    shadowRadius: 5,
-                                    shadowOpacity: 0.3
-                                }}
-                            >
-                                <Icon
-                                    name={'md-arrow-forward-sharp'}
-                                    size={35}
-                                    color={'#fff'}
-                                />
-                            </TouchableOpacity>
+                            <ForwardButton onPress={() => setPage(2)} />
                         </View>
                     </MotiView>}
                 {page === 2 && 
@@ -741,7 +735,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                             numberOfLines={1}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', maxHeight: 70, marginBottom: 10 },
+                                { color: '#202060', maxHeight: 70, marginBottom: 0 },
                             ]}
                         >
                             {'Restrictive diets are set to fail.'}
@@ -765,7 +759,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                             numberOfLines={5}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0 },
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0, maxHeight: windowHeight / 6 },
                             ]}
                         >
                             9/10 times, they result in weight gain and don’t instil habits that are sustainable in the long-term - especially when you have to cut out your favourite foods.
@@ -775,7 +769,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                             numberOfLines={3}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0 },
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0, maxHeight: windowHeight / 8 },
                             ]}
                         >
                             The primal and healthy human diet is centered around whole foods. Our plan is set to make you:
@@ -806,7 +800,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                             numberOfLines={6}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginTop: 0, marginBottom: 10 },
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginTop: 0, marginBottom: 10, maxHeight: windowHeight / 6 },
                             ]}
                         >
                             This means having more green foods <Text style={{ fontWeight: '700' }}>(whole foods)</Text>, having yellow foods <Text style={{ fontWeight: '700' }}>(minimally processed)</Text> in moderation, and having white foods <Text style={{ fontWeight: '700' }}>(heavily processed)</Text> occasionally.
@@ -1136,30 +1130,7 @@ const MealPhotoExplainerPage = ({ onContinue }) => {
                             All you have to do is send us a photo of your meal.
                         </Text>
                         <View style={styles.ViewD2}>
-                            <TouchableOpacity
-                                onPress={() => setPage(2)}
-                                style={{
-                                    width: 70,
-                                    height: 70,
-                                    backgroundColor: '#202060',
-                                    borderColor: '#fff',
-                                    borderWidth: 3,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    borderRadius: 35,
-                                    elevation: 5,
-                                    shadowColor: '#000000',
-                                    shadowOffset: { width: 0, height: 5 },
-                                    shadowRadius: 5,
-                                    shadowOpacity: 0.3,
-                                }}
-                            >
-                                <Icon
-                                    name={'md-arrow-forward-sharp'}
-                                    size={35}
-                                    color={'#fff'}
-                                />
-                            </TouchableOpacity>
+                            <ForwardButton onPress={() => setPage(2)} />
                         </View>
                     </MotiView>}
                 {page === 2 && 
@@ -1260,61 +1231,40 @@ const PhotoPledgePage = ({ onContinue }) => {
             <AnimatePresence exitBeforeEnter>
                 {page === 1 &&
                     <MotiView key={`photoPledgePage1`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, justifyContent: 'space-evenly', marginHorizontal: 32 }}>
-                        <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={2}
-                            style={[
-                                styles.headline1,
-                                { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginTop: 10, marginBottom: 5 },
-                            ]}
-                        >
-                            You can lose weight solely by <Text style={{ fontWeight: '700' }}>fixing your diet.</Text> 
-                        </Text>
-                        <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={5}
-                            style={[
-                                styles.headline1,
-                                { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginVertical: 5 },
-                            ]}
-                        >
-                            You probably know what you need to do, but it’s easier said than done. <Text style={{ fontWeight: '700' }}>Sending photos of your meal </Text>is an incentive to do and be better. 
-                        </Text>
-                        <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={3}
-                            style={[
-                                styles.headline1,
-                                { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginVertical: 5 },
-                            ]}
-                        >
-                            We promise that we are not here to judge you. We've got your best interests at heart.
-                        </Text>
-                        <View style={styles.ViewD2}>
-                            <TouchableOpacity
-                                onPress={() => setPage(2)}
-                                style={{
-                                    width: 70,
-                                    height: 70,
-                                    backgroundColor: '#202060',
-                                    borderColor: '#fff',
-                                    borderWidth: 3,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    borderRadius: 35,
-                                    elevation: 5,
-                                    shadowColor: '#000000',
-                                    shadowOffset: { width: 0, height: 5 },
-                                    shadowRadius: 5,
-                                    shadowOpacity: 0.3,
-                                }}
+                        <View style={{ height: windowHeight * 0.7, justifyContent: 'space-between' }}>
+                            <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={2}
+                                style={[
+                                    styles.headline1,
+                                    { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginTop: 10, marginBottom: 5 },
+                                ]}
                             >
-                                <Icon
-                                    name={'md-arrow-forward-sharp'}
-                                    size={35}
-                                    color={'#fff'}
-                                />
-                            </TouchableOpacity>
+                                You can lose weight solely by <Text style={{ fontWeight: '700' }}>fixing your diet.</Text>
+                            </Text>
+                            <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={5}
+                                style={[
+                                    styles.headline1,
+                                    { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginVertical: 5 },
+                                ]}
+                            >
+                                You probably know what you need to do, but it’s easier said than done. <Text style={{ fontWeight: '700' }}>Sending photos of your meal </Text>is an incentive to do and be better.
+                            </Text>
+                            <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={3}
+                                style={[
+                                    styles.headline1,
+                                    { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginVertical: 5 },
+                                ]}
+                            >
+                                We promise that we are not here to judge you. We've got your best interests at heart.
+                            </Text>
+                            <View style={styles.ViewD2}>
+                                <ForwardButton onPress={() => setPage(2)} />
+                            </View>
                         </View>
                     </MotiView>}
                 {page === 2 && 
@@ -1399,7 +1349,8 @@ const ReferralCodePage = ({ partnerInfo, onContinueWithReferral, onContinueNoRef
                             borderColor: '#bdb9db',
                             marginBottom: 10,
                             color: '#202060',
-                            fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal'
+                            fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
+                            padding: 0
                         }}
                         autoCapitalize='none'
                         autoComplete='off'
@@ -1467,7 +1418,13 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
                                 {
                                     data: Array(8).fill(null).map((w, index) => {
                                         const weightValue = loseWeightGoal ? currentWeight - ((currentWeight - targetWeight) * (Math.ceil((numWeeks * index) / 7) / numWeeks)) : currentWeight + ((targetWeight - currentWeight) * (Math.ceil((numWeeks * index) / 7) / numWeeks))
+                                        console.log(index, 'weight value is: ', weightValue)
                                         return weightValue
+
+                                        // // in case values aren't working for some reason
+                                        // return index + 3
+
+                                        // // optional if slightly random intervals are wanted
                                         // return (index === 0 || index === 7 || targetWeight === currentWeight) ? weightValue : weightValue + (varAmount - (varAmount * 2 * Math.random()))
                                     }),
                                     color: (opacity = 1) => `rgba(76, 68, 212, ${opacity})`,
@@ -1644,17 +1601,17 @@ const CoachProfilePage = ({ coachData, disableAnimation, onContinue }) => {
                     </Text>
 
                     <Text style={[styles.TextBM, { color: '#202060' }]}>
-                        {coachData.coachInfo?.bio || `Hey! I'm ${coachData.displayName}. Welcome to DietPeeps!`}
+                        {coachData?.coachInfo?.bio || `Hey! I'm ${coachData?.displayName}. Welcome to DietPeeps!`}
                     </Text>
 
-                    {coachData.coachInfo?.interests &&
+                    {coachData?.coachInfo?.interests &&
                         <>
                             <Text style={[styles.TextO5, { color: '#202060' }]}>
                                 {'Interests'}
                             </Text>
 
                             <View style={styles.ViewuK}>
-                                {coachData.coachInfo?.interests.map((interest, index) => (
+                                {coachData?.coachInfo?.interests.map((interest, index) => (
                                     <View
                                         key={index}
                                         style={[

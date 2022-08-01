@@ -188,9 +188,8 @@ const CameraModal = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     panel: {
-        padding: 20,
+        padding: windowHeight * (20/844),
         backgroundColor: '#E6E7FA',
-        paddingTop: 20,
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
         shadowColor: '#000000',
@@ -201,7 +200,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         margin: -20,
         bottom: 0,
-        height: 320
+        height: windowHeight * (320/844)
     },
     panelTitle: {
         fontSize: 27,
@@ -212,7 +211,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: 'gray',
         textAlign: 'center',
-        marginBottom: 10,
+        marginBottom: windowHeight * (10/844),
     },
     panelButton: {
         height: windowHeight / 17,
@@ -220,7 +219,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: '#4C44D4',
         alignItems: 'center',
-        marginVertical: 7,
+        marginVertical: windowHeight * (7/844),
     },
     panelButtonTitle: {
         fontSize: 17,
@@ -232,7 +231,7 @@ const styles = StyleSheet.create({
     modalLoading: {
         position: 'absolute',
         width: windowWidth,
-        height: 320,
+        height: windowHeight * (320/844),
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
         backgroundColor: 'rgba(32,32,96,0.5)',
