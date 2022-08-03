@@ -121,7 +121,7 @@ const OnboardingWizard = ({ navigation }) => {
             .collection('user-info')
             .doc(user.uid)
             .onSnapshot((userDoc) => {  
-                if (userDoc.exists) {
+                if (userDoc?.exists) {
                     const data = userDoc.data()
                     setGlobalVars(val => ({ ...val, userData: data, loggingIn: !data.completedNewUserProcess }))
                     if (data.completedNewUserProcess || data.coachID) {
@@ -269,9 +269,9 @@ const OnboardingWizard = ({ navigation }) => {
         finishForm()
     }
 
-    useEffect(() => {
-        console.log('form page is', formPage)
-    }, [formPage])
+    // useEffect(() => {
+    //     console.log('form page is', formPage)
+    // }, [formPage])
 
     return (
         <AnimatePresence exitBeforeEnter>

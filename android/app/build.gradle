@@ -149,8 +149,8 @@ android {
         applicationId "com.dietpeeps"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19
-        versionName "1.05"
+        versionCode 21
+        versionName "1.05 onboarding fixed"
         vectorDrawables.useSupportLibrary = true
     }
     splits {

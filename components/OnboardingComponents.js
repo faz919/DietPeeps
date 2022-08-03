@@ -800,7 +800,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                             numberOfLines={6}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginTop: 0, marginBottom: 10, maxHeight: windowHeight / 6 },
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginTop: 0, marginBottom: 10, maxHeight: windowHeight / 5 },
                             ]}
                         >
                             This means having more green foods <Text style={{ fontWeight: '700' }}>(whole foods)</Text>, having yellow foods <Text style={{ fontWeight: '700' }}>(minimally processed)</Text> in moderation, and having white foods <Text style={{ fontWeight: '700' }}>(heavily processed)</Text> occasionally.
@@ -1418,7 +1418,7 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
                                 {
                                     data: Array(8).fill(null).map((w, index) => {
                                         const weightValue = loseWeightGoal ? currentWeight - ((currentWeight - targetWeight) * (Math.ceil((numWeeks * index) / 7) / numWeeks)) : currentWeight + ((targetWeight - currentWeight) * (Math.ceil((numWeeks * index) / 7) / numWeeks))
-                                        console.log(index, 'weight value is: ', weightValue)
+                                        // console.log(index, 'weight value is: ', weightValue)
                                         return weightValue
 
                                         // // in case values aren't working for some reason
@@ -1944,37 +1944,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                         <View style={{ justifyContent: 'center' }}>
                             <Text style={{ fontSize: 18, color: '#202060', textAlign: 'center' }}>helped with reaching their weight loss goals.</Text>
                         </View>
-                        {/* <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginVertical: 5 }} /> */}
-                        {/* <Text adjustsFontSizeToFit numberOfLines={2} style={[styles.loadingScreenText, { marginVertical: 20 }]}>
-                            But don't just take our word for it!
-                        </Text> */}
                     </View>
-                    {/* <FlatList
-                        style={{ marginVertical: 10 }}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        snapToInterval={windowWidth}
-                        decelerationRate='fast'
-                        viewabilityConfigCallbackPairs={viewabilityConfigCallbackPairs.current}
-                        data={testimonialsSecondBatch}
-                        renderItem={({ item }) => (
-                            <View key={item.displayName} style={{ width: windowWidth - 40, marginHorizontal: 20, padding: 10, borderRadius: 20, backgroundColor: '#fff', borderColor: '#202060', borderWidth: 1 }}>
-                                <View style={{ position: 'absolute', top: 10, left: 10, flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', marginBottom: 5 }}>
-                                    <ProfilePic source={{ uri: item.photoURL || 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/SNice.svg/1200px-SNice.svg.png' }} size={40} />
-                                    <Text style={{ fontWeight: '700', fontSize: 20, color: '#202060', marginLeft: 10 }}>{item.displayName}</Text>
-                                </View>
-                                <Text style={{ marginTop: 45, marginLeft: 5, fontWeight: '500', fontSize: 18, color: '#202060' }}>{item.testimonial}</Text>
-                            </View>
-                        )}
-                        keyExtractor={(item) => item.displayName}
-                    /> */}
-                    {/* <View style={{ width: windowWidth, alignItems: 'center', justifyContent: 'center' }}>
-                        <View style={{ padding: 10, width: 110, justifyContent: 'center', flexDirection: 'row', backgroundColor: '#fff', borderRadius: 15, borderWidth: 1, borderColor: '#202060' }}>
-                            {testimonialsSecondBatch.map((item, index) => (
-                                <MotiView key={index} from={{ scale: 0, width: 10, backgroundColor: '#BDB9DB' }} animate={{ scale: 1, width: index === visibleT ? 20 : 10, backgroundColor: index === visibleT ? '#4C44D4' : '#BDB9DB' }} transition={{ type: 'timing' }} style={{ height: 10, borderRadius: 5, marginHorizontal: 5 }} />
-                            ))}
-                        </View>
-                    </View> */}
                     <View style={{ width: windowWidth, paddingHorizontal: 20 }}>
                         <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginTop: 10, marginBottom: 5 }} />
                         <Text style={[styles.loadingScreenText, { marginVertical: 20 }]}>
@@ -1997,7 +1967,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                                     {dropdowns[index] === 1 && 
                                         <MotiView
                                             from={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 200 }}
+                                            animate={{ opacity: 1, height: 220 }}
                                             exit={{ opacity: 0, height: 0 }}
                                             transition={{
                                                 type: 'timing',
@@ -2033,26 +2003,6 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                                 <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginVertical: 5 }} />
                             </React.Fragment>
                         ))}
-                        {/* <Text style={{ fontWeight: '600', fontSize: 20, color: '#202060', alignSelf: 'flex-start', marginBottom: 5 }}>
-                            Phase 1 (2 weeks)
-                        </Text>
-                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: 18, color: '#202060', textAlign: 'left' }}>
-                            What you eat greatly translates to how much you weigh. For the first two weeks, all you have to do is send photos of every meal. It will only take you five seconds. We will gradually help you clean up your diet, by proving feedback on your meals and encouraging you to eat clean and healthy.
-                        </MotiText>
-                        <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginVertical: 5 }} />
-                        <Text style={{ fontWeight: '600', fontSize: 20, color: '#202060', alignSelf: 'flex-start', marginBottom: 5 }}>
-                            Phase 2 (12 weeks)
-                        </Text>
-                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: 18, color: '#202060', textAlign: 'left' }}>
-                            This phase will last 4 months and you will continue to share your meal photos. We will introduce our daily nutrition courses to encourage better eating habits and change your relationship with food. On top of that, we have summarized the world's best-selling nutrition books so you can continue learning and improving your knowledge of nutrition and diet. In addition, we will help you incorporate physical activity into your routine. You should expect those extra pounds to start falling off.
-                        </MotiText>
-                        <View style={{ height: 1.5, backgroundColor: '#202060', width: '100%', borderRadius: 2, marginVertical: 5 }} />
-                        <Text style={{ fontWeight: '600', fontSize: 20, color: '#202060', alignSelf: 'flex-start', marginBottom: 5 }}>
-                            Phase 3 (6 weeks)
-                        </Text>
-                        <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: 18, color: '#202060', textAlign: 'left' }}>
-                            Our coaches will be with you every step of the way. We stick around for one and a half months after you've reached your target weight to help you maintain your goal weight for the rest of your life.
-                        </MotiText> */}
                     </View>
                 </MotiView>
                 <View style={{ margin: 50 }} />
