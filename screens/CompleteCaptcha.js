@@ -46,7 +46,7 @@ const CaptchaScreen = ({ navigation }) => {
                     styles.subtitle1,
                     { color: '#202060' },
                   ]}
-                  allowFontScaling={true}
+                  allowFontScaling={false}
                 >
                   {'Send pictures of your meals to your coach.'}
                 </Text>
@@ -66,7 +66,7 @@ const CaptchaScreen = ({ navigation }) => {
                     styles.subtitle1,
                     { color: '#202060' },
                   ]}
-                  allowFontScaling={true}
+                  allowFontScaling={false}
                 >
                   {'Get live feedback on the food you eat.'}
                 </Text>
@@ -86,7 +86,7 @@ const CaptchaScreen = ({ navigation }) => {
                     styles.subtitle1,
                     { color: '#202060' },
                   ]}
-                  allowFontScaling={true}
+                  allowFontScaling={false}
                 >
                   {'Keep track of your daily eating habits.'}
                 </Text>
@@ -105,7 +105,7 @@ const CaptchaScreen = ({ navigation }) => {
                     styles.subtitle1,
                     { color: '#202060' },
                   ]}
-                  allowFontScaling={true}
+                  allowFontScaling={false}
                 >
                   {'Take advantage of our extensive weight loss course curriculum.'}
                 </Text>

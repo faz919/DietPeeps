@@ -352,7 +352,7 @@ const Chat = ({ navigation, route }) => {
                     if (userData.exists) {
                         setGlobalVars(val => ({ ...val, userData: userData.data() }))
                         const usr = userData.data()
-                        if (usr.completedNewUserProcess) {
+                        if (usr.completedNewUserProcess || !sameDay(new Date(), new Date(user.metadata.creationTime))) {
                             setGlobalVars(val => ({ ...val, loggingIn: false }))
                         }
                         // if user has completed onboarding wizard
@@ -392,8 +392,8 @@ const Chat = ({ navigation, route }) => {
                             deviceID: DeviceInfo.getUniqueId()
                         }
                         const appInfo = {
-                            versionName: '1.05',
-                            versionCode: 19
+                            versionName: '1.051',
+                            versionCode: 22
                         }
                         // check if user has null display name, photo url, or email
                         usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })

@@ -103,7 +103,7 @@ const EnableNotifsScreen = ({ navigation }) => {
                     styles.subtitle1,
                     { color: '#202060' },
                   ]}
-                  allowFontScaling={true}
+                  allowFontScaling={false}
                 >
                   {'Enable notifications to receive live updates when your meals are graded.'}
                 </Text>
@@ -123,7 +123,7 @@ const EnableNotifsScreen = ({ navigation }) => {
                     styles.subtitle1,
                     { color: '#202060' },
                   ]}
-                  allowFontScaling={true}
+                  allowFontScaling={false}
                 >
                   {'Get regular reminders to submit your meal photos.'}
                 </Text>
@@ -143,7 +143,7 @@ const EnableNotifsScreen = ({ navigation }) => {
                     styles.subtitle1,
                     { color: '#202060' },
                   ]}
-                  allowFontScaling={true}
+                  allowFontScaling={false}
                 >
                   {'Users who have notifications enabled are 200% more likely to succeed.'}
                 </Text>
@@ -162,7 +162,7 @@ const EnableNotifsScreen = ({ navigation }) => {
                     styles.subtitle1,
                     { color: '#202060' },
                   ]}
-                  allowFontScaling={true}
+                  allowFontScaling={false}
                 >
                   {'Let us do our job by helping you do yours.'}
                 </Text>

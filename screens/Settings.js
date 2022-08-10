@@ -13,9 +13,9 @@ const Settings = ({ navigation }) => {
     
     const handleSubButtonPress = () => {
         mixpanel.track('Clicked Subscribe Button', { 'Screen': 'Settings' })
-        // navigation.navigate('Onboarding Wizard')
+        navigation.navigate('Onboarding Wizard')
         // navigation.navigate('Trial Pay Popup')
-        navigation.navigate('Subscription', { trialReminder: 'none' })
+        // navigation.navigate('Subscription', { trialReminder: 'none' })
     }
 
     return (
@@ -36,7 +36,7 @@ const Settings = ({ navigation }) => {
                             />
                             <Text
                                 style={[styles.TextbB, { color: '#202060' }]}
-                                allowFontScaling={true}
+                                allowFontScaling={false}
                                 ellipsizeMode={'tail'}
                                 textBreakStrategy={'highQuality'}
                             >
@@ -66,7 +66,7 @@ const Settings = ({ navigation }) => {
                             />
                             <Text
                                 style={[styles.TextIj, { color: '#202060' }]}
-                                allowFontScaling={true}
+                                allowFontScaling={false}
                                 ellipsizeMode={'tail'}
                                 textBreakStrategy={'highQuality'}
                             >
@@ -96,7 +96,7 @@ const Settings = ({ navigation }) => {
                             />
                             <Text
                                 style={[styles.TextFE, { color: '#202060' }]}
-                                allowFontScaling={true}
+                                allowFontScaling={false}
                                 ellipsizeMode={'tail'}
                                 textBreakStrategy={'highQuality'}
                             >
@@ -126,7 +126,7 @@ const Settings = ({ navigation }) => {
                             />
                             <Text
                                 style={[styles.Textc4, { color: '#202060' }]}
-                                allowFontScaling={true}
+                                allowFontScaling={false}
                                 ellipsizeMode={'tail'}
                                 textBreakStrategy={'highQuality'}
                             >
@@ -156,7 +156,7 @@ const Settings = ({ navigation }) => {
                             />
                             <Text
                                 style={[styles.TextCv, { color: '#202060' }]}
-                                allowFontScaling={true}
+                                allowFontScaling={false}
                                 ellipsizeMode={'tail'}
                                 textBreakStrategy={'highQuality'}
                             >

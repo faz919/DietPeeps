@@ -114,7 +114,7 @@ const NotificationSettings = ({ navigation }) => {
                             />
                             <Text
                                 style={[styles.optionText, { color: '#202060' }]}
-                                allowFontScaling={true}
+                                allowFontScaling={false}
                                 ellipsizeMode={'tail'}
                                 textBreakStrategy={'highQuality'}
                             >
@@ -148,7 +148,7 @@ const NotificationSettings = ({ navigation }) => {
                                 />
                                 <Text
                                     style={[styles.optionText, { color: '#202060' }]}
-                                    allowFontScaling={true}
+                                    allowFontScaling={false}
                                     ellipsizeMode={'tail'}
                                     textBreakStrategy={'highQuality'}
                                 >

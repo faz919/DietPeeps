@@ -155,7 +155,7 @@ const TrialPayPopup = ({ navigation }) => {
             <MotiView style={styles.ViewD2} from={{ opacity: 0 }} animate={{ opacity: loading ? 0.7 : 1 }}>
                 {error && 
                 <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ type: 'timing' }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text allowFontScaling={true} style={{ fontWeight: '700', fontSize: 18, color: '#DA302C', textAlign: 'center' }}>Please select a payment amount.</Text>
+                    <Text allowFontScaling={false} style={{ fontWeight: '700', fontSize: 18, color: '#DA302C', textAlign: 'center' }}>Please select a payment amount.</Text>
                 </MotiView>}
                 <TouchableOpacity
                     disabled={loading}

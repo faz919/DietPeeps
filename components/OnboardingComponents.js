@@ -663,24 +663,18 @@ const DetailedExplainerPage = ({ onContinue }) => {
                 <>
                     A <Text style={{ fontWeight: '700' }}>personalized coach. </Text>You get assigned to a human coach who keeps you accountable. {`\n\n`}They will score your meals and suggest healthy tweaks to your diet, provide you with new strategies to draw you closer to your goal, and cheer you on!
                 </>,
-            numLines: 9,
-            maxHeight: windowHeight / 3
         },
         {
             content:
                 <>
                     <Text style={{ fontWeight: '700' }}>Nutritional </Text>know-how from renowned diet experts and nutritionists compressed into daily bite-sized <Text style={{ fontWeight: '700' }}>courses</Text>. {`\n\n`}The courses are in the form of engaging and interactive stories.
                 </>,
-            numLines: 7,
-            maxHeight: windowHeight / 4
         },
         {
             content:
                 <>
                     Keep up with your <Text style={{ fontWeight: '700' }}>stats</Text>. {`\n\n`}We provide you with weekly and monthly averages of your meal scores and weight, and a consistency streak.
                 </>,
-            numLines: 6,
-            maxHeight: windowHeight / 5
         }
     ]
 
@@ -713,11 +707,9 @@ const DetailedExplainerPage = ({ onContinue }) => {
                                     style={{ bottom: 3 }}
                                 />
                                 <Text
-                                    adjustsFontSizeToFit
-                                    numberOfLines={item.numLines}
                                     style={[
                                         styles.headline1,
-                                        { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth - 104, maxHeight: item.maxHeight, textAlign: 'left', marginTop: 0, marginBottom: 10, marginLeft: 10 },
+                                        { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth - 104, textAlign: 'left', marginTop: 0, marginBottom: 10, marginLeft: 10 },
                                     ]}
                                 >
                                     {item.content}
@@ -755,21 +747,17 @@ const DetailedExplainerPage = ({ onContinue }) => {
                             </Text>
                         </View>
                         <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={5}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0, maxHeight: windowHeight / 6 },
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0 },
                             ]}
                         >
                             9/10 times, they result in weight gain and don’t instil habits that are sustainable in the long-term - especially when you have to cut out your favourite foods.
                         </Text>
                         <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={3}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0, maxHeight: windowHeight / 8 },
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0 },
                             ]}
                         >
                             The primal and healthy human diet is centered around whole foods. Our plan is set to make you:
@@ -784,8 +772,6 @@ const DetailedExplainerPage = ({ onContinue }) => {
                                     borderRadius: 7
                                 }} />
                                 <Text
-                                    adjustsFontSizeToFit
-                                    numberOfLines={1}
                                     style={[
                                         styles.headline1,
                                         { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth - 104, textAlign: 'left', marginTop: 0, marginLeft: 10, marginBottom: 0 },
@@ -796,11 +782,9 @@ const DetailedExplainerPage = ({ onContinue }) => {
                             </View>
                         ))}
                         <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={6}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginTop: 0, marginBottom: 10, maxHeight: windowHeight / 5 },
+                                { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginTop: 0, marginBottom: 10 },
                             ]}
                         >
                             This means having more green foods <Text style={{ fontWeight: '700' }}>(whole foods)</Text>, having yellow foods <Text style={{ fontWeight: '700' }}>(minimally processed)</Text> in moderation, and having white foods <Text style={{ fontWeight: '700' }}>(heavily processed)</Text> occasionally.
@@ -939,7 +923,7 @@ const DateOfBirthSelectorPage = ({ prevResponse, onSelectResponse, onContinue, d
             <AnimatePresence>
                 {underage && 
                 <MotiView from={{ opacity: 0, maxHeight: 0 }} animate={{ opacity: 1, maxHeight: 200 }} exit={{ opacity: 0, maxHeight: 0 }} transition={{ type: 'timing' }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text allowFontScaling={true} style={{ fontWeight: '700', fontSize: 18, color: '#DA302C', textAlign: 'center' }}>Unfortunately, we are unable to serve users under the age of 18. Although our coaches cannot help you, you may feel free to complete our daily courses.</Text>
+                    <Text allowFontScaling={false} style={{ fontWeight: '700', fontSize: 18, color: '#DA302C', textAlign: 'center' }}>Unfortunately, we are unable to serve users under the age of 18. Although our coaches cannot help you, you may feel free to complete our daily courses.</Text>
                 </MotiView>}
             </AnimatePresence>
             <View style={styles.ViewD2}>
@@ -1136,8 +1120,6 @@ const MealPhotoExplainerPage = ({ onContinue }) => {
                 {page === 2 && 
                     <MotiView key={`photoExplainerPage2`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
                         <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={7}
                             style={[
                                 styles.headline1,
                                 { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
@@ -1157,8 +1139,6 @@ const MealPhotoExplainerPage = ({ onContinue }) => {
                             }}
                         />
                         <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={7}
                             style={[
                                 styles.headline1,
                                 { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left' },
@@ -1233,8 +1213,6 @@ const PhotoPledgePage = ({ onContinue }) => {
                     <MotiView key={`photoPledgePage1`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ flex: 1, justifyContent: 'space-evenly', marginHorizontal: 32 }}>
                         <View style={{ height: windowHeight * 0.7, justifyContent: 'space-between' }}>
                             <Text
-                                adjustsFontSizeToFit
-                                numberOfLines={2}
                                 style={[
                                     styles.headline1,
                                     { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginTop: 10, marginBottom: 5 },
@@ -1243,8 +1221,6 @@ const PhotoPledgePage = ({ onContinue }) => {
                                 You can lose weight solely by <Text style={{ fontWeight: '700' }}>fixing your diet.</Text>
                             </Text>
                             <Text
-                                adjustsFontSizeToFit
-                                numberOfLines={5}
                                 style={[
                                     styles.headline1,
                                     { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginVertical: 5 },
@@ -1253,8 +1229,6 @@ const PhotoPledgePage = ({ onContinue }) => {
                                 You probably know what you need to do, but it’s easier said than done. <Text style={{ fontWeight: '700' }}>Sending photos of your meal </Text>is an incentive to do and be better.
                             </Text>
                             <Text
-                                adjustsFontSizeToFit
-                                numberOfLines={3}
                                 style={[
                                     styles.headline1,
                                     { color: '#202060', fontSize: 24, fontWeight: '500', textAlign: 'left', marginVertical: 5 },
@@ -1417,7 +1391,7 @@ const WeightChartInterstitial = ({ currentWeight, targetWeight, usesImperial, in
                             datasets: [
                                 {
                                     data: Array(8).fill(null).map((w, index) => {
-                                        const weightValue = loseWeightGoal ? currentWeight - ((currentWeight - targetWeight) * (Math.ceil((numWeeks * index) / 7) / numWeeks)) : currentWeight + ((targetWeight - currentWeight) * (Math.ceil((numWeeks * index) / 7) / numWeeks))
+                                        const weightValue = loseWeightGoal ? currentWeight - ((currentWeight - targetWeight) * (((numWeeks * index) / 7) / numWeeks)) : currentWeight + ((targetWeight - currentWeight) * (((numWeeks * index) / 7) / numWeeks))
                                         // console.log(index, 'weight value is: ', weightValue)
                                         return weightValue
 

@@ -173,7 +173,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
                                             styles.subtitle1,
                                             { color: '#202060', fontWeight: '400' },
                                         ]}
-                                        allowFontScaling={true}
+                                        allowFontScaling={false}
                                     >
                                         {text}
                                     </Text>
