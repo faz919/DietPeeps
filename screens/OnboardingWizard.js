@@ -34,6 +34,7 @@ import {
     DetailedExplainerPage
 } from '../components/OnboardingComponents.js'
 import Purchases from 'react-native-purchases'
+import analytics from '@react-native-firebase/analytics'
 
 const OnboardingWizard = ({ navigation }) => {
 
@@ -250,6 +251,10 @@ const OnboardingWizard = ({ navigation }) => {
                 setFormPage('coachProfile')
             }, 3000)
         }
+        mixpanel.track('Onboarding Wizard Screen View', { 'Screen': formPage })
+        analytics().logScreenView({
+            screen_name: formPage
+        })
     }, [formPage])
 
     const finishForm = async () => {
