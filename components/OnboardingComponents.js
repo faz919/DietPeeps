@@ -721,13 +721,11 @@ const DetailedExplainerPage = ({ onContinue }) => {
                         </View>
                     </MotiView>}
                 {page === 2 && 
-                    <MotiView key={`detailedExplainerPage2`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
+                    <MotiView key={`detailedExplainerPage2`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32, justifyContent: 'space-around', height: windowHeight * 0.7 }}>
                         <Text
-                            adjustsFontSizeToFit
-                            numberOfLines={1}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', maxHeight: 70, marginBottom: 0 },
+                                { color: '#202060', marginBottom: 0 },
                             ]}
                         >
                             {'Restrictive diets are set to fail.'}
@@ -752,8 +750,15 @@ const DetailedExplainerPage = ({ onContinue }) => {
                                 { color: '#202060', fontSize: 22, fontWeight: '500', textAlign: 'left', marginBottom: 10, marginTop: 0 },
                             ]}
                         >
-                            9/10 times, they result in weight gain and don’t instil habits that are sustainable in the long-term - especially when you have to cut out your favourite foods.
+                            9/10 times, they result in weight gain and don’t instill habits that are sustainable in the long-term - especially when you have to cut out your favourite foods.
                         </Text>
+                        <View style={styles.ViewD2}>
+                            <ForwardButton onPress={() => setPage(3)} />
+                        </View>
+                    </MotiView>
+                }
+                {page === 3 && 
+                    <MotiView key={`detailedExplainerPage3`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32, justifyContent: 'space-around', height: windowHeight * 0.7 }}>
                         <Text
                             style={[
                                 styles.headline1,
@@ -774,7 +779,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                                 <Text
                                     style={[
                                         styles.headline1,
-                                        { color: '#202060', fontSize: 20, fontWeight: '500', width: windowWidth - 104, textAlign: 'left', marginTop: 0, marginLeft: 10, marginBottom: 0 },
+                                        { color: '#202060', fontSize: 22, fontWeight: '500', width: windowWidth - 104, textAlign: 'left', marginTop: 0, marginLeft: 10, marginBottom: 0 },
                                     ]}
                                 >
                                     {item}
