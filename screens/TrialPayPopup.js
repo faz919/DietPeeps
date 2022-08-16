@@ -94,9 +94,9 @@ const TrialPayPopup = ({ navigation }) => {
                         { color: '#202060', fontSize: 20 },
                     ]}
                 >
-                    We hope that you're enjoying your DietPeeps free trial. Your coach is working hard to help you reach your wellness goals and is rooting for you!
+                    We hope that you're enjoying your Personal Diet Coach free trial. Your coach is working hard to help you reach your wellness goals and is rooting for you!
                     {`\n\n`}
-                    Would you like to tip your coach for the trial? It costs us {trialPrices[trialPrices?.length - 1]?.product.price_string} to compensate our DietPeeps employees for the trial, but please choose the amount you are comfortable with.
+                    Would you like to tip your coach for the trial? It costs us {trialPrices[trialPrices?.length - 1]?.product.price_string} to compensate our Personal Diet Coach employees for the trial, but please choose the amount you are comfortable with.
                 </Text>
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 20 }}>
@@ -175,7 +175,7 @@ const TrialPayPopup = ({ navigation }) => {
                 <TouchableOpacity
                     onPress={onContinue}
                 >
-                    <Text style={[styles.panelButtonText, { color: '#4C44D4', fontWeight: '400', textAlign: 'center' }]}>I'm not willing to compensate DietPeeps for my trial.</Text>
+                    <Text style={[styles.panelButtonText, { color: '#4C44D4', fontWeight: '400', textAlign: 'center' }]}>I'm not willing to compensate Personal Diet Coach for my trial.</Text>
                 </TouchableOpacity>
             </View>
         </MotiView>

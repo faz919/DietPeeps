@@ -62,7 +62,7 @@ const WelcomeScreen = ({ navigation }) => {
                 { color: '#202060' },
               ]}
             >
-              {'Welcome to DietPeeps'}
+              {'Welcome to Personal Diet Coach'}
             </Text>
           </View>
 

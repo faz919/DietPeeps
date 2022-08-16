@@ -189,7 +189,7 @@ const IntroExplainerPage = ({ onContinue }) => {
                                             { color: '#202060', marginBottom: 20, marginTop: 5 },
                                         ]}
                                     >
-                                        {`DietPeeps gets you in touch with real human support. `}
+                                        {`Personal Diet Coach gets you in touch with real human support. `}
                                     </Text>
                                 </View>
                             </MotiView>
@@ -696,7 +696,7 @@ const DetailedExplainerPage = ({ onContinue }) => {
                                 { color: '#202060', maxHeight: windowHeight * (70/844) },
                             ]}
                         >
-                            {'What you get with DietPeeps:'}
+                            {'What you get with Personal Diet Coach:'}
                         </Text>
                         {items.map((item, index) => (
                             <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start' }}>
@@ -1106,7 +1106,7 @@ const MealPhotoExplainerPage = ({ onContinue }) => {
                                 { color: '#202060', fontSize: 18, fontWeight: '500', textAlign: 'left', marginVertical: 5, maxHeight: 70 },
                             ]}
                         >
-                            Writing down everything you eat can be laboring, but DietPeeps makes it easy.
+                            Writing down everything you eat can be laboring, but Personal Diet Coach makes it easy.
                         </Text>
                         <Text
                             adjustsFontSizeToFit
@@ -1580,7 +1580,7 @@ const CoachProfilePage = ({ coachData, disableAnimation, onContinue }) => {
                     </Text>
 
                     <Text style={[styles.TextBM, { color: '#202060' }]}>
-                        {coachData?.coachInfo?.bio || `Hey! I'm ${coachData?.displayName}. Welcome to DietPeeps!`}
+                        {coachData?.coachInfo?.bio || `Hey! I'm ${coachData?.displayName}. Welcome to Personal Diet Coach!`}
                     </Text>
 
                     {coachData?.coachInfo?.interests &&
@@ -1640,9 +1640,9 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                         { color: '#202060', fontSize: 20 },
                     ]}
                 >
-                    We understand that times may be difficult as a result of the recent global pandemic. So, we are offering the option to try DietPeeps free of charge.
+                    We understand that times may be difficult as a result of the recent global pandemic. So, we are offering the option to try Personal Diet Coach free of charge.
                     {`\n\n`}
-                    It costs us {trialPrices[trialPrices.length - 1].product.price_string} to compensate our DietPeeps employees for the trial, but please choose the amount you are comfortable with.
+                    It costs us {trialPrices[trialPrices.length - 1].product.price_string} to compensate our Personal Diet Coach employees for the trial, but please choose the amount you are comfortable with.
                 </Text>
             </View>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 20 }}>
@@ -1728,7 +1728,7 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                 <TouchableOpacity
                     onPress={onContinue}
                 >
-                    <Text style={[styles.panelButtonText, { color: '#4C44D4', fontWeight: '400', textAlign: 'center' }]}>I'm not willing to compensate DietPeeps for my trial.</Text>
+                    <Text style={[styles.panelButtonText, { color: '#4C44D4', fontWeight: '400', textAlign: 'center' }]}>I'm not willing to compensate Personal Diet Coach for my trial.</Text>
                 </TouchableOpacity>
             </View>
         </MotiView>
@@ -1758,14 +1758,14 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
     const faq = [
         {
             question: 'What does my coach do?',
-            answer: `With DietPeeps, you'll have a personal accountability coach. Our coaches help people comply with a clean diet, stick to a weight loss routine (or come up with one), and provide support. They have undergone a training program covering basic nutrition, research on the psychology of weight loss, accountability coaching, healthy dietary practices, and sustainable weight loss methods.`
+            answer: `Our coaches help people comply with a clean diet, stick to a weight loss routine (or come up with one), and provide support. They have undergone a training program covering basic nutrition, research on the psychology of weight loss, accountability coaching, healthy dietary practices, and sustainable weight loss methods.`
         },
         {
             question: 'Do you track calories?',
             answer: `We do not track calories. However, we offer support to users that are counting calories by helping them clean up their diet and offer low-calorie alternatives which help them stay within their calorie limits.`
         },
         {
-            question: 'How does the scoring system work?',
+            question: 'How do meal scores work?',
             answer: 'The score is based on clean eating guidelines. For every meal, you will receive a chart that shows the composition of allowed foods (green), foods allowed in moderation (yellow), and foods to avoid (white).'
         }
     ]
@@ -1838,10 +1838,10 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                             />
                         </MotiView>
                         <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} delay={400} style={[styles.loadingScreenText, { marginBottom: 20 }]}>
-                            Welcome to DietPeeps!
+                            Welcome to Personal Diet Coach!
                         </MotiText>
                         <MotiText from={{ opacity: 0 }} animate={{ opacity: 1 }} delay={500} style={{ fontSize: 18, color: '#202060', textAlign: 'center' }}>
-                            DietPeeps is a subscription-based program. After a 14-day free trial, you will be asked to subscribe for only a dollar a day. The benefits of subscribing include:
+                            Personal Diet Coach is a subscription-based program. After a 14-day free trial, you will be asked to subscribe for only a dollar a day. The benefits of subscribing include:
                         </MotiText>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginVertical: 20 }}>
                             {offerSheet.map((offerDetails, index) => (
@@ -1858,7 +1858,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                                         elevation: offerDetails.paid ? 5 : 0
                                     }}
                                 >
-                                    <Text style={{ color: '#202060', fontSize: 18 }}>DietPeeps</Text>
+                                    <Text style={{ color: '#202060', fontSize: 18 }}>Personal Diet Coach</Text>
                                     <Text style={{ color: '#202060', fontSize: 22 }}>{offerDetails.name}</Text>
                                     <View style={{ alignItems: 'flex-start' }}>
                                     {offerDetails.offers.map((o, index) => (

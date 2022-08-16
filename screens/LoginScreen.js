@@ -51,7 +51,7 @@ const LoginScreen = ({ navigation }) => {
                     source={require('../assets/app-icon.png')}
                     style={styles.logo}
                 />
-                <Text style={styles.text}>{'DietPeeps'}</Text>
+                <Text style={styles.text}>{'Personal Diet Coach'}</Text>
 
                 <FormInput
                     labelValue={email}

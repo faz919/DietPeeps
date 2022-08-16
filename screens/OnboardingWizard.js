@@ -173,7 +173,7 @@ const OnboardingWizard = ({ navigation }) => {
     // on what page does the user pick meal times. important because the functionality of the continue button is different on this page
     const mealPickerScreen = 7
     const referralCodeScreen = 8
-    const [formPage, setFormPage] = useState(null)
+    const [formPage, setFormPage] = useState('no page')
     // is current wizard synced with responses fetched from asyncstorage
     const [synced, setSynced] = useState(false)
     const insets = useSafeAreaInsets()
@@ -252,9 +252,9 @@ const OnboardingWizard = ({ navigation }) => {
             }, 3000)
         }
         mixpanel.track('Onboarding Wizard Screen View', { 'Screen': formPage })
-        analytics().logScreenView({
-            screen_name: formPage
-        })
+        // analytics().logScreenView({
+        //     screen_name: formPage
+        // })
     }, [formPage])
 
     const finishForm = async () => {
@@ -690,7 +690,7 @@ const OnboardingWizard = ({ navigation }) => {
                                         disableAnimation={false}
                                     />
                                 }
-                                {formPage === 'trialPrice' &&
+                                {formPage === 'trialPrice' && optionalTrialPriceChoices.length > 0 &&
                                     <TrialPricePage
                                         key={'trialPrice'}
                                         trialPrices={optionalTrialPriceChoices}

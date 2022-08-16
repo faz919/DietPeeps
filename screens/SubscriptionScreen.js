@@ -151,11 +151,11 @@ const SubscriptionScreen = ({ navigation, route }) => {
                         </View>
                     </View>
                     <View style={styles.ViewsW}>
-                        {trialReminder > 0 && trialReminder !== 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Hey there! You have {14 - trialReminder} days remaining in your free trial. Become a DietPeeps Subscriber to receive:</Text>
+                        {trialReminder > 0 && trialReminder !== 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Hey there! You have {14 - trialReminder} days remaining in your free trial. Become a Personal Diet Coach Subscriber to receive:</Text>
                         :
-                        trialReminder === 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Enjoying DietPeeps? Become a Subscriber today to receive:</Text>
+                        trialReminder === 'none' ? <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Enjoying Personal Diet Coach? Become a Subscriber today to receive:</Text>
                         :
-                        <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Hey there! Looks like your free trial period is finished. Become a DietPeeps Subscriber to receive:</Text>
+                        <Text style={{ textAlign: 'center', fontSize: 17, color: '#202060', marginBottom: 12, fontWeight: '600' }}>Hey there! Looks like your free trial period is finished. Become a Personal Diet Coach Subscriber to receive:</Text>
                         }
                         {promoText.map((text, index) =>
                             <View style={styles.Viewvs} key={index}>

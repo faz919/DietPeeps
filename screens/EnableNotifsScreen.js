@@ -85,7 +85,7 @@ const EnableNotifsScreen = ({ navigation }) => {
                 { color: '#202060' },
               ]}
             >
-              {alreadyRequested ? 'Enable Notifications' : 'Welcome to DietPeeps'}
+              {alreadyRequested ? 'Enable Notifications' : 'Welcome to Personal Diet Coach'}
             </Text>
           </View>
 

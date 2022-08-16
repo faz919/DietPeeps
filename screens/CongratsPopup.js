@@ -27,7 +27,7 @@ const CongratsPopup = ({ navigation, route }) => {
             congratsMessage = 'Another day, another image! Keep it going!'
             break
         case 'subscribed':
-            congratsTitle = 'Welcome to DietPeeps!'
+            congratsTitle = 'Welcome to Personal Diet Coach!'
             congratsMessage = "We're so glad to have you here!"
             break
         case 'weighedIn':
@@ -36,7 +36,7 @@ const CongratsPopup = ({ navigation, route }) => {
             break
         case 'paidForTrial':
             congratsTitle = 'Thanks!'
-            congratsMessage = 'Thanks so much for supporting DietPeeps!'
+            congratsMessage = 'Thanks so much for supporting Personal Diet Coach!'
         default:
             congratsTitle = 'Well done!'
             congratsMessage = "Keep up the good work!"

@@ -46,7 +46,7 @@ const TrialPeriodFinishedScreen = ({ navigation, showExtraDaysButton, giveExtraT
                     size={windowWidth * 0.4}
                     color='#848299'
                 />
-                <Text style={{ fontSize: 18, color: '#fff', textAlign: 'center' }}>Your free trial has expired. Become a Subscriber to DietPeeps to enable the chat with your personal coach.</Text>
+                <Text style={{ fontSize: 18, color: '#fff', textAlign: 'center' }}>Your free trial has expired. Become a Subscriber to Personal Diet Coach to enable the chat with your personal coach.</Text>
                 <TouchableOpacity
                     onPress={handleSubButtonPress}
                     style={[styles.ButtonSolidQB, { backgroundColor: 'transparent', opacity: 1 }]}

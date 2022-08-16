@@ -159,7 +159,7 @@ const IntroExplainerScreen = ({ navigation }) => {
                                             { color: '#202060', marginBottom: 20, marginTop: 5 },
                                         ]}
                                     >
-                                        {`DietPeeps gets you in touch with real human support.`}
+                                        {`Personal Diet Coach gets you in touch with real human support.`}
                                     </Text>
                                 </View>
                             </MotiView>

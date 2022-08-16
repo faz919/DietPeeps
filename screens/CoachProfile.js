@@ -39,7 +39,7 @@ const CoachProfile = ({ navigation }) => {
         </Text>
 
         <Text style={[styles.TextBM, { color: '#202060' }]}>
-          {globalVars.coachData.coachInfo?.bio || `Hey! I'm ${globalVars.coachData.displayName}. Welcome to DietPeeps!` }
+          {globalVars.coachData.coachInfo?.bio || `Hey! I'm ${globalVars.coachData.displayName}. Welcome to Personal Diet Coach!` }
         </Text>
         
         {globalVars.coachData.coachInfo?.interests && 

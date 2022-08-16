@@ -55,7 +55,7 @@ export default function MessageOptions({ message, handleReply, style, outgoing }
         }
         // set share options with custom messages if there are none
         const shareOptions = { 
-            message: message.msg ? `Check out this message from DietPeeps: ${message.msg}` : (message.img[0].graded ? `Check this out! My DietPeeps coach scored my meal and my score was ${message.img[0].grade}!` : message.userID === user.uid ? message.img?.length > 1 ? 'Check out these images from DietPeeps!' : 'Check out this image from DietPeeps!' : 'Check out this image from my DietPeeps coach!'), 
+            message: message.msg ? `Check out this message from Personal Diet Coach: ${message.msg}` : (message.img[0].graded ? `Check this out! My Personal Diet Coach scored my meal and my score was ${message.img[0].grade}!` : message.userID === user.uid ? message.img?.length > 1 ? 'Check out these images from Personal Diet Coach!' : 'Check out this image from Personal Diet Coach!' : 'Check out this image from my Personal Diet Coach!'), 
             urls: urlList
         }
         // share data
