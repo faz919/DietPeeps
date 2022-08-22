@@ -64,11 +64,11 @@ buck-out/
 GoogleService-Info.plist
 .env
 
-# Course data
-/data/CourseData.json
+# # Course data
+# /data/CourseData.json
 
-# Client testimonials
-/data/testimonials.js
+# # Client testimonials
+# /data/testimonials.js
 
-# RevenueCat API Keys
-/constants/constants.js
+# # RevenueCat API Keys
+# /constants/constants.js

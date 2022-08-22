@@ -1,0 +1,7 @@
+export const IOS_API_KEY = 'appl_MqaPZmdSutRACTWxcpbGjHRoisB'
+export const ANDROID_API_KEY = 'goog_iPFTDEEHjZgLKcxZGzmrHqtTmTJ'
+export const ENTITLEMENT_ID = 'Subscriber'
+export const MIXPANEL_TOKEN = '4bd0ac037719c9d748b13c9692e38a0d'
+export const GOOGLE_SIGNIN_CONFIG_IOS = '202312705150-0as7142qafv5phn9a277jq7c90vtjq9k.apps.googleusercontent.com'
+export const GOOGLE_SIGNIN_CONFIG_ANDROID = '202312705150-63k1sau74drj13t0u8ptn01ubgh03534.apps.googleusercontent.com'
+export const NUM_PEOPLE_HELPED = '200+'
