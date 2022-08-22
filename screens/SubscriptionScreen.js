@@ -103,11 +103,13 @@ const SubscriptionScreen = ({ navigation, route }) => {
             //     setLoading(false)
             // }
         } catch (e) {
-            console.error('error while making purchase: ', e)
-            Alert.alert(
-                'Error while making purchase',
-                'Please try again later.'
-            )
+            console.error('error while making purchase: ', e.message)
+            if(e.message !== 'Purchase was cancelled.') {
+                Alert.alert(
+                    'Error while making purchase',
+                    'Please try again later.'
+                )
+            }
             setLoading(false)
         }
     }

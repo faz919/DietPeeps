@@ -91,7 +91,7 @@ const TrialPayPopup = ({ navigation }) => {
                     numberOfLines={13}
                     style={[
                         styles.headline1,
-                        { color: '#202060', fontSize: 20 },
+                        { color: '#202060', fontSize: 20, marginBottom: 10 },
                     ]}
                 >
                     We hope that you're enjoying your Personal Diet Coach free trial. Your coach is working hard to help you reach your wellness goals and is rooting for you!
@@ -99,7 +99,7 @@ const TrialPayPopup = ({ navigation }) => {
                     Would you like to tip your coach for the trial? It costs us {trialPrices[trialPrices?.length - 1]?.product.price_string} to compensate our Personal Diet Coach employees for the trial, but please choose the amount you are comfortable with.
                 </Text>
             </View>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 20 }}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 10 }}>
                 {trialPrices?.map((option, index) => (
                     <View key={index} style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', opacity: 1 }}>
                         <MotiView
@@ -162,7 +162,7 @@ const TrialPayPopup = ({ navigation }) => {
                     onPress={() => selectedPrice == null ? showError(true) : handleTrialPay(selectedPrice)}
                     style={[
                         styles.ButtonSolidQB,
-                        { backgroundColor: '#4C44D4', marginTop: 20 },
+                        { backgroundColor: '#4C44D4', marginTop: 10 },
                     ]}
                 >
                     {loading ? 

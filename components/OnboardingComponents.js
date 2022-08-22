@@ -690,10 +690,10 @@ const DetailedExplainerPage = ({ onContinue }) => {
                     <MotiView key={`detailedExplainerPage1`} from={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ marginHorizontal: 32 }}>
                         <Text
                             adjustsFontSizeToFit
-                            numberOfLines={1}
+                            numberOfLines={2}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', maxHeight: windowHeight * (70/844) },
+                                { color: '#202060', maxHeight: windowHeight * (60/844), marginTop: -5 },
                             ]}
                         >
                             {'What you get with Personal Diet Coach:'}
@@ -1064,17 +1064,29 @@ const MealPhotoExplainerPage = ({ onContinue }) => {
                         >
                             {'Why send a photo of my meal?'}
                         </Text>
-                        <MotiImage from={{ translateY: 20, opacity: 0 }} animate={{ translateY: 0, opacity: 1 }} transition={{ type: 'timing' }} source={ClevelandClinic} style={{ width: 60, height: 60 }} />
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                            <MotiImage from={{ translateY: 20, opacity: 0 }} animate={{ translateY: 0, opacity: 1 }} transition={{ type: 'timing' }} source={ClevelandClinic} style={{ width: 60, height: 60 }} />
+                            <Text
+                                adjustsFontSizeToFit
+                                numberOfLines={4}
+                                style={[
+                                    styles.headline1,
+                                    { color: '#202060', fontSize: 16, fontWeight: '500', width: windowWidth - 134, textAlign: 'left', marginLeft: 10, marginBottom: 0, marginTop: 0 },
+                                ]}
+                            >
+                                <Text style={{ fontWeight: '700' }}>Cleveland Clinic </Text>
+                                found that it took about 15 minutes a day for the participants to log their meals. It was noted that participants who
+                            </Text>
+                        </View>
                         <Text
                             adjustsFontSizeToFit
-                            numberOfLines={7}
+                            numberOfLines={3}
                             style={[
                                 styles.headline1,
-                                { color: '#202060', fontSize: 16, fontWeight: '500', width: windowWidth - 64, textAlign: 'left', marginBottom: 10 },
+                                { color: '#202060', fontSize: 16, fontWeight: '500', width: windowWidth - 64, textAlign: 'left', marginTop: 0, marginBottom: 10 },
                             ]}
                         >
-                            <Text style={{ fontWeight: '700' }}>Cleveland Clinic </Text>
-                            found that it took about 15 minutes a day for the participants to log their meals. It was noted that participants who consistently logged their meals experienced more weight loss than those who didn't.
+                            consistently logged their meals experienced more weight loss than those who didn't.
                         </Text>
                         <View style={{ backgroundColor: '#BDB9DB', borderRadius: 20, padding: 15, justifyContent: 'flex-start', alignItems: 'center' }}>
                             <Text
@@ -1637,7 +1649,7 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                     numberOfLines={13}
                     style={[
                         styles.headline1,
-                        { color: '#202060', fontSize: 20 },
+                        { color: '#202060', fontSize: 20, marginBottom: 10 },
                     ]}
                 >
                     We understand that times may be difficult as a result of the recent global pandemic. So, we are offering the option to try Personal Diet Coach free of charge.
@@ -1645,7 +1657,7 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                     It costs us {trialPrices[trialPrices.length - 1].product.price_string} to compensate our Personal Diet Coach employees for the trial, but please choose the amount you are comfortable with.
                 </Text>
             </View>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 20 }}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', marginVertical: 10 }}>
                 {trialPrices?.map((option, index) => (
                     <View key={index} pointerEvents={paidForTrial ? 'none' : 'auto'} style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', opacity: paidForTrial ? 0.5 : 1 }}>
                         <MotiView
@@ -1715,7 +1727,7 @@ const TrialPricePage = ({ trialPrices, purchaseTrial, paidForTrial, loading, onC
                     onPress={() => selectedPrice != null && purchaseTrial(selectedPrice)}
                     style={[
                         styles.ButtonSolidQB,
-                        { backgroundColor: '#4C44D4', marginTop: 20 },
+                        { backgroundColor: '#4C44D4', marginTop: 10 },
                     ]}
                 >
                     {loading ? 
@@ -1845,12 +1857,20 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                         </MotiText>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', marginVertical: 20 }}>
                             {offerSheet.map((offerDetails, index) => (
-                                <MotiView 
-                                    key={index} 
-                                    from={{ opacity: 0, translateY: 20 }} 
-                                    animate={{ opacity: offerDetails.paid ? 1 : 0.7, translateY: offerDetails.paid ? -10 : 10 }} 
-                                    transition={{ type: 'timing', delay: 900 + (200 * index) }} 
-                                    style={{ borderRadius: 20, borderWidth: 1, borderColor: '#202060', backgroundColor: '#fff', padding: 10, justifyContent: 'center', alignItems: 'center', maxWidth: (windowWidth / 2 - 25),
+                                <MotiView
+                                    key={index}
+                                    from={{ opacity: 0, translateY: 20 }}
+                                    animate={{ opacity: offerDetails.paid ? 1 : 0.7, translateY: offerDetails.paid ? -10 : 10 }}
+                                    transition={{ type: 'timing', delay: 900 + (200 * index) }}
+                                    style={{ 
+                                        borderRadius: 20,
+                                        borderWidth: 1,
+                                        borderColor: '#202060',
+                                        backgroundColor: '#fff',
+                                        padding: 10,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        maxWidth: (windowWidth / 2 - 25),
                                         shadowColor: '#000000',
                                         shadowOffset: { width: 0, height: 10 },
                                         shadowRadius: 5,
@@ -1858,13 +1878,19 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                                         elevation: offerDetails.paid ? 5 : 0
                                     }}
                                 >
-                                    <Text style={{ color: '#202060', fontSize: 18 }}>Personal Diet Coach</Text>
+                                    <Text 
+                                        adjustsFontSizeToFit
+                                        numberOfLines={1}
+                                        style={{ color: '#202060', fontSize: 18, textAlign: 'center' }}
+                                    >
+                                        Personal Diet Coach
+                                    </Text>
                                     <Text style={{ color: '#202060', fontSize: 22 }}>{offerDetails.name}</Text>
                                     <View style={{ alignItems: 'flex-start' }}>
                                     {offerDetails.offers.map((o, index) => (
                                         <View key={index} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                             <Icon
-                                                name={'checkmark'}
+                                                name={o.included ? 'checkmark' : 'close-outline'}
                                                 size={20}
                                                 color={o.included ? '#4C44D4' : '#BDB9DB'}
                                             />
@@ -1933,7 +1959,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                         {faq.map((question, index) => (
                             <React.Fragment key={index}>
                                 <TouchableOpacity activeOpacity={0.8} onPress={() => toggle(index)} style={{ paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', height: 70 }}>
-                                    <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.loadingScreenText, { marginVertical: 20, fontSize: 25, maxWidth: '80%' }]}>
+                                    <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.loadingScreenText, { marginVertical: 20, fontSize: 24, maxWidth: '80%' }]}>
                                         {question.question}
                                     </Text>
                                     <Icon 
@@ -1973,7 +1999,7 @@ const WizardFinalPage = ({ handleSubButtonPress, finishForm }) => {
                                                 marginVertical: 10
                                             }}
                                         >
-                                            <Text numberOfLines={10} adjustsFontSizeToFit style={{ lineHeight: 20, fontSize: 18, color: '#202060', textAlign: 'left' }}>
+                                            <Text numberOfLines={15} adjustsFontSizeToFit style={{ fontSize: 18, color: '#202060', textAlign: 'left' }}>
                                                 {question.answer}
                                             </Text>
                                         </MotiView>
