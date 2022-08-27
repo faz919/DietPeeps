@@ -70,5 +70,5 @@ GoogleService-Info.plist
 # # Client testimonials
 # /data/testimonials.js
 
-# # RevenueCat API Keys
-# /constants/constants.js
+# RevenueCat API Keys
+/constants/constants.js

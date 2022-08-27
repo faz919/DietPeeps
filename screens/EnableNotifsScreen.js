@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity, Linking } from 'react-native'
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity, Linking, ImageBackground } from 'react-native'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { windowWidth } from '../utils/Dimensions.js'
 import { requestUserPermission } from '../utils/notificationServices.js'
 import { AuthContext } from '../navigation/AuthProvider.js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import messaging from '@react-native-firebase/messaging'
+import AppIcon from '../assets/app-icon.png'
 
 const EnableNotifsScreen = ({ navigation }) => {
 
@@ -27,17 +28,16 @@ const EnableNotifsScreen = ({ navigation }) => {
   }, [])
 
   const requestPermission = async () => {
-    const alreadyEnabled = await AsyncStorage.getItem('@notifs_enabled')
-    // if they've been prompted already, take them to settings for them to finish notification enabling process
-    // this is necessary as the prompt will not pop up again
-    if (alreadyEnabled != null || alreadyRequested) {
-      Linking.openSettings('app-settings://notifications')
-      navigation.replace('Main Menu')
-      return
-    }
     // otherwise go through the motions
     // if(alreadyEnabled == null) {
       const result = await requestUserPermission()
+      // if they've been prompted already, take them to settings for them to finish notification enabling process
+      // this is necessary as the prompt will not pop up again
+      if (!result) {
+        Linking.openSettings('app-settings://notifications')
+        navigation.replace('Main Menu')
+        return
+      }
       updateInfo({ notificationsEnabled: result })
       AsyncStorage.setItem('@notifs_enabled', JSON.stringify(result))
       setGlobalVars(val => ({...val, notificationsEnabled: result}))
@@ -73,10 +73,10 @@ const EnableNotifsScreen = ({ navigation }) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
       <ScrollView contentContainerStyle={styles.ScrollViewUJContent} overScrollMode={'never'} bounces={false}>
         <View style={styles.ViewT7}>
-          <Image
-            style={styles.Imaget6}
-            resizeMode={'contain'}
-            source={require('../assets/app-icon.png')}
+          <ImageBackground
+            source={AppIcon}
+            imageStyle={styles.logo}
+            style={styles.logoView}
           />
           <View style={styles.ViewD2}>
             <Text
@@ -194,10 +194,19 @@ const EnableNotifsScreen = ({ navigation }) => {
 }
 
 const styles = StyleSheet.create({
-  Imaget6: {
+  logo: {
     width: windowWidth * 0.24,
     height: windowWidth * 0.24,
-    marginLeft: -(windowWidth * 0.04)
+    borderRadius: windowWidth * 0.06,
+  },
+  logoView: {
+    width: windowWidth * 0.24,
+    height: windowWidth * 0.24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 5,
+    shadowOpacity: 0.4,
+    elevation: 10
   },
   ViewD2: {
     alignItems: 'flex-start',

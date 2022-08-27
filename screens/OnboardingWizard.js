@@ -271,7 +271,15 @@ const OnboardingWizard = ({ navigation }) => {
 
     const handleSubButtonPress = () => {
         mixpanel.track('Clicked Subscribe Button')
-        finishForm()
+        setGlobalVars(val => ({ ...val, userBioData: formResponses }))
+        if (user) {
+            updateInfo({ userBioData: formResponses })
+            formResponses.referralCode && mixpanel.getPeople().set('Referral Code', formResponses.referralCode)
+        }
+        // this is the new method of checking whether user has completed onb wizard, old method had redirect bug
+        AsyncStorage.setItem('hasCompletedWizard', 'true')
+        // user pressed sub button, so navigate them to sub page
+        navigation.navigate('Subscription', { trialReminder: 'none' })
     }
 
     // useEffect(() => {

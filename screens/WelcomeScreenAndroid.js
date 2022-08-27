@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native'
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View, TouchableOpacity, Platform, ImageBackground } from 'react-native'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { windowWidth } from '../utils/Dimensions.js'
 import requestUserPermission from '../utils/notificationServices.js'
@@ -50,10 +50,10 @@ const WelcomeScreen = ({ navigation }) => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#e6e7fa' }}>
       <ScrollView contentContainerStyle={styles.ScrollViewUJContent} overScrollMode={'never'} bounces={false}>
         <View style={styles.ViewT7}>
-          <Image
-            style={styles.Imaget6}
-            resizeMode={'contain'}
-            source={require('../assets/app-icon.png')}
+          <ImageBackground
+            source={AppIcon}
+            imageStyle={styles.logo}
+            style={styles.logoView}
           />
           <View style={styles.ViewD2}>
             <Text
@@ -165,10 +165,19 @@ const WelcomeScreen = ({ navigation }) => {
 }
 
 const styles = StyleSheet.create({
-  Imaget6: {
+  logo: {
     width: windowWidth * 0.24,
     height: windowWidth * 0.24,
-    marginLeft: -(windowWidth * 0.04)
+    borderRadius: windowWidth * 0.06,
+  },
+  logoView: {
+    width: windowWidth * 0.24,
+    height: windowWidth * 0.24,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 5,
+    shadowOpacity: 0.4,
+    elevation: 10
   },
   ViewD2: {
     alignItems: 'flex-start',

@@ -83,7 +83,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
 
     const handleNotNowPress = () => {
         mixpanel.track('Pressed "Not Now" in subscription page')
-        navigation.pop()
+        navigation.pop() || navigation.navigate('Main Menu')
     }
 
     const buySubscription = async (subscription) => {
@@ -148,8 +148,10 @@ const SubscriptionScreen = ({ navigation, route }) => {
                 <View style={styles.ViewT7}>
                     <View style={{ borderRadius: windowHeight / 20, borderWidth: 1, borderColor: '#202060', justifyContent: 'center', alignItems: 'center', height: windowHeight / 10, minWidth: windowWidth / 2, paddingHorizontal: 20, marginVertical: windowHeight > 700 ? 0 : windowHeight / 20 }}>
                         <View style={{ justifyContent: 'flex-end', alignItems: 'center', flexDirection: 'row', height: windowHeight / 10 }}>
-                            {subscription && <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: '#202060', fontSize: windowHeight / 15, maxHeight: windowHeight / 15 }}>{(subscription.product?.price_string)}</Text>}
-                            <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>/month</Text>
+                            {subscription && <>
+                                <Text adjustsFontSizeToFit numberOfLines={1} style={{ color: '#202060', fontSize: windowHeight / 15, maxHeight: windowHeight / 15 }}>{(subscription.product?.price_string)}</Text>
+                                <Text style={{ color: '#202060', fontSize: windowHeight / 40, lineHeight: windowHeight / 40 }}>/month</Text>
+                            </>}
                         </View>
                     </View>
                     <View style={styles.ViewsW}>

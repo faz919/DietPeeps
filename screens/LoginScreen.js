@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { ScrollView, Text, TouchableOpacity, Image, StyleSheet, Platform, SafeAreaView } from 'react-native'
+import { ScrollView, Text, TouchableOpacity, Image, StyleSheet, Platform, SafeAreaView, ImageBackground } from 'react-native'
 import FormInput from '../components/FormInput'
 import FormButton from '../components/FormButton'
 import SocialButton from '../components/SocialButton'
 import { AuthContext } from '../navigation/AuthProvider';
 import { windowHeight } from '../utils/Dimensions'
+import AppIcon from '../assets/app-icon.png'
+import { MotiView } from 'moti'
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('')
@@ -47,12 +49,12 @@ const LoginScreen = ({ navigation }) => {
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
-                <Image
-                    source={require('../assets/app-icon.png')}
-                    style={styles.logo}
+                <ImageBackground
+                    source={AppIcon}
+                    imageStyle={styles.logo}
+                    style={styles.logoView}
                 />
-                <Text style={styles.text}>{'Personal Diet Coach'}</Text>
-
+                <Text numberOfLines={2} adjustsFontSizeToFit style={styles.text}>Personal{`\n`}Diet Coach</Text>
                 <FormInput
                     labelValue={email}
                     onChangeText={(userEmail) => setEmail(userEmail)}
@@ -123,9 +125,21 @@ const styles = StyleSheet.create({
     logo: {
         height: 120,
         width: 120,
+        borderRadius: 30,
+    },
+    logoView: {
+        height: 120, 
+        width: 120,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 5 },
+        shadowRadius: 5,
+        shadowOpacity: 0.4,
+        elevation: 10
     },
     text: {
-        fontSize: 28,
+        textAlign: 'center',
+        marginTop: 20,
+        fontSize: 36,
         marginBottom: 20,
         color: '#202060',
         fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal'
