@@ -5,7 +5,7 @@ import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, Linking, Switch
 import { AuthContext } from '../navigation/AuthProvider'
 import { windowHeight, windowWidth } from '../utils/Dimensions'
 import BackButton from '../components/BackButton.js'
-import requestUserPermission from '../utils/notificationServices';
+import { requestUserPermission } from '../utils/notificationServices'
 
 const NotificationSettings = ({ navigation }) => {
 
@@ -37,6 +37,7 @@ const NotificationSettings = ({ navigation }) => {
     const toggleNotifications = (enabled) => {
         setNotificationsEnabled(!notificationsEnabled)
         setToggling(true)
+        requestUserPermission()
         Alert.alert(
             'Action required',
             'Please toggle notifications in your app settings.',

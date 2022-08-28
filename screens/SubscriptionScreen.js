@@ -22,7 +22,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
             try {
                 if (trialReminder && trialReminder !== 'none') {
                     AsyncStorage.getItem('days_reminded').then((value) => {
-                        console.log(value)
+                        // console.log(value)
                         if (value == null) {
                             AsyncStorage.setItem('days_reminded', '[]')
                         } else {
@@ -56,7 +56,7 @@ const SubscriptionScreen = ({ navigation, route }) => {
     const fetchOfferings = async () => {
         try {
             const subscriptions = await Purchases.getOfferings()
-            console.log(subscriptions.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')))
+            // console.log(subscriptions.current.availablePackages.filter((pkg) => pkg.identifier.includes('trial')))
             subscriptions.current.availablePackages.find((pkg) => pkg.identifier === '$rc_monthly') != null && setSubscription(subscriptions.current.availablePackages.find((pkg) => pkg.identifier === '$rc_monthly'))
             setLoading(false)
         } catch (e) {
