@@ -45,7 +45,7 @@ const Routes = () => {
               screen_name: currentRouteName,
               screen_class: currentRouteName
             })
-            mixpanel.track('Screen View', { 'Screen': currentRouteName })
+            mixpanel.track(currentRouteName)
           } catch (e) {
             console.error('error while screen tracking: ', e)
           }

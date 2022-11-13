@@ -251,7 +251,7 @@ const OnboardingWizard = ({ navigation }) => {
                 setFormPage('coachProfile')
             }, 3000)
         }
-        mixpanel.track('Onboarding Wizard Screen View', { 'Screen': formPage })
+        mixpanel.track(formPage.toString())
         // analytics().logScreenView({
         //     screen_name: formPage
         // })

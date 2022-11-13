@@ -48,7 +48,7 @@ const SignupScreen = ({ navigation }) => {
             setErrorText("Email must be valid.")
         } else {
             setErrorText("")
-            register(name, email, password)
+            register(name.trim(), email.trim(), password)
             setGlobalVars(val => ({...val, loggingIn: true}))
         }
     }

@@ -89,7 +89,7 @@ const PhotoGallery = ({ navigation, route }) => {
             screen_name: 'GalleryImage',
             screen_class: 'GalleryImage'
         })
-        mixpanel.track('Screen View', { 'Screen': 'GalleryImage' })
+        mixpanel.track('GalleryImage')
         getImageDetail(item)
     }
 

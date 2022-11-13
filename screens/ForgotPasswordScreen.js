@@ -31,7 +31,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
       setErrorText("Please enter your email.")
     } else {
       setErrorText("")
-      forgotPassword(email)
+      forgotPassword(email.trim())
     }
   }
 

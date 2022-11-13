@@ -41,7 +41,7 @@ const LoginScreen = ({ navigation }) => {
             setErrorText("Please enter a valid email.")
         } else {
             setErrorText("")
-            login(email, password)
+            login(email.trim(), password)
             setGlobalVars(val => ({...val, loggingIn: true}))
         }
     }
@@ -83,7 +83,7 @@ const LoginScreen = ({ navigation }) => {
 
                 <FormButton
                     buttonTitle="Sign In"
-                    onPress={() => runChecks()}
+                    onPress={runChecks}
                 />
                 {Platform.OS === 'ios' ? 
                 <SocialButton

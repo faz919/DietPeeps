@@ -392,8 +392,8 @@ const Chat = ({ navigation, route }) => {
                             deviceID: DeviceInfo.getUniqueId()
                         }
                         const appInfo = {
-                            versionName: '1.054',
-                            versionCode: 25
+                            versionName: '1.057',
+                            versionCode: 28
                         }
                         // check if user has null display name, photo url, or email
                         usr.displayName !== user.displayName && updateInfo({ displayName: user.displayName })
@@ -985,7 +985,7 @@ const Chat = ({ navigation, route }) => {
             screen_name: 'CameraModalChatButton',
             screen_class: 'CameraModalChatButton'
         })
-        mixpanel.track('Screen View', { 'Screen': 'CameraModalChatButton' })
+        mixpanel.track('CameraModalChatButton')
         navigation.navigate('CameraModal')
     }
 
